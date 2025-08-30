@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/contexts/auth-context";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Layout } from "@/components/layout/layout";
 import HomePage from "./pages/home";
 import NotFound from "./pages/NotFound";
@@ -18,38 +20,47 @@ import CheckoutPage from "./pages/checkout";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import ForgotPasswordPage from "./pages/auth/forgot-password";
+import DashboardPage from "./pages/dashboard/dashboard";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="algo-trading-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/products/ea-titanx" element={<EATitanXPage />} />
-              <Route path="/products/ea-quantumedge" element={<EAQuantumEdgePage />} />
-              <Route path="/products/ea-velocitypro" element={<EAVelocityProPage />} />
-              <Route path="/development" element={<EADevelopmentPage />} />
-              <Route path="/affiliate-program" element={<AffiliateProgramPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
-              <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/products/ea-titanx" element={<EATitanXPage />} />
+                  <Route path="/products/ea-quantumedge" element={<EAQuantumEdgePage />} />
+                  <Route path="/products/ea-velocitypro" element={<EAVelocityProPage />} />
+                  <Route path="/development" element={<EADevelopmentPage />} />
+                  <Route path="/affiliate-program" element={<AffiliateProgramPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="/support" element={<SupportPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/auth/login" element={<LoginPage />} />
+                  <Route path="/auth/register" element={<RegisterPage />} />
+                  <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Layout>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  )
+}
 
 export default App;

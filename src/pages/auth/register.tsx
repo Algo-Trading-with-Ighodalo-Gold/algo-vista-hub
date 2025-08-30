@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { Eye, EyeOff, CheckCircle, X, Github, Mail, User, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/auth-context"
 
 const passwordRequirements = [
   { text: "At least 8 characters", regex: /.{8,}/ },
@@ -25,13 +25,21 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    agreeTerms: false,
+    agreeToTerms: false,
     agreeMarketing: false
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
+  const { signUp, user } = useAuth()
+  const navigate = useNavigate()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [user, navigate])
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -54,51 +62,47 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.agreeTerms) {
-      toast({
-        title: "Terms Required",
-        description: "Please agree to the Terms and Conditions to continue.",
-        variant: "destructive"
-      })
+    if (!formData.agreeToTerms) {
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match. Please try again.",
-        variant: "destructive"
-      })
       return
     }
 
     if (getPasswordStrength() < 60) {
-      toast({
-        title: "Weak Password",
-        description: "Please choose a stronger password that meets the requirements.",
-        variant: "destructive"
-      })
       return
     }
 
     setIsLoading(true)
-
-    // Simulate registration process
-    setTimeout(() => {
+    
+    try {
+      const { error } = await signUp(
+        formData.email, 
+        formData.password, 
+        formData.firstName, 
+        formData.lastName
+      )
+      
+      if (!error) {
+        // User will be redirected after email confirmation
+        navigate('/auth/login', { replace: true })
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+    } finally {
       setIsLoading(false)
-      toast({
-        title: "Account Created!",
-        description: "Please check your email to verify your account.",
-      })
-      // In real app, redirect to email verification page
-    }, 2000)
+    }
   }
 
-  const handleSocialLogin = (provider: string) => {
-    toast({
-      title: `${provider} Registration`,
-      description: `Redirecting to ${provider} authentication...`,
-    })
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
+    try {
+      // Note: Social login providers need to be configured in Supabase
+      // For now, we'll show a placeholder message
+      console.log(`${provider} login not yet configured`)
+    } catch (error) {
+      console.error('Social login error:', error)
+    }
   }
 
   const strengthInfo = getPasswordStrengthLabel()
@@ -119,7 +123,7 @@ export default function RegisterPage() {
               <Button 
                 variant="outline" 
                 className="w-full hover-scale"
-                onClick={() => handleSocialLogin('Google')}
+                onClick={() => handleSocialLogin('google')}
               >
                 <Mail className="h-4 w-4 mr-2" />
                 Sign up with Google
@@ -127,7 +131,7 @@ export default function RegisterPage() {
               <Button 
                 variant="outline" 
                 className="w-full hover-scale"
-                onClick={() => handleSocialLogin('GitHub')}
+                onClick={() => handleSocialLogin('github')}
               >
                 <Github className="h-4 w-4 mr-2" />
                 Sign up with GitHub
@@ -274,8 +278,8 @@ export default function RegisterPage() {
                 <div className="flex items-start space-x-2">
                   <Checkbox
                     id="terms"
-                    checked={formData.agreeTerms}
-                    onCheckedChange={(checked) => handleInputChange('agreeTerms', checked as boolean)}
+                    checked={formData.agreeToTerms}
+                    onCheckedChange={(checked) => handleInputChange('agreeToTerms', checked as boolean)}
                   />
                   <Label htmlFor="terms" className="text-sm leading-relaxed">
                     I agree to the{" "}

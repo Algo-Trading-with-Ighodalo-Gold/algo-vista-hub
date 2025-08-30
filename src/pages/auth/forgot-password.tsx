@@ -1,80 +1,77 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { ArrowLeft, Mail, CheckCircle } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
+import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const { toast } = useToast()
+  const { resetPassword } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
-    // Simulate password reset process
-    setTimeout(() => {
+    
+    try {
+      const { error } = await resetPassword(email)
+      
+      if (!error) {
+        setIsSubmitted(true)
+      }
+    } catch (error) {
+      console.error('Password reset error:', error)
+    } finally {
       setIsLoading(false)
-      setIsSubmitted(true)
-      toast({
-        title: "Reset Link Sent!",
-        description: "Check your email for password reset instructions.",
-      })
-    }, 1500)
+    }
   }
 
   if (isSubmitted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
         <div className="w-full max-w-md">
-          <Card className="animate-fade-in text-center">
-            <CardHeader>
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
-                <CheckCircle className="h-8 w-8 text-success" />
+          <Card className="animate-fade-in">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
+                <CheckCircle2 className="h-6 w-6 text-success" />
               </div>
               <CardTitle className="text-2xl">Check Your Email</CardTitle>
               <CardDescription>
-                We've sent password reset instructions to:
-                <br />
-                <strong className="text-foreground">{email}</strong>
+                We've sent a password reset link to <strong>{email}</strong>
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4 text-sm text-muted-foreground">
-                <p>
-                  Click the link in the email to reset your password. If you don't see the email, 
-                  check your spam folder.
-                </p>
-                <p>
-                  The reset link will expire in 1 hour for security reasons.
+            <CardContent className="space-y-4">
+              <div className="text-center text-sm text-muted-foreground">
+                <p>Click the link in your email to reset your password.</p>
+                <p className="mt-2">
+                  Don't see the email? Check your spam folder or{" "}
+                  <button
+                    onClick={() => setIsSubmitted(false)}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    try a different email address
+                  </button>
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => {
-                    setIsSubmitted(false)
-                    setEmail("")
-                  }}
-                  variant="outline" 
-                  className="w-full hover-scale"
-                >
-                  Try Different Email
-                </Button>
-                <Button asChild className="w-full hover-scale">
+              <Separator />
+
+              <div className="flex flex-col gap-3">
+                <Button asChild variant="outline" className="w-full">
                   <Link to="/auth/login">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Login
                   </Link>
                 </Button>
               </div>
 
-              <div className="text-xs text-muted-foreground">
-                Still having trouble?{" "}
+              <div className="text-center text-xs text-muted-foreground">
+                Need help?{" "}
                 <Link to="/support" className="text-primary hover:underline">
                   Contact Support
                 </Link>
@@ -89,21 +86,11 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
-        <div className="mb-6 animate-fade-in">
-          <Link 
-            to="/auth/login" 
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Login
-          </Link>
-        </div>
-
-        <Card className="animate-fade-in [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
+        <Card className="animate-fade-in">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Forgot Your Password?</CardTitle>
+            <CardTitle className="text-2xl">Reset Your Password</CardTitle>
             <CardDescription>
-              No worries! Enter your email address and we'll send you instructions to reset your password.
+              Enter your email address and we'll send you a link to reset your password
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -116,8 +103,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="Enter your registered email"
-                  autoFocus
+                  placeholder="your@email.com"
                 />
               </div>
 
@@ -141,28 +127,29 @@ export default function ForgotPasswordPage() {
               </Button>
             </form>
 
-            <div className="text-center text-sm text-muted-foreground">
+            <Separator />
+
+            <div className="text-center">
+              <Button asChild variant="ghost" className="w-full">
+                <Link to="/auth/login">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Login
+                </Link>
+              </Button>
+            </div>
+
+            <div className="text-center text-xs text-muted-foreground">
               Remember your password?{" "}
               <Link to="/auth/login" className="text-primary hover:underline font-medium">
                 Sign in
               </Link>
+              {" • "}
+              <Link to="/support" className="text-primary hover:underline">
+                Contact Support
+              </Link>
             </div>
           </CardContent>
         </Card>
-
-        <div className="mt-8 text-center text-xs text-muted-foreground animate-fade-in [animation-delay:0.3s] opacity-0 [animation-fill-mode:forwards]">
-          <div className="space-y-2">
-            <p>
-              For security reasons, password reset links expire after 1 hour.
-            </p>
-            <p>
-              Need help?{" "}
-              <Link to="/support" className="text-primary hover:underline">
-                Contact our support team
-              </Link>
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   )

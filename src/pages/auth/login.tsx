@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { Eye, EyeOff, ArrowRight, Github, Mail, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -17,7 +17,18 @@ export default function LoginPage() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
+  const { signIn, user } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const from = location.state?.from?.pathname || '/dashboard'
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true })
+    }
+  }, [user, navigate, from])
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -27,22 +38,28 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      const { error } = await signIn(formData.email, formData.password)
+      
+      if (!error) {
+        // Redirect to intended page or dashboard
+        navigate(from, { replace: true })
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+    } finally {
       setIsLoading(false)
-      toast({
-        title: "Login Successful!",
-        description: "Welcome back to your trading dashboard.",
-      })
-      // In real app, redirect to dashboard
-    }, 1500)
+    }
   }
 
-  const handleSocialLogin = (provider: string) => {
-    toast({
-      title: `${provider} Login`,
-      description: `Redirecting to ${provider} authentication...`,
-    })
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
+    try {
+      // Note: Social login providers need to be configured in Supabase
+      // For now, we'll show a placeholder message
+      console.log(`${provider} login not yet configured`)
+    } catch (error) {
+      console.error('Social login error:', error)
+    }
   }
 
   return (
@@ -61,7 +78,7 @@ export default function LoginPage() {
               <Button 
                 variant="outline" 
                 className="w-full hover-scale"
-                onClick={() => handleSocialLogin('Google')}
+                onClick={() => handleSocialLogin('google')}
               >
                 <Mail className="h-4 w-4 mr-2" />
                 Continue with Google
@@ -69,7 +86,7 @@ export default function LoginPage() {
               <Button 
                 variant="outline" 
                 className="w-full hover-scale"
-                onClick={() => handleSocialLogin('GitHub')}
+                onClick={() => handleSocialLogin('github')}
               >
                 <Github className="h-4 w-4 mr-2" />
                 Continue with GitHub

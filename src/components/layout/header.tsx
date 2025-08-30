@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Menu, X, TrendingUp } from "lucide-react"
+import { Menu, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/auth-context"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
@@ -14,6 +15,7 @@ const navigation = [
 ]
 
 export function Header() {
+  const { user, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
 
@@ -47,12 +49,25 @@ export function Header() {
         <div className="flex items-center space-x-4">
           <ThemeToggle />
           <div className="hidden md:flex items-center space-x-2">
-            <Button variant="ghost" asChild>
-              <Link to="/auth/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/auth/register">Sign Up</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+                <Button variant="outline" onClick={signOut}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/auth/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/auth/register">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu */}
@@ -87,16 +102,34 @@ export function Header() {
                     </Link>
                   ))}
                   <div className="flex flex-col space-y-2 pt-4">
-                    <Button variant="ghost" asChild>
-                      <Link to="/auth/login" onClick={() => setIsOpen(false)}>
-                        Login
-                      </Link>
-                    </Button>
-                    <Button asChild>
-                      <Link to="/auth/register" onClick={() => setIsOpen(false)}>
-                        Sign Up
-                      </Link>
-                    </Button>
+                    {user ? (
+                      <>
+                        <Button variant="ghost" asChild>
+                          <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                            Dashboard
+                          </Link>
+                        </Button>
+                        <Button variant="outline" onClick={() => {
+                          signOut()
+                          setIsOpen(false)
+                        }}>
+                          Sign Out
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="ghost" asChild>
+                          <Link to="/auth/login" onClick={() => setIsOpen(false)}>
+                            Login
+                          </Link>
+                        </Button>
+                        <Button asChild>
+                          <Link to="/auth/register" onClick={() => setIsOpen(false)}>
+                            Sign Up
+                          </Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </nav>
               </div>
