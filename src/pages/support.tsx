@@ -1,0 +1,469 @@
+import { useState } from "react"
+import { Search, Mail, MessageSquare, Phone, Clock, CheckCircle, ArrowRight, FileText, Shield, Download, Users, Zap } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { useToast } from "@/hooks/use-toast"
+
+const faqCategories = [
+  {
+    title: "Getting Started",
+    questions: [
+      {
+        question: "How do I activate my EA license?",
+        answer: "After purchase, you'll receive a license key via email. Download the EA file, load it onto your MT5 platform, and enter the license key when prompted. The EA will automatically bind to your account number and hardware for security."
+      },
+      {
+        question: "Which brokers are compatible with your EAs?",
+        answer: "Our EAs work with all MT5 brokers. We recommend ECN brokers with low spreads for optimal performance. Popular compatible brokers include IC Markets, Pepperstone, FTMO, and most regulated brokers worldwide."
+      },
+      {
+        question: "What are the minimum system requirements?",
+        answer: "You need MetaTrader 5, Windows 7+ or VPS, minimum 1GB RAM, and stable internet connection. We recommend running EAs on a VPS for 24/7 operation and best performance."
+      }
+    ]
+  },
+  {
+    title: "License Management", 
+    questions: [
+      {
+        question: "Can I transfer my license to a different MT5 account?",
+        answer: "Yes, you can transfer licenses through your dashboard. Starter plan allows 1 transfer per month, Pro allows 3 transfers, and Elite allows unlimited transfers. The process takes 5-10 minutes to complete."
+      },
+      {
+        question: "What happens if I change my computer?",
+        answer: "Licenses are bound to your MT5 account number, not your computer. You can install the EA on any computer as long as you use the same MT5 account number that was licensed."
+      },
+      {
+        question: "How do I reset my MT5 binding?",
+        answer: "Contact our support team with your license key and new MT5 account number. We'll reset the binding within 24 hours. Pro and Elite customers get priority processing."
+      }
+    ]
+  },
+  {
+    title: "Subscriptions & Billing",
+    questions: [
+      {
+        question: "What happens when my subscription expires?",
+        answer: "When your subscription expires, the EAs will stop working and you'll lose access to updates and support. You can reactivate anytime to restore full functionality."
+      },
+      {
+        question: "Do you offer refunds?",
+        answer: "Yes, we offer a 30-day money-back guarantee on all purchases. If you're not satisfied, contact support within 30 days for a full refund. Custom development projects have different terms."
+      },
+      {
+        question: "Can I upgrade or downgrade my plan?",
+        answer: "Absolutely! You can change plans anytime through your dashboard. Upgrades take effect immediately, downgrades at your next billing cycle. Unused credits are prorated."
+      }
+    ]
+  },
+  {
+    title: "Technical Issues",
+    questions: [
+      {
+        question: "My EA is not placing trades. What should I check?",
+        answer: "First, verify: 1) EA is enabled and has smiley face, 2) Auto trading is enabled, 3) Account has sufficient balance, 4) License is active, 5) Market is open during EA's trading hours. Check the Experts tab for error messages."
+      },
+      {
+        question: "How do I optimize EA settings for my account?",
+        answer: "Start with default settings for 1-2 weeks, then adjust based on your risk tolerance. Key settings: lot size (0.01 per $1000 balance), maximum spread, trading hours, and risk percentage. Avoid over-optimization."
+      },
+      {
+        question: "Can I run multiple EAs on the same account?",
+        answer: "Yes, but ensure they trade different pairs or use different magic numbers to avoid conflicts. Monitor total risk exposure and adjust lot sizes accordingly to prevent overexposure."
+      }
+    ]
+  }
+]
+
+const supportChannels = [
+  {
+    icon: MessageSquare,
+    title: "Live Chat",
+    description: "Get instant help from our support team",
+    availability: "Mon-Fri, 9 AM - 6 PM GMT",
+    responseTime: "< 5 minutes",
+    badge: "Fastest"
+  },
+  {
+    icon: Mail,
+    title: "Email Support", 
+    description: "Detailed assistance for complex issues",
+    availability: "24/7 - We'll respond within",
+    responseTime: "< 24 hours",
+    badge: "Detailed"
+  },
+  {
+    icon: FileText,
+    title: "Knowledge Base",
+    description: "Comprehensive guides and tutorials",
+    availability: "Available 24/7",
+    responseTime: "Instant access",
+    badge: "Self-Service"
+  }
+]
+
+export default function SupportPage() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    topic: "",
+    message: ""
+  })
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const { toast } = useToast()
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitted(true)
+    toast({
+      title: "Message Sent Successfully!",
+      description: "Our support team will get back to you within 24 hours.",
+    })
+    
+    // Reset form after 3 seconds
+    setTimeout(() => {
+      setFormData({ name: "", email: "", topic: "", message: "" })
+      setIsSubmitted(false)
+    }, 3000)
+  }
+
+  const filteredQuestions = faqCategories.flatMap(category => 
+    category.questions.filter(q => 
+      q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.answer.toLowerCase().includes(searchTerm.toLowerCase())
+    ).map(q => ({ ...q, category: category.title }))
+  )
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-subtle border-b">
+        <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
+        <div className="container relative py-16 lg:py-24">
+          <div className="mx-auto max-w-4xl text-center">
+            <Badge variant="secondary" className="mb-4 animate-fade-in">
+              🎯 Expert Support & Resources
+            </Badge>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+              We're Here to{" "}
+              <span className="text-gradient">Help You Succeed</span>
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+              Get expert support, comprehensive guides, and answers to all your questions about 
+              algorithmic trading with our Expert Advisors.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Support Channels */}
+      <section className="py-20">
+        <div className="container">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              Multiple Ways to Get Help
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Choose the support channel that works best for you
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {supportChannels.map((channel, index) => (
+              <Card key={index} className="text-center hover-scale animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.2 + index * 0.1}s` }}>
+                <CardHeader>
+                  <div className="relative">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary">
+                      <channel.icon className="h-8 w-8 text-primary-foreground" />
+                    </div>
+                    <Badge className="absolute -top-2 -right-12" variant="secondary">
+                      {channel.badge}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-xl">{channel.title}</CardTitle>
+                  <CardDescription>{channel.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      {channel.availability}
+                    </div>
+                    <div className="font-medium text-primary">
+                      Response: {channel.responseTime}
+                    </div>
+                  </div>
+                  <Button className="mt-4 w-full hover-scale" size="sm">
+                    {channel.title === "Live Chat" ? "Start Chat" : 
+                     channel.title === "Email Support" ? "Send Email" : "Browse Guides"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="text-center mb-12 animate-fade-in">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Find quick answers to the most common questions
+            </p>
+            
+            {/* Search Bar */}
+            <div className="max-w-md mx-auto relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search FAQs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            {searchTerm ? (
+              // Show filtered results
+              <div className="space-y-4">
+                {filteredQuestions.length > 0 ? (
+                  filteredQuestions.map((item, index) => (
+                    <Card key={index}>
+                      <AccordionItem value={`search-${index}`} className="border-none">
+                        <CardHeader className="pb-2">
+                          <AccordionTrigger className="text-left hover:no-underline">
+                            <div>
+                              <div className="font-medium">{item.question}</div>
+                              <Badge variant="outline" className="mt-1 text-xs">
+                                {item.category}
+                              </Badge>
+                            </div>
+                          </AccordionTrigger>
+                        </CardHeader>
+                        <AccordionContent>
+                          <CardContent className="pt-0 pb-4">
+                            <p className="text-muted-foreground">{item.answer}</p>
+                          </CardContent>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Card>
+                  ))
+                ) : (
+                  <Card>
+                    <CardContent className="text-center py-12">
+                      <p className="text-muted-foreground">No FAQs found matching "{searchTerm}"</p>
+                      <Button variant="outline" className="mt-4" onClick={() => setSearchTerm("")}>
+                        Clear Search
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            ) : (
+              // Show categorized FAQs
+              <Accordion type="single" collapsible className="space-y-6">
+                {faqCategories.map((category, categoryIndex) => (
+                  <Card key={categoryIndex}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        {category.title === "Getting Started" && <Zap className="h-5 w-5" />}
+                        {category.title === "License Management" && <Shield className="h-5 w-5" />}
+                        {category.title === "Subscriptions & Billing" && <Users className="h-5 w-5" />}
+                        {category.title === "Technical Issues" && <FileText className="h-5 w-5" />}
+                        {category.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <Accordion type="single" collapsible className="space-y-2">
+                        {category.questions.map((faq, index) => (
+                          <AccordionItem 
+                            key={index} 
+                            value={`${categoryIndex}-${index}`} 
+                            className="border rounded-lg px-4"
+                          >
+                            <AccordionTrigger className="text-left text-sm">
+                              {faq.question}
+                            </AccordionTrigger>
+                            <AccordionContent className="text-muted-foreground text-sm">
+                              {faq.answer}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Accordion>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Form */}
+      <section className="py-20">
+        <div className="container">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-12 animate-fade-in">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+                Still Need Help?
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Can't find what you're looking for? Send us a message and we'll get back to you quickly.
+              </p>
+            </div>
+
+            <Card className="animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+              <CardHeader>
+                <CardTitle>Contact Support</CardTitle>
+                <CardDescription>
+                  Describe your issue in detail and we'll provide personalized assistance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isSubmitted ? (
+                  <div className="text-center py-12">
+                    <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
+                    <p className="text-muted-foreground">
+                      Thank you for contacting us. Our support team will respond within 24 hours.
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name *</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          required
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          required
+                          placeholder="your@email.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="topic">Topic *</Label>
+                      <Select value={formData.topic} onValueChange={(value) => handleInputChange('topic', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select the topic of your inquiry" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="license">License & Activation Issues</SelectItem>
+                          <SelectItem value="technical">Technical Problems</SelectItem>
+                          <SelectItem value="billing">Billing & Subscriptions</SelectItem>
+                          <SelectItem value="ea-config">EA Configuration Help</SelectItem>
+                          <SelectItem value="broker">Broker Compatibility</SelectItem>
+                          <SelectItem value="custom">Custom Development</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Message *</Label>
+                      <Textarea
+                        id="message"
+                        value={formData.message}
+                        onChange={(e) => handleInputChange('message', e.target.value)}
+                        required
+                        placeholder="Please describe your issue or question in detail..."
+                        className="min-h-[120px]"
+                      />
+                    </div>
+
+                    <Button type="submit" size="lg" className="w-full hover-scale">
+                      Send Message
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Resources Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              Additional Resources
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Helpful resources to maximize your trading success
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Download,
+                title: "Installation Guides",
+                description: "Step-by-step guides for setting up EAs on MT5",
+                link: "View Guides"
+              },
+              {
+                icon: FileText,
+                title: "Trading Documentation",
+                description: "Complete documentation for all our Expert Advisors",
+                link: "Read Docs"
+              },
+              {
+                icon: Users,
+                title: "Community Forum",
+                description: "Connect with other traders and share strategies",
+                link: "Join Community"
+              }
+            ].map((resource, index) => (
+              <Card key={index} className="text-center hover-scale animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.2 + index * 0.1}s` }}>
+                <CardHeader>
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-primary">
+                    <resource.icon className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <CardTitle className="text-lg">{resource.title}</CardTitle>
+                  <CardDescription>{resource.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="hover-scale">
+                    {resource.link}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}

@@ -12,6 +12,12 @@ import EAQuantumEdgePage from "./pages/products/ea-quantumedge";
 import EAVelocityProPage from "./pages/products/ea-velocitypro";
 import EADevelopmentPage from "./pages/ea-development";
 import AffiliateProgramPage from "./pages/affiliate-program";
+import PricingPage from "./pages/pricing";
+import SupportPage from "./pages/support";
+import CheckoutPage from "./pages/checkout";
+import LoginPage from "./pages/auth/login";
+import RegisterPage from "./pages/auth/register";
+import ForgotPasswordPage from "./pages/auth/forgot-password";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +36,12 @@ const App = () => (
               <Route path="/products/ea-velocitypro" element={<EAVelocityProPage />} />
               <Route path="/development" element={<EADevelopmentPage />} />
               <Route path="/affiliate-program" element={<AffiliateProgramPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/support" element={<SupportPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/auth/register" element={<RegisterPage />} />
+              <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

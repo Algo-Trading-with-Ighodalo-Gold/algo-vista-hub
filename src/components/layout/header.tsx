@@ -6,9 +6,9 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const navigation = [
-  { name: "Products", href: "/products" },
+  { name: "Products", href: "/products/ea-titanx" },
   { name: "EA Development", href: "/development" },
-  { name: "Affiliates", href: "/affiliates" },
+  { name: "Affiliates", href: "/affiliate-program" },
   { name: "Pricing", href: "/pricing" },
   { name: "Support", href: "/support" },
 ]
@@ -48,10 +48,10 @@ export function Header() {
           <ThemeToggle />
           <div className="hidden md:flex items-center space-x-2">
             <Button variant="ghost" asChild>
-              <Link to="/login">Login</Link>
+              <Link to="/auth/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/auth/register">Sign Up</Link>
             </Button>
           </div>
 
@@ -88,12 +88,12 @@ export function Header() {
                   ))}
                   <div className="flex flex-col space-y-2 pt-4">
                     <Button variant="ghost" asChild>
-                      <Link to="/login" onClick={() => setIsOpen(false)}>
+                      <Link to="/auth/login" onClick={() => setIsOpen(false)}>
                         Login
                       </Link>
                     </Button>
                     <Button asChild>
-                      <Link to="/signup" onClick={() => setIsOpen(false)}>
+                      <Link to="/auth/register" onClick={() => setIsOpen(false)}>
                         Sign Up
                       </Link>
                     </Button>
