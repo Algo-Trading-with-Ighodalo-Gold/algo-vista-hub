@@ -49,12 +49,12 @@ export function useDashboardData(): DashboardData {
             .from('profiles')
             .select('*')
             .eq('user_id', user.id)
-            .single(),
+            .maybeSingle(),
           supabase
             .from('affiliates')
             .select('*')
             .eq('user_id', user.id)
-            .single()
+            .maybeSingle()
         ])
 
         if (subscriptionsResult.error && subscriptionsResult.error.code !== 'PGRST116') {
