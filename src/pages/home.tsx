@@ -152,21 +152,21 @@ export default function HomePage() {
       <section className="py-20">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in">
               Why Choose Our Trading Solutions?
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional-grade tools built by experts for serious traders
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+              <Card key={index} className="text-center hover:shadow-lg hover-scale transition-all duration-300 animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.4 + index * 0.2}s` }}>
                 <CardHeader>
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-primary">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-primary transition-transform duration-300 hover:scale-110">
                     <feature.icon className="h-6 w-6 text-primary-foreground" />
                   </div>
-                  <CardTitle>{feature.title}</CardTitle>
+                  <CardTitle className="transition-colors duration-300 hover:text-primary">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>{feature.description}</CardDescription>
@@ -181,16 +181,18 @@ export default function HomePage() {
       <section className="py-20 bg-muted/50">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in">
               Trusted by Traders Worldwide
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Join a growing community of successful algorithmic traders
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <StatsCard key={index} {...stat} />
+              <div key={index} className="animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.4 + index * 0.15}s` }}>
+                <StatsCard {...stat} />
+              </div>
             ))}
           </div>
         </div>
@@ -200,7 +202,7 @@ export default function HomePage() {
       <section className="py-20">
         <div className="container">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-16">
-            <div>
+            <div className="animate-fade-in">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Featured Expert Advisors
               </h2>
@@ -208,29 +210,29 @@ export default function HomePage() {
                 Proven strategies ready for your portfolio
               </p>
             </div>
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="hover-scale animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]" asChild>
               <Link to="/products">
-                View All EAs <ArrowRight className="ml-2 h-4 w-4" />
+                View All EAs <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {eaShowcase.map((ea) => (
-              <Card key={ea.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-video bg-gradient-subtle" />
+            {eaShowcase.map((ea, index) => (
+              <Card key={ea.id} className="overflow-hidden hover:shadow-xl hover-scale transition-all duration-300 animate-fade-in opacity-0 [animation-fill-mode:forwards] group" style={{ animationDelay: `${0.4 + index * 0.2}s` }}>
+                <div className="aspect-video bg-gradient-subtle transition-all duration-300 group-hover:scale-105" />
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-xl">{ea.name}</CardTitle>
+                      <CardTitle className="text-xl transition-colors duration-300 group-hover:text-primary">{ea.name}</CardTitle>
                       <div className="flex items-center mt-2">
-                        <Star className="h-4 w-4 fill-warning text-warning" />
+                        <Star className="h-4 w-4 fill-warning text-warning transition-transform duration-300 group-hover:scale-110" />
                         <span className="text-sm font-medium ml-1">{ea.rating}</span>
                         <span className="text-sm text-muted-foreground ml-1">
                           ({ea.reviews} reviews)
                         </span>
                       </div>
                     </div>
-                    <Badge variant="secondary" className="text-success">
+                    <Badge variant="secondary" className="text-success transition-transform duration-300 group-hover:scale-105">
                       {ea.performance}
                     </Badge>
                   </div>
@@ -239,14 +241,14 @@ export default function HomePage() {
                   <CardDescription className="mb-4">{ea.description}</CardDescription>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {ea.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
+                      <Badge key={tag} variant="outline" className="text-xs transition-colors duration-300 hover:bg-primary hover:text-primary-foreground">
                         {tag}
                       </Badge>
                     ))}
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold">{ea.price}</span>
-                    <Button asChild>
+                    <span className="text-2xl font-bold transition-colors duration-300 group-hover:text-primary">{ea.price}</span>
+                    <Button className="hover-scale" asChild>
                       <Link to={`/products/${ea.id}`}>View Details</Link>
                     </Button>
                   </div>
@@ -261,27 +263,27 @@ export default function HomePage() {
       <section className="py-20 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in">
               What Our Traders Say
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Real results from real traders using our Expert Advisors
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="h-full">
+              <Card key={index} className="h-full hover:shadow-lg hover-scale transition-all duration-300 animate-fade-in opacity-0 [animation-fill-mode:forwards] group" style={{ animationDelay: `${0.4 + index * 0.2}s` }}>
                 <CardContent className="pt-6">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-warning text-warning" />
+                      <Star key={i} className="h-4 w-4 fill-warning text-warning transition-transform duration-300 group-hover:scale-110" style={{ animationDelay: `${i * 0.1}s` }} />
                     ))}
                   </div>
-                  <blockquote className="text-sm italic mb-4">
+                  <blockquote className="text-sm italic mb-4 transition-colors duration-300 group-hover:text-primary">
                     "{testimonial.content}"
                   </blockquote>
                   <div>
-                    <div className="font-semibold">{testimonial.name}</div>
+                    <div className="font-semibold transition-colors duration-300 group-hover:text-primary">{testimonial.name}</div>
                     <div className="text-sm text-muted-foreground">{testimonial.role}</div>
                   </div>
                 </CardContent>
@@ -294,20 +296,20 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-primary text-primary-foreground">
         <div className="container text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in">
             Ready to Automate Your Trading?
           </h2>
-          <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8">
+          <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8 animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
             Join thousands of successful traders using our proven algorithmic trading solutions. 
             Start your journey to consistent profits today.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale" asChild>
               <Link to="/products">
-                Browse EAs <ArrowRight className="ml-2 h-5 w-5" />
+                Browse EAs <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+            <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale" asChild>
               <Link to="/development">Get Custom EA</Link>
             </Button>
           </div>
