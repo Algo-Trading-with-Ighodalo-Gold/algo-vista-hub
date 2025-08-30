@@ -117,31 +117,31 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-subtle border-b">
         <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
-        <div className="container relative py-20 lg:py-32">
+        <div className="container relative py-16 lg:py-24">
           <div className="mx-auto max-w-4xl text-center">
-            <Badge variant="secondary" className="mb-4">
+            <Badge variant="secondary" className="mb-4 animate-fade-in">
               🚀 New: Custom EA Development Available
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional{" "}
               <span className="text-gradient">Algorithmic Trading</span>{" "}
               Solutions
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
               Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
               Join thousands of traders generating consistent profits with our proven algorithms.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="text-lg px-8" asChild>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
+              <Button size="lg" className="text-lg px-8 hover-scale" asChild>
                 <Link to="/products">
                   Buy an EA <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8" asChild>
+              <Button size="lg" variant="outline" className="text-lg px-8 hover-scale" asChild>
                 <Link to="/development">Request Custom EA</Link>
               </Button>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               30-day money-back guarantee • Lifetime updates • 24/7 support
             </p>
           </div>
