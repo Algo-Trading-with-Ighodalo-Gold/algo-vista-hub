@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/integrations/supabase/client"
 
 const processSteps = [
   {
@@ -111,13 +112,14 @@ export default function EADevelopmentPage() {
     timeline: "",
     ndaAgreed: false
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.ndaAgreed) {
       toast({
@@ -128,26 +130,64 @@ export default function EADevelopmentPage() {
       return
     }
     
-    toast({
-      title: "Inquiry Submitted Successfully!",
-      description: "We'll review your requirements and get back to you within 24 hours.",
-    })
+    setIsSubmitting(true)
     
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      strategy: "",
-      instruments: "",
-      timeframes: "",
-      entryLogic: "",
-      exitLogic: "",
-      riskManagement: "",
-      specialFeatures: "",
-      budget: "",
-      timeline: "",
-      ndaAgreed: false
-    })
+    try {
+      const { error } = await supabase.from('project_inquiries').insert({
+        name: formData.name,
+        email: formData.email,
+        strategy: formData.strategy,
+        instruments: formData.instruments,
+        timeframes: formData.timeframes,
+        entry_logic: formData.entryLogic,
+        exit_logic: formData.exitLogic,
+        risk_management: formData.riskManagement,
+        special_features: formData.specialFeatures,
+        budget: formData.budget,
+        timeline: formData.timeline,
+        nda_agreed: formData.ndaAgreed
+      })
+
+      if (error) {
+        console.error('Error submitting inquiry:', error)
+        toast({
+          title: "Submission Failed",
+          description: "There was an error submitting your inquiry. Please try again.",
+          variant: "destructive"
+        })
+        return
+      }
+
+      toast({
+        title: "Inquiry Submitted Successfully!",
+        description: "We'll review your requirements and get back to you within 24 hours.",
+      })
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        strategy: "",
+        instruments: "",
+        timeframes: "",
+        entryLogic: "",
+        exitLogic: "",
+        riskManagement: "",
+        specialFeatures: "",
+        budget: "",
+        timeline: "",
+        ndaAgreed: false
+      })
+    } catch (error) {
+      console.error('Error submitting inquiry:', error)
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your inquiry. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -426,9 +466,9 @@ export default function EADevelopmentPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full hover-scale">
-                    Submit Project Inquiry
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                  <Button type="submit" size="lg" className="w-full hover-scale" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Submit Project Inquiry"}
+                    {!isSubmitting && <ArrowRight className="ml-2 h-5 w-5" />}
                   </Button>
                 </form>
               </CardContent>

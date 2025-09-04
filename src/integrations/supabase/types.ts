@@ -118,6 +118,63 @@ export type Database = {
         }
         Relationships: []
       }
+      project_inquiries: {
+        Row: {
+          budget: string | null
+          created_at: string
+          email: string
+          entry_logic: string
+          exit_logic: string
+          id: string
+          instruments: string | null
+          name: string
+          nda_agreed: boolean
+          risk_management: string | null
+          special_features: string | null
+          status: string
+          strategy: string
+          timeframes: string | null
+          timeline: string | null
+          updated_at: string
+        }
+        Insert: {
+          budget?: string | null
+          created_at?: string
+          email: string
+          entry_logic: string
+          exit_logic: string
+          id?: string
+          instruments?: string | null
+          name: string
+          nda_agreed?: boolean
+          risk_management?: string | null
+          special_features?: string | null
+          status?: string
+          strategy: string
+          timeframes?: string | null
+          timeline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          budget?: string | null
+          created_at?: string
+          email?: string
+          entry_logic?: string
+          exit_logic?: string
+          id?: string
+          instruments?: string | null
+          name?: string
+          nda_agreed?: boolean
+          risk_management?: string | null
+          special_features?: string | null
+          status?: string
+          strategy?: string
+          timeframes?: string | null
+          timeline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null
