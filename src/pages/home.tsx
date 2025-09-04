@@ -133,12 +133,12 @@ export default function HomePage() {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
               <Button size="lg" className="text-lg px-8 hover-scale" asChild>
-                <Link to="/products">
-                  Buy an EA <ArrowRight className="ml-2 h-5 w-5" />
+                <Link to="/auth/register">
+                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 hover-scale" asChild>
-                <Link to="/development">Request Custom EA</Link>
+                <Link to="/auth/login">Sign In</Link>
               </Button>
             </div>
             <p className="mt-4 text-sm text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">

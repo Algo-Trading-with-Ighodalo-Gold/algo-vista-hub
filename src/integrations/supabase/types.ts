@@ -78,32 +78,41 @@ export type Database = {
       }
       profiles: {
         Row: {
+          affiliate_code: string | null
           avatar_url: string | null
           created_at: string
+          eas_data: Json | null
           first_name: string | null
           id: string
           last_name: string | null
           mt5_accounts: Json | null
+          subscription_status: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          affiliate_code?: string | null
           avatar_url?: string | null
           created_at?: string
+          eas_data?: Json | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           mt5_accounts?: Json | null
+          subscription_status?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          affiliate_code?: string | null
           avatar_url?: string | null
           created_at?: string
+          eas_data?: Json | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           mt5_accounts?: Json | null
+          subscription_status?: string | null
           updated_at?: string
           user_id?: string
         }
