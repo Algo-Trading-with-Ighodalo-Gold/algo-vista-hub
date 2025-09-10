@@ -7,12 +7,18 @@ type Subscription = Tables<'subscriptions'>
 type License = Tables<'licenses'>
 type Affiliate = Tables<'affiliates'>
 type Profile = Tables<'profiles'>
+type EADevelopment = Tables<'ea_development'>
+type AffiliateApplication = Tables<'affiliate_applications'>
+type ReferralClick = Tables<'referral_clicks'>
 
 interface DashboardData {
   subscriptions: Subscription[]
   licenses: License[]
   affiliate: Affiliate | null
   profile: Profile | null
+  eaDevelopmentRequests: EADevelopment[]
+  affiliateApplications: AffiliateApplication[]
+  referralClicks: ReferralClick[]
   loading: boolean
   error: string | null
 }
@@ -24,6 +30,9 @@ export function useDashboardData(): DashboardData {
     licenses: [],
     affiliate: null,
     profile: null,
+    eaDevelopmentRequests: [],
+    affiliateApplications: [],
+    referralClicks: [],
     loading: true,
     error: null
   })
@@ -39,7 +48,14 @@ export function useDashboardData(): DashboardData {
         setData(prev => ({ ...prev, loading: true, error: null }))
 
         // Fetch all data in parallel
-        const [subscriptionsResult, profileResult, affiliateResult] = await Promise.all([
+        const [
+          subscriptionsResult, 
+          profileResult, 
+          affiliateResult,
+          eaDevelopmentResult,
+          affiliateApplicationsResult,
+          referralClicksResult
+        ] = await Promise.all([
           supabase
             .from('subscriptions')
             .select('*')
@@ -54,7 +70,23 @@ export function useDashboardData(): DashboardData {
             .from('affiliates')
             .select('*')
             .eq('user_id', user.id)
-            .maybeSingle()
+            .maybeSingle(),
+          supabase
+            .from('ea_development')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('affiliate_applications')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('referral_clicks')
+            .select('*')
+            .eq('referrer_user_id', user.id)
+            .order('clicked_at', { ascending: false })
+            .limit(50)
         ])
 
         if (subscriptionsResult.error && subscriptionsResult.error.code !== 'PGRST116') {
@@ -83,6 +115,9 @@ export function useDashboardData(): DashboardData {
           licenses,
           affiliate: affiliateResult.data || null,
           profile: profileResult.data || null,
+          eaDevelopmentRequests: eaDevelopmentResult.data || [],
+          affiliateApplications: affiliateApplicationsResult.data || [],
+          referralClicks: referralClicksResult.data || [],
           loading: false,
           error: null
         })

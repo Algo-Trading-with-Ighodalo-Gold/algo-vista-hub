@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_applications: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          social_link: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          social_link?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          social_link?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       affiliates: {
         Row: {
           commission_earned: number | null
@@ -21,6 +51,8 @@ export type Database = {
           id: string
           payout_status: string | null
           referral_code: string
+          total_clicks: number | null
+          total_conversions: number | null
           user_id: string
         }
         Insert: {
@@ -29,6 +61,8 @@ export type Database = {
           id?: string
           payout_status?: string | null
           referral_code: string
+          total_clicks?: number | null
+          total_conversions?: number | null
           user_id: string
         }
         Update: {
@@ -37,6 +71,35 @@ export type Database = {
           id?: string
           payout_status?: string | null
           referral_code?: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ea_development: {
+        Row: {
+          created_at: string
+          id: string
+          requirements: string
+          status: string
+          strategy_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requirements: string
+          status?: string
+          strategy_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requirements?: string
+          status?: string
+          strategy_name?: string
           user_id?: string
         }
         Relationships: []
@@ -172,6 +235,39 @@ export type Database = {
           timeframes?: string | null
           timeline?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_clicks: {
+        Row: {
+          clicked_at: string
+          conversion_date: string | null
+          converted: boolean | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          referrer_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          conversion_date?: string | null
+          converted?: boolean | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          referrer_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          conversion_date?: string | null
+          converted?: boolean | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          referrer_user_id?: string
+          user_agent?: string | null
         }
         Relationships: []
       }

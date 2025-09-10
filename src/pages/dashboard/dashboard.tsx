@@ -6,13 +6,25 @@ import { useDashboardData } from '@/hooks/use-dashboard-data'
 import { DashboardStats } from '@/components/dashboard/dashboard-stats'
 import { SubscriptionStatus } from '@/components/dashboard/subscription-status'
 import { ProductsLicenses } from '@/components/dashboard/products-licenses'
-import { AffiliateTracking } from '@/components/dashboard/affiliate-tracking'
+import { EnhancedAffiliateTracking } from '@/components/dashboard/enhanced-affiliate-tracking'
+import { EADevelopmentForm } from '@/components/dashboard/ea-development-form'
+import { AffiliateApplicationForm } from '@/components/dashboard/affiliate-application-form'
 import { User, Mail, Settings, Copy, LogOut } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 export default function DashboardPage() {
   const { user, signOut } = useAuth()
-  const { subscriptions, licenses, affiliate, profile, loading, error } = useDashboardData()
+  const { 
+    subscriptions, 
+    licenses, 
+    affiliate, 
+    profile, 
+    eaDevelopmentRequests,
+    affiliateApplications,
+    referralClicks,
+    loading, 
+    error 
+  } = useDashboardData()
   const { toast } = useToast()
 
   if (error) {
@@ -179,8 +191,8 @@ export default function DashboardPage() {
           {/* Subscription Status */}
           <SubscriptionStatus subscriptions={subscriptions} loading={loading} />
 
-          {/* Affiliate Tracking */}
-          <AffiliateTracking affiliate={affiliate} loading={loading} />
+          {/* Enhanced Affiliate Tracking */}
+          <EnhancedAffiliateTracking affiliate={affiliate} loading={loading} />
         </div>
 
         {/* EAS Section */}
@@ -209,6 +221,12 @@ export default function DashboardPage() {
         {/* Products & Licenses */}
         <div className="mb-8">
           <ProductsLicenses licenses={licenses} loading={loading} />
+        </div>
+
+        {/* Forms Section */}
+        <div className="grid gap-6 lg:grid-cols-2 mb-8">
+          <EADevelopmentForm />
+          <AffiliateApplicationForm />
         </div>
       </div>
     </div>
