@@ -172,7 +172,7 @@ export default function PricingPage() {
       </section>
 
       {/* Pricing Toggle */}
-      <section className="py-12">
+      <section id="pricing-section" className="py-12">
         <div className="container">
           <div className="flex justify-center mb-12 animate-fade-in">
             <div className="flex items-center space-x-4 bg-muted p-2 rounded-lg">
@@ -378,12 +378,24 @@ export default function PricingPage() {
             Choose your plan and start automated trading today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale">
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="text-lg px-8 hover-scale"
+              onClick={() => document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               Get Started Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale">
-              Contact Sales
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale"
+              asChild
+            >
+              <Link to="/support">
+                Contact Sales
+              </Link>
             </Button>
           </div>
         </div>
