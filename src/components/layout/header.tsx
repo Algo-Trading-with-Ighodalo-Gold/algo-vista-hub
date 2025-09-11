@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const navigation = [
-  { name: "Products", href: "/products/ea-titanx" },
+  { name: "Products", href: "/products" },
   { name: "EA Development", href: "/development" },
   { name: "Affiliates", href: "/affiliate-program" },
   { name: "Pricing", href: "/pricing" },

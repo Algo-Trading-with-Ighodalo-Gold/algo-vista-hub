@@ -8,19 +8,20 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Layout } from "@/components/layout/layout";
 import HomePage from "./pages/home";
+import ProductsPage from "./pages/products";
+import PricingPage from "./pages/pricing";
+import SupportPage from "./pages/support";
+import LoginPage from "./pages/auth/login";
+import RegisterPage from "./pages/auth/register";
+import ForgotPasswordPage from "./pages/auth/forgot-password";
+import DashboardPage from "./pages/dashboard/dashboard";
+import AffiliateProgramPage from "./pages/affiliate-program";
+import CheckoutPage from "./pages/checkout";
 import NotFound from "./pages/NotFound";
 import EATitanXPage from "./pages/products/ea-titanx";
 import EAQuantumEdgePage from "./pages/products/ea-quantumedge";
 import EAVelocityProPage from "./pages/products/ea-velocitypro";
 import EADevelopmentPage from "./pages/ea-development";
-import AffiliateProgramPage from "./pages/affiliate-program";
-import PricingPage from "./pages/pricing";
-import SupportPage from "./pages/support";
-import CheckoutPage from "./pages/checkout";
-import LoginPage from "./pages/auth/login";
-import RegisterPage from "./pages/auth/register";
-import ForgotPasswordPage from "./pages/auth/forgot-password";
-import DashboardPage from "./pages/dashboard/dashboard";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ function App() {
               <Layout>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/products" element={<ProductsPage />} />
                   <Route path="/products/ea-titanx" element={<EATitanXPage />} />
                   <Route path="/products/ea-quantumedge" element={<EAQuantumEdgePage />} />
                   <Route path="/products/ea-velocitypro" element={<EAVelocityProPage />} />
