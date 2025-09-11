@@ -127,10 +127,6 @@ const faqs = [
     question: "Can I transfer my license to a different MT5 account?",
     answer: "Yes, you can transfer licenses between MT5 accounts through your dashboard. Pro and Elite plans allow multiple transfers per month, while Starter allows one transfer per month."
   },
-  {
-    question: "Is there a free trial available?",
-    answer: "We don't offer free trials, but all plans come with demo versions you can test on demo accounts. Plus, our 30-day money-back guarantee ensures you can try risk-free."
-  }
 ]
 
 export default function PricingPage() {
@@ -383,7 +379,7 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale">
-              Start Free Trial
+              Get Started Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale">
