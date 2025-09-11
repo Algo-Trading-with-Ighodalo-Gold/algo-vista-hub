@@ -4,10 +4,33 @@ import { supabase } from '@/integrations/supabase/client'
 import { Tables } from '@/integrations/supabase/types'
 
 type Subscription = Tables<'subscriptions'>
-type License = Tables<'licenses'>
 type Profile = Tables<'profiles'>
 type AffiliateApplication = Tables<'affiliate_applications'>
 type ReferralClick = Tables<'referral_clicks'>
+
+export interface License {
+  id: string
+  user_id: string
+  license_key: string
+  license_type: string
+  status: string
+  ea_product_id?: string
+  ea_product_name?: string
+  hardware_fingerprint?: string
+  max_concurrent_sessions: number
+  current_active_sessions: number
+  stripe_subscription_id?: string
+  stripe_customer_id?: string
+  issued_at: string
+  expires_at?: string
+  last_validated_at?: string
+  validation_count: number
+  max_validations_per_hour: number
+  last_hour_validations: number
+  last_hour_reset: string
+  created_at: string
+  updated_at: string
+}
 
 interface Affiliate {
   id: string
@@ -113,20 +136,18 @@ export function useDashboardData(): DashboardData {
 
         const subscriptions = subscriptionsResult.data || []
 
-        // Fetch licenses for all subscriptions
-        let licenses: License[] = []
-        if (subscriptions.length > 0) {
-          const subscriptionIds = subscriptions.map(sub => sub.id)
-          const licensesResult = await supabase
-            .from('licenses')
-            .select('*')
-            .in('subscription_id', subscriptionIds)
+        // Fetch licenses directly for the user
+        const licensesResult = await supabase
+          .from('licenses')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
 
-          if (licensesResult.error) {
-            throw licensesResult.error
-          }
-          licenses = licensesResult.data || []
+        if (licensesResult.error) {
+          throw licensesResult.error
         }
+        
+        const licenses = licensesResult.data || []
 
         setData({
           subscriptions,

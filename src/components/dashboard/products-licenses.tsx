@@ -2,10 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Download, Key, Activity } from 'lucide-react'
-import { Tables } from '@/integrations/supabase/types'
 import { format } from 'date-fns'
-
-type License = Tables<'licenses'>
+import { License } from '@/hooks/use-dashboard-data'
 
 interface ProductsLicensesProps {
   licenses: License[]
@@ -53,8 +51,8 @@ export function ProductsLicenses({ licenses, loading }: ProductsLicensesProps) {
         ) : (
           <div className="space-y-3">
             {activeLicenses.map((license) => {
-              const mt5Accounts = Array.isArray(license.mt5_accounts) 
-                ? license.mt5_accounts as string[]
+              const mt5Accounts = Array.isArray(license.current_active_sessions) 
+                ? [`Session ${license.current_active_sessions}/${license.max_concurrent_sessions}`]
                 : []
               
               return (
@@ -71,26 +69,38 @@ export function ProductsLicenses({ licenses, loading }: ProductsLicensesProps) {
                     </Badge>
                   </div>
                   
+                  {license.expires_at && (
+                    <div className="text-sm text-muted-foreground">
+                      Expires: {format(new Date(license.expires_at), 'MMM dd, yyyy')}
+                    </div>
+                  )}
+                  
                   {license.created_at && (
                     <div className="text-sm text-muted-foreground">
                       Licensed: {format(new Date(license.created_at), 'MMM dd, yyyy')}
                     </div>
                   )}
                   
-                  {mt5Accounts.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        <Activity className="h-4 w-4" />
-                        MT5 Accounts ({mt5Accounts.length})
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {mt5Accounts.map((account, index) => (
-                          <Badge key={index} variant="outline" className="font-mono text-xs">
-                            {account}
-                          </Badge>
-                        ))}
-                      </div>
+                  {(license.expires_at || license.ea_product_name) && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Activity className="h-4 w-4" />
+                      License Info
                     </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {license.license_type?.replace('_', ' ').toUpperCase()}
+                      </Badge>
+                      {license.ea_product_name && (
+                        <Badge variant="outline" className="text-xs">
+                          {license.ea_product_name}
+                        </Badge>
+                      )}
+                      <Badge variant="outline" className="text-xs">
+                        {license.current_active_sessions || 0}/{license.max_concurrent_sessions || 1} Sessions
+                      </Badge>
+                    </div>
+                  </div>
                   )}
                   
                   <div className="flex gap-2">
