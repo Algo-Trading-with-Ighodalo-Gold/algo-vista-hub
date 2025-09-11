@@ -29,9 +29,9 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { name: "Twitter", href: "#", icon: Twitter },
+  { name: "Twitter", href: "https://twitter.com/ALG0_TRADING", icon: Twitter },
   { name: "LinkedIn", href: "#", icon: Linkedin },
-  { name: "Email", href: "mailto:support@algotradingwithighodalo.com", icon: Mail },
+  { name: "Email", href: "mailto:algotradingwithighodalo@gmail.com", icon: Mail },
 ]
 
 export function Footer() {
@@ -58,6 +58,7 @@ export function Footer() {
                   href={item.href}
                   className="text-muted-foreground hover:text-accent transition-colors"
                   aria-label={item.name}
+                  {...(item.href.startsWith('http') ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 >
                   <item.icon className="h-5 w-5" />
                 </a>
