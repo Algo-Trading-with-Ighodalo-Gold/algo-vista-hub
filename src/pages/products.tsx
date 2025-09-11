@@ -383,10 +383,48 @@ export default function ProductsPage() {
 
   return (
     
-      <div className="min-h-screen">
+    <div className="min-h-screen">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-subtle border-b">
+          <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
+          <div className="container relative py-16 lg:py-20">
+            <div className="mx-auto max-w-4xl text-center">
+              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl animate-fade-in">
+                Expert Advisors
+              </h1>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+                Professional automated trading solutions designed for every trading style and market condition. 
+                Choose from our collection of proven, backtested Expert Advisors to automate your trading strategy.
+              </p>
+              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-success" />
+                    <span>Secure & Licensed</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-success" />
+                    <span>Proven Results</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-success" />
+                    <span>24/7 Support</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Products Grid */}
-        <section className="py-8">
+        <section className="py-16">
           <div className="container">
+            <div className="mb-12 text-center">
+              <h2 className="text-3xl font-bold tracking-tight mb-4">Choose Your Trading Strategy</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Each Expert Advisor is carefully crafted and backtested to deliver consistent performance across different market conditions.
+              </p>
+            </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {expertAdvisors.map((ea, index) => (
                 <Card 
