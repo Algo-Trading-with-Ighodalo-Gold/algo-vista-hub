@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Check, X, ArrowRight, Crown, Shield, Users, Download, Clock, Headphones } from "lucide-react"
+import { Check, X, ArrowRight, Crown, Shield, Users, Download, Clock, Headphones, Star, Zap, CheckCircle, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -132,6 +132,13 @@ const faqs = [
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly' | 'lifetime'>('yearly')
 
+  const handlePlanSelection = (planId: string, period: string) => {
+    // TODO: Implement payment flow
+    console.log(`Selected plan: ${planId}, period: ${period}`)
+    // This will redirect to Stripe checkout once we set up the payment system
+    alert(`Payment system setup needed! Selected: ${planId} - ${period}`)
+  }
+
   const getPrice = (plan: typeof plans[0]) => {
     switch(billingPeriod) {
       case 'monthly': return plan.monthlyPrice
@@ -204,72 +211,119 @@ export default function PricingPage() {
           </div>
 
           {/* Pricing Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {plans.map((plan, index) => (
               <Card 
                 key={plan.id} 
-                className={`relative overflow-hidden hover-scale animate-fade-in opacity-0 [animation-fill-mode:forwards] ${
-                  plan.popular ? 'border-primary shadow-xl scale-105' : ''
+                className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl animate-fade-in opacity-0 [animation-fill-mode:forwards] ${
+                  plan.popular 
+                    ? 'border-primary/50 shadow-xl scale-105 bg-gradient-to-b from-primary/5 to-transparent ring-2 ring-primary/20' 
+                    : 'border-border/50 hover:border-primary/30 hover:scale-[1.02]'
                 }`}
                 style={{ animationDelay: `${0.2 + index * 0.1}s` }}
               >
+                {/* Gradient overlay for popular plan */}
                 {plan.popular && (
-                  <Badge className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-primary">
-                    Most Popular
-                  </Badge>
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 pointer-events-none" />
                 )}
                 
-                <CardHeader className="text-center pb-8 pt-8">
-                  <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${
-                    plan.popular ? 'bg-primary' : 'bg-gradient-primary'
-                  }`}>
-                    <plan.icon className="h-8 w-8 text-primary-foreground" />
+                {/* Popular badge with enhanced styling */}
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                    <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-2 shadow-lg border-0">
+                      <Star className="w-3 h-3 mr-1 fill-current" />
+                      Most Popular
+                    </Badge>
                   </div>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription className="mt-2">{plan.description}</CardDescription>
+                )}
+                
+                <CardHeader className="text-center pb-6 pt-8 relative">
+                  {/* Enhanced icon with glow effect */}
+                  <div className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl transition-all duration-300 ${
+                    plan.popular 
+                      ? 'bg-gradient-to-br from-primary to-primary/80 shadow-lg group-hover:shadow-primary/25' 
+                      : 'bg-gradient-to-br from-muted to-muted/60 group-hover:from-primary/10 group-hover:to-primary/5'
+                  }`}>
+                    <plan.icon className={`h-10 w-10 transition-colors duration-300 ${
+                      plan.popular ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary'
+                    }`} />
+                  </div>
                   
-                  <div className="mt-6">
-                    <div className="flex items-baseline justify-center">
-                      <span className="text-4xl font-bold">${getPrice(plan)}</span>
-                      <span className="text-muted-foreground ml-1">
+                  <CardTitle className="text-3xl font-bold mb-2 group-hover:text-primary transition-colors">
+                    {plan.name}
+                  </CardTitle>
+                  <CardDescription className="text-base leading-relaxed max-w-xs mx-auto">
+                    {plan.description}
+                  </CardDescription>
+                  
+                  {/* Enhanced pricing display */}
+                  <div className="mt-8 p-4 rounded-xl bg-muted/30 border border-border/50">
+                    <div className="flex items-baseline justify-center mb-2">
+                      <span className="text-5xl font-extrabold tracking-tight">${getPrice(plan)}</span>
+                      <span className="text-muted-foreground ml-2 text-lg">
                         {billingPeriod === 'lifetime' ? ' once' : billingPeriod === 'yearly' ? '/year' : '/month'}
                       </span>
                     </div>
+                    
                     {billingPeriod === 'yearly' && getSavings(plan) > 0 && (
-                      <Badge variant="secondary" className="mt-2 bg-success/10 text-success">
+                      <Badge variant="secondary" className="bg-success/15 text-success border-success/20">
+                        <Sparkles className="w-3 h-3 mr-1" />
                         Save {getSavings(plan)}%
+                      </Badge>
+                    )}
+                    
+                    {billingPeriod === 'lifetime' && (
+                      <Badge variant="secondary" className="bg-primary/15 text-primary border-primary/20">
+                        <Zap className="w-3 h-3 mr-1" />
+                        One-time payment
                       </Badge>
                     )}
                   </div>
                 </CardHeader>
 
-                <CardContent className="px-6 pb-8">
+                <CardContent className="px-8 pb-8">
+                  {/* Enhanced features list */}
                   <div className="space-y-4 mb-8">
                     {plan.features.map((feature, i) => (
-                      <div key={i} className="flex items-start gap-3">
-                        <Check className="h-4 w-4 text-success mt-1 flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
+                      <div key={i} className="flex items-start gap-4 group/feature">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <CheckCircle className="h-5 w-5 text-success group-hover/feature:scale-110 transition-transform" />
+                        </div>
+                        <span className="text-sm leading-relaxed group-hover/feature:text-foreground transition-colors">
+                          {feature}
+                        </span>
                       </div>
                     ))}
                     
                     {plan.limits.map((limit, i) => (
-                      <div key={i} className="flex items-start gap-3">
-                        <X className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground">{limit}</span>
+                      <div key={i} className="flex items-start gap-4 opacity-60">
+                        <X className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground leading-relaxed">{limit}</span>
                       </div>
                     ))}
                   </div>
                   
+                  {/* Enhanced CTA button */}
                   <Button 
                     size="lg" 
-                    className={`w-full hover-scale ${
-                      plan.popular ? '' : 'variant-outline'
+                    className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${
+                      plan.popular 
+                        ? 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl border-0' 
+                        : 'border-2 hover:border-primary/50 hover:bg-primary/5'
                     }`}
                     variant={plan.popular ? 'default' : 'outline'}
+                    onClick={() => handlePlanSelection(plan.id, billingPeriod)}
                   >
-                    Choose {plan.name}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {plan.popular ? 'Get Started Now' : `Choose ${plan.name}`}
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
+                  
+                  {/* Trust indicators */}
+                  <div className="mt-4 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      ✓ 30-day money-back guarantee
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
