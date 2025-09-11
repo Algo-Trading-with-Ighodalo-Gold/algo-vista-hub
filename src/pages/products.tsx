@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Layout } from "@/components/layout/layout"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -382,7 +382,7 @@ export default function ProductsPage() {
   const [selectedEA, setSelectedEA] = useState<typeof expertAdvisors[0] | null>(null)
 
   return (
-    <Layout>
+    
       <div className="min-h-screen">
         {/* Products Grid */}
         <section className="py-8">
@@ -462,6 +462,6 @@ export default function ProductsPage() {
           />
         )}
       </div>
-    </Layout>
+    
   )
 }

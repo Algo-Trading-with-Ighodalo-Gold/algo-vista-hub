@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { TrendingUp, Twitter, Linkedin, Github, Mail } from "lucide-react"
+import { TrendingUp, Twitter, Linkedin, Mail } from "lucide-react"
 
 const footerLinks = {
   company: [
