@@ -104,40 +104,241 @@ export type Database = {
         }
         Relationships: []
       }
-      licenses: {
+      ea_products: {
         Row: {
-          created_at: string | null
+          created_at: string
+          description: string | null
           id: string
-          license_key: string
-          mt5_accounts: Json | null
-          status: string | null
-          subscription_id: string
+          is_active: boolean | null
+          max_concurrent_sessions: number | null
+          max_mt5_accounts: number | null
+          name: string
+          price_cents: number | null
+          product_code: string
+          requires_hardware_binding: boolean | null
+          stripe_price_id: string | null
+          updated_at: string
+          version: string | null
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          description?: string | null
           id?: string
-          license_key: string
-          mt5_accounts?: Json | null
-          status?: string | null
-          subscription_id: string
+          is_active?: boolean | null
+          max_concurrent_sessions?: number | null
+          max_mt5_accounts?: number | null
+          name: string
+          price_cents?: number | null
+          product_code: string
+          requires_hardware_binding?: boolean | null
+          stripe_price_id?: string | null
+          updated_at?: string
+          version?: string | null
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          description?: string | null
           id?: string
-          license_key?: string
-          mt5_accounts?: Json | null
-          status?: string | null
-          subscription_id?: string
+          is_active?: boolean | null
+          max_concurrent_sessions?: number | null
+          max_mt5_accounts?: number | null
+          name?: string
+          price_cents?: number | null
+          product_code?: string
+          requires_hardware_binding?: boolean | null
+          stripe_price_id?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
+      license_sessions: {
+        Row: {
+          created_at: string
+          ea_instance_id: string | null
+          expires_at: string
+          hardware_fingerprint: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean
+          last_heartbeat: string
+          license_id: string
+          mt5_account_number: string | null
+          session_token: string
+          started_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          ea_instance_id?: string | null
+          expires_at?: string
+          hardware_fingerprint: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean
+          last_heartbeat?: string
+          license_id: string
+          mt5_account_number?: string | null
+          session_token: string
+          started_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          ea_instance_id?: string | null
+          expires_at?: string
+          hardware_fingerprint?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean
+          last_heartbeat?: string
+          license_id?: string
+          mt5_account_number?: string | null
+          session_token?: string
+          started_at?: string
+          user_agent?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "licenses_subscription_id_fkey"
-            columns: ["subscription_id"]
+            foreignKeyName: "license_sessions_license_id_fkey"
+            columns: ["license_id"]
             isOneToOne: false
-            referencedRelation: "subscriptions"
+            referencedRelation: "licenses"
             referencedColumns: ["id"]
           },
         ]
+      }
+      license_validations: {
+        Row: {
+          ea_instance_id: string | null
+          failure_reason: string | null
+          hardware_fingerprint: string | null
+          id: string
+          ip_address: unknown | null
+          license_id: string | null
+          mt5_account_number: string | null
+          session_id: string | null
+          suspicious_activity: boolean | null
+          user_agent: string | null
+          validated_at: string
+          validation_result: Database["public"]["Enums"]["validation_result"]
+        }
+        Insert: {
+          ea_instance_id?: string | null
+          failure_reason?: string | null
+          hardware_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown | null
+          license_id?: string | null
+          mt5_account_number?: string | null
+          session_id?: string | null
+          suspicious_activity?: boolean | null
+          user_agent?: string | null
+          validated_at?: string
+          validation_result: Database["public"]["Enums"]["validation_result"]
+        }
+        Update: {
+          ea_instance_id?: string | null
+          failure_reason?: string | null
+          hardware_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown | null
+          license_id?: string | null
+          mt5_account_number?: string | null
+          session_id?: string | null
+          suspicious_activity?: boolean | null
+          user_agent?: string | null
+          validated_at?: string
+          validation_result?: Database["public"]["Enums"]["validation_result"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_validations_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_validations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "license_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      licenses: {
+        Row: {
+          created_at: string
+          current_active_sessions: number | null
+          ea_product_id: string | null
+          ea_product_name: string | null
+          expires_at: string | null
+          hardware_fingerprint: string | null
+          id: string
+          issued_at: string
+          last_hour_reset: string | null
+          last_hour_validations: number | null
+          last_validated_at: string | null
+          license_key: string
+          license_type: Database["public"]["Enums"]["license_type"]
+          max_concurrent_sessions: number | null
+          max_validations_per_hour: number | null
+          status: Database["public"]["Enums"]["license_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+          validation_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          current_active_sessions?: number | null
+          ea_product_id?: string | null
+          ea_product_name?: string | null
+          expires_at?: string | null
+          hardware_fingerprint?: string | null
+          id?: string
+          issued_at?: string
+          last_hour_reset?: string | null
+          last_hour_validations?: number | null
+          last_validated_at?: string | null
+          license_key: string
+          license_type: Database["public"]["Enums"]["license_type"]
+          max_concurrent_sessions?: number | null
+          max_validations_per_hour?: number | null
+          status?: Database["public"]["Enums"]["license_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+          validation_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          current_active_sessions?: number | null
+          ea_product_id?: string | null
+          ea_product_name?: string | null
+          expires_at?: string | null
+          hardware_fingerprint?: string | null
+          id?: string
+          issued_at?: string
+          last_hour_reset?: string | null
+          last_hour_validations?: number | null
+          last_validated_at?: string | null
+          license_key?: string
+          license_type?: Database["public"]["Enums"]["license_type"]
+          max_concurrent_sessions?: number | null
+          max_validations_per_hour?: number | null
+          status?: Database["public"]["Enums"]["license_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+          validation_count?: number | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -271,6 +472,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_tiers: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          included_eas: string[] | null
+          is_active: boolean | null
+          max_concurrent_sessions: number | null
+          max_mt5_accounts: number | null
+          name: string
+          price_cents: number
+          stripe_price_id: string | null
+          tier_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_eas?: string[] | null
+          is_active?: boolean | null
+          max_concurrent_sessions?: number | null
+          max_mt5_accounts?: number | null
+          name: string
+          price_cents: number
+          stripe_price_id?: string | null
+          tier_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_eas?: string[] | null
+          is_active?: boolean | null
+          max_concurrent_sessions?: number | null
+          max_mt5_accounts?: number | null
+          name?: string
+          price_cents?: number
+          stripe_price_id?: string | null
+          tier_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null
@@ -342,10 +588,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      generate_license_key: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      reset_hourly_validation_counters: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
-      [_ in never]: never
+      license_status: "active" | "expired" | "suspended" | "revoked"
+      license_type:
+        | "individual_ea"
+        | "basic_tier"
+        | "premium_tier"
+        | "enterprise_tier"
+      validation_result:
+        | "valid"
+        | "expired"
+        | "hardware_mismatch"
+        | "concurrent_violation"
+        | "revoked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -472,6 +740,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      license_status: ["active", "expired", "suspended", "revoked"],
+      license_type: [
+        "individual_ea",
+        "basic_tier",
+        "premium_tier",
+        "enterprise_tier",
+      ],
+      validation_result: [
+        "valid",
+        "expired",
+        "hardware_mismatch",
+        "concurrent_violation",
+        "revoked",
+      ],
+    },
   },
 } as const
