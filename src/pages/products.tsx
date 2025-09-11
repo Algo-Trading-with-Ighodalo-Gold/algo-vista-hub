@@ -252,21 +252,21 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
                     <BarChart3 className="h-4 w-4 text-primary" />
                     <div>
                       <div className="font-medium">Trading Pairs</div>
-                      <div className="text-muted-foreground">{ea.tradingPairs}</div>
+                      <div className="text-muted-foreground">{ea.tradingPairs || 'Various'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Timer className="h-4 w-4 text-primary" />
                     <div>
                       <div className="font-medium">Timeframes</div>
-                      <div className="text-muted-foreground">{ea.timeframes}</div>
+                      <div className="text-muted-foreground">{ea.timeframes || 'Multiple'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-primary" />
                     <div>
                       <div className="font-medium">Strategy</div>
-                      <div className="text-muted-foreground">{ea.strategyType}</div>
+                      <div className="text-muted-foreground">{ea.strategyType || 'Trading'}</div>
                     </div>
                   </div>
                 </div>
@@ -275,21 +275,21 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
                     <DollarSign className="h-4 w-4 text-primary" />
                     <div>
                       <div className="font-medium">Min. Deposit</div>
-                      <div className="text-muted-foreground">{ea.minDeposit}</div>
+                      <div className="text-muted-foreground">{ea.minDeposit || 'N/A'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-success" />
                     <div>
                       <div className="font-medium">Monthly Return</div>
-                      <div className="text-success">{ea.avgMonthlyReturn}</div>
+                      <div className="text-success">{ea.avgMonthlyReturn || 'N/A'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4 text-warning" />
                     <div>
                       <div className="font-medium">Max Drawdown</div>
-                      <div className="text-warning">{ea.maxDrawdown}</div>
+                      <div className="text-warning">{ea.maxDrawdown || 'N/A'}</div>
                     </div>
                   </div>
                 </div>
@@ -430,16 +430,16 @@ export default function ProductsPage() {
                     
                     <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-4">
                       <div>
-                        <span className="font-medium">Pairs:</span> {ea.tradingPairs.split(',')[0]}+
+                        <span className="font-medium">Pairs:</span> {ea.tradingPairs?.split(',')[0] || 'Various'}+
                       </div>
                       <div>
-                        <span className="font-medium">Strategy:</span> {ea.strategyType}
+                        <span className="font-medium">Strategy:</span> {ea.strategyType || 'Trading'}
                       </div>
                       <div>
-                        <span className="font-medium">Return:</span> <span className="text-success">{ea.avgMonthlyReturn}</span>
+                        <span className="font-medium">Return:</span> <span className="text-success">{ea.avgMonthlyReturn || 'N/A'}</span>
                       </div>
                       <div>
-                        <span className="font-medium">Min Deposit:</span> {ea.minDeposit}
+                        <span className="font-medium">Min Deposit:</span> {ea.minDeposit || 'N/A'}
                       </div>
                     </div>
                     
