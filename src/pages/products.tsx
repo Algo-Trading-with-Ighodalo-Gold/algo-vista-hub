@@ -387,12 +387,6 @@ export default function ProductsPage() {
         {/* Products Grid */}
         <section className="py-8">
           <div className="container">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold tracking-tight mb-4">Expert Advisors</h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Professional automated trading solutions for every trading style and market condition.
-              </p>
-            </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {expertAdvisors.map((ea, index) => (
                 <Card 

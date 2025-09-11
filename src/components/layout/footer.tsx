@@ -31,7 +31,6 @@ const footerLinks = {
 const socialLinks = [
   { name: "Twitter", href: "#", icon: Twitter },
   { name: "LinkedIn", href: "#", icon: Linkedin },
-  { name: "GitHub", href: "#", icon: Github },
   { name: "Email", href: "mailto:support@algotradingwithighodalo.com", icon: Mail },
 ]
 

@@ -73,32 +73,13 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Social Login */}
-            <div className="space-y-3">
-              <Button 
-                variant="outline" 
-                className="w-full hover-scale"
-                onClick={() => handleSocialLogin('google')}
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Continue with Google
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full hover-scale"
-                onClick={() => handleSocialLogin('github')}
-              >
-                <Github className="h-4 w-4 mr-2" />
-                Continue with GitHub
-              </Button>
-            </div>
-
+            {/* Email/Password Login */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-background px-2 text-muted-foreground">Sign in with email</span>
               </div>
             </div>
 
