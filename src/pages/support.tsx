@@ -428,9 +428,23 @@ export default function SupportPage() {
                       Response: {channel.responseTime}
                     </div>
                   </div>
-                  <Button className="mt-4 w-full hover-scale" size="sm">
+                  <Button 
+                    className="mt-4 w-full hover-scale" 
+                    size="sm"
+                    onClick={() => {
+                      if (channel.title === "Live Chat") {
+                        window.open('https://lovable.dev', '_blank')
+                      } else if (channel.title === "Email Support") {
+                        window.location.href = 'mailto:support@yourcompany.com?subject=Support Request'
+                      } else {
+                        // Scroll to knowledge base section
+                        document.getElementById('knowledge-base')?.scrollIntoView({ behavior: 'smooth' })
+                      }
+                    }}
+                  >
                     {channel.title === "Live Chat" ? "Start Chat" : 
                      channel.title === "Email Support" ? "Send Email" : "Browse Guides"}
+                    {channel.title === "Live Chat" && <ExternalLink className="ml-2 h-4 w-4" />}
                   </Button>
                 </CardContent>
               </Card>
@@ -468,11 +482,11 @@ export default function SupportPage() {
       </section>
 
       {/* Documentation & Guides */}
-      <section className="py-20 bg-muted/30">
+      <section id="knowledge-base" className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-              Documentation & Guides
+              Knowledge Base & Guides
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Comprehensive guides to help you get the most out of our Expert Advisors
@@ -519,6 +533,91 @@ export default function SupportPage() {
                 </DialogContent>
               </Dialog>
             ))}
+            
+            {/* Additional Quick Start Guide */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Card className="cursor-pointer hover-scale transition-all duration-200 hover:shadow-lg animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: '0.5s' }}>
+                  <CardHeader className="text-center">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary">
+                      <Zap className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <CardTitle className="text-lg">Quick Start Guide</CardTitle>
+                    <CardDescription className="text-sm">
+                      Get started with your first EA in under 10 minutes
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Zap className="mr-2 h-4 w-4" />
+                      Start Tutorial
+                    </Button>
+                  </CardContent>
+                </Card>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    Quick Start Guide
+                  </DialogTitle>
+                  <DialogDescription>
+                    Get started with your first EA in under 10 minutes
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <pre className="whitespace-pre-wrap text-sm leading-relaxed font-normal bg-muted p-4 rounded-lg">
+{`# Quick Start Guide
+
+## Step 1: Purchase & Download (2 minutes)
+1. Choose an EA from our Products page
+2. Complete purchase via secure checkout
+3. Download EA file from your Dashboard
+4. Save the .ex5 file to your computer
+
+## Step 2: Install on MT5 (3 minutes)
+1. Open MetaTrader 5
+2. Go to File → Open Data Folder
+3. Navigate to MQL5 → Experts
+4. Copy your EA file here
+5. Restart MT5
+
+## Step 3: Activate License (2 minutes)
+1. Drag EA onto any chart
+2. Enter your license key from dashboard
+3. Configure basic settings:
+   - Lot Size: 0.01 per $1000 balance
+   - Risk %: 2% maximum
+   - Trading Hours: London/NY session
+4. Enable AutoTrading
+5. Click OK
+
+## Step 4: Verify & Monitor (3 minutes)
+1. Check EA shows smiley face ✓
+2. Monitor Experts tab for messages
+3. Verify first trades align with strategy
+4. Set up mobile alerts (optional)
+
+## Next Steps
+- Join our Telegram community
+- Read the full documentation
+- Contact support if needed
+
+## Pro Tips
+✓ Start with demo account first
+✓ Use VPS for 24/7 trading
+✓ Keep MT5 updated
+✓ Monitor during first week
+✓ Adjust settings gradually
+
+## Need Help?
+- Live Chat: Connect with Lovable support
+- Email: support@yourcompany.com  
+- Community: Join our Telegram group`}
+                  </pre>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>
