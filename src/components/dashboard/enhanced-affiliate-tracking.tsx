@@ -3,14 +3,31 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Copy, DollarSign, Users, TrendingUp, MousePointer, Target } from 'lucide-react'
-import { Tables } from '@/integrations/supabase/types'
 import { useToast } from '@/hooks/use-toast'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/contexts/auth-context'
 
-type Affiliate = Tables<'affiliates'>
-type ReferralClick = Tables<'referral_clicks'>
+interface Affiliate {
+  id: string
+  user_id: string
+  referral_code: string
+  commission_earned: number
+  payout_status: string
+  created_at: string
+  updated_at: string
+}
+
+interface ReferralClick {
+  id: string
+  referrer_user_id: string
+  ip_address: string | null
+  user_agent: string | null
+  clicked_at: string
+  converted: boolean | null
+  conversion_date: string | null
+  created_at: string
+}
 
 interface EnhancedAffiliateTrackingProps {
   affiliate: Affiliate | null

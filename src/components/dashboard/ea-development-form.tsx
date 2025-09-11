@@ -9,9 +9,16 @@ import { Code, Plus, Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/contexts/auth-context'
-import { Tables } from '@/integrations/supabase/types'
 
-type EADevelopment = Tables<'ea_development'>
+interface EADevelopment {
+  id: string
+  user_id: string
+  strategy_name: string
+  requirements: string
+  status: string
+  created_at: string
+  updated_at: string
+}
 
 interface EADevelopmentFormProps {
   onSuccess?: () => void

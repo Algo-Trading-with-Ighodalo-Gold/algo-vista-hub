@@ -44,6 +44,66 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliates: {
+        Row: {
+          commission_earned: number
+          created_at: string
+          id: string
+          payout_status: string
+          referral_code: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          commission_earned?: number
+          created_at?: string
+          id?: string
+          payout_status?: string
+          referral_code: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          commission_earned?: number
+          created_at?: string
+          id?: string
+          payout_status?: string
+          referral_code?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ea_development: {
+        Row: {
+          created_at: string
+          id: string
+          requirements: string
+          status: string
+          strategy_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requirements: string
+          status?: string
+          strategy_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requirements?: string
+          status?: string
+          strategy_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       licenses: {
         Row: {
           created_at: string | null

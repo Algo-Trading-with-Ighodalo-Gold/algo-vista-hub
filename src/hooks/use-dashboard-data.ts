@@ -5,11 +5,29 @@ import { Tables } from '@/integrations/supabase/types'
 
 type Subscription = Tables<'subscriptions'>
 type License = Tables<'licenses'>
-type Affiliate = Tables<'affiliates'>
 type Profile = Tables<'profiles'>
-type EADevelopment = Tables<'ea_development'>
 type AffiliateApplication = Tables<'affiliate_applications'>
 type ReferralClick = Tables<'referral_clicks'>
+
+interface Affiliate {
+  id: string
+  user_id: string
+  referral_code: string
+  commission_earned: number
+  payout_status: string
+  created_at: string
+  updated_at: string
+}
+
+interface EADevelopment {
+  id: string
+  user_id: string
+  strategy_name: string
+  requirements: string
+  status: string
+  created_at: string
+  updated_at: string
+}
 
 interface DashboardData {
   subscriptions: Subscription[]

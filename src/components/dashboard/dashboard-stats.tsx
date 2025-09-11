@@ -1,10 +1,35 @@
 import { StatsCard } from '@/components/ui/stats-card'
 import { Package, DollarSign, Users, Activity } from 'lucide-react'
-import { Tables } from '@/integrations/supabase/types'
 
-type Subscription = Tables<'subscriptions'>
-type License = Tables<'licenses'>
-type Affiliate = Tables<'affiliates'>
+interface Subscription {
+  id: string
+  user_id: string | null
+  plan: string
+  status: string | null
+  start_date: string | null
+  end_date: string | null
+  payment_method: string | null
+  created_at: string | null
+}
+
+interface License {
+  id: string
+  subscription_id: string
+  license_key: string
+  status: string | null
+  mt5_accounts: any
+  created_at: string | null
+}
+
+interface Affiliate {
+  id: string
+  user_id: string
+  referral_code: string
+  commission_earned: number
+  payout_status: string
+  created_at: string
+  updated_at: string
+}
 
 interface DashboardStatsProps {
   subscriptions: Subscription[]

@@ -3,10 +3,17 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Copy, DollarSign, Users, TrendingUp } from 'lucide-react'
-import { Tables } from '@/integrations/supabase/types'
 import { useToast } from '@/hooks/use-toast'
 
-type Affiliate = Tables<'affiliates'>
+interface Affiliate {
+  id: string
+  user_id: string
+  referral_code: string
+  commission_earned: number
+  payout_status: string
+  created_at: string
+  updated_at: string
+}
 
 interface AffiliateTrackingProps {
   affiliate: Affiliate | null
