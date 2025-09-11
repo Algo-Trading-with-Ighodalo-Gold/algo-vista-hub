@@ -14,11 +14,26 @@ interface Subscription {
 
 interface License {
   id: string
-  subscription_id: string
+  user_id: string
   license_key: string
-  status: string | null
-  mt5_accounts: any
-  created_at: string | null
+  license_type: string
+  status: string
+  ea_product_id?: string
+  ea_product_name?: string
+  hardware_fingerprint?: string
+  max_concurrent_sessions: number
+  current_active_sessions: number
+  stripe_subscription_id?: string
+  stripe_customer_id?: string
+  issued_at: string
+  expires_at?: string
+  last_validated_at?: string
+  validation_count: number
+  max_validations_per_hour: number
+  last_hour_validations: number
+  last_hour_reset: string
+  created_at: string
+  updated_at: string
 }
 
 interface Affiliate {
@@ -55,13 +70,14 @@ export function DashboardStats({ subscriptions, licenses, affiliate, loading }: 
   const activeLicenses = licenses.filter(license => license.status === 'active')
   const totalEarned = affiliate?.commission_earned || 0
   
-  // Calculate total MT5 accounts across all licenses
-  const totalMT5Accounts = licenses.reduce((count, license) => {
-    const mt5Accounts = Array.isArray(license.mt5_accounts) 
-      ? license.mt5_accounts as string[]
-      : []
-    return count + mt5Accounts.length
+  // Calculate total active sessions across all licenses
+  const totalActiveSessions = licenses.reduce((count, license) => {
+    return count + (license.current_active_sessions || 0)
   }, 0)
+  
+  // Calculate total EA products licensed
+  const uniqueEAs = new Set(licenses.map(license => license.ea_product_name || license.license_type).filter(Boolean))
+  const totalEAProducts = uniqueEAs.size
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -85,10 +101,15 @@ export function DashboardStats({ subscriptions, licenses, affiliate, loading }: 
       />
       
       <StatsCard
-        title="MT5 Accounts"
-        value={totalMT5Accounts.toString()}
-        description="Connected trading accounts"
+        title="Active Sessions"
+        value={totalActiveSessions.toString()}
+        description="Current EA sessions running"
         icon={Users}
+        trend={totalActiveSessions > 0 ? {
+          value: Math.round((totalActiveSessions / Math.max(licenses.length, 1)) * 100),
+          label: "session utilization",
+          positive: true
+        } : undefined}
       />
       
       <StatsCard
