@@ -530,11 +530,10 @@ export default function EADevelopmentPage() {
             </Button>
             <Button 
               size="lg" 
-              variant="outline" 
-              className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale"
+              className="text-lg px-10 py-3 bg-white text-primary font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white"
               onClick={() => window.open('https://calendly.com/algotradingwithighodalo/30min', '_blank')}
             >
-              Schedule Consultation
+              📅 Schedule Free Consultation
             </Button>
           </div>
         </div>
