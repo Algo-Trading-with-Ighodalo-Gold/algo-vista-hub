@@ -9,7 +9,7 @@ import { ProductsLicenses } from '@/components/dashboard/products-licenses'
 import { EnhancedAffiliateTracking } from '@/components/dashboard/enhanced-affiliate-tracking'
 import { EADevelopmentForm } from '@/components/dashboard/ea-development-form'
 import { AffiliateApplicationForm } from '@/components/dashboard/affiliate-application-form'
-import { User, Mail, Settings, Copy, LogOut } from 'lucide-react'
+import { User, Mail, Settings, Copy, LogOut, Twitter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 export default function DashboardPage() {
@@ -82,10 +82,31 @@ export default function DashboardPage() {
               Manage your profile, subscriptions, and affiliate earnings
             </p>
           </div>
-          <Button variant="outline" onClick={signOut} className="hover-scale">
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-4">
+            {/* Social/Contact Icons */}
+            <div className="flex items-center gap-2">
+              <a
+                href="mailto:algotradingwithighodalo@gmail.com"
+                className="flex items-center justify-center h-9 w-9 rounded-lg border bg-background/50 hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Send email"
+              >
+                <Mail className="h-4 w-4" />
+              </a>
+              <a
+                href="https://twitter.com/ALG0_TRADING"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center h-9 w-9 rounded-lg border bg-background/50 hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Follow on Twitter"
+              >
+                <Twitter className="h-4 w-4" />
+              </a>
+            </div>
+            <Button variant="outline" onClick={signOut} className="hover-scale">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
