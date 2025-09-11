@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle } from "lucide-react"
+import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -144,6 +144,14 @@ export default function HomePage() {
             <p className="mt-4 text-sm text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               30-day money-back guarantee • Lifetime updates • 24/7 support
             </p>
+            <div className="mt-6 animate-fade-in [animation-delay:1s] opacity-0 [animation-fill-mode:forwards]">
+              <Button variant="outline" size="sm" className="hover-scale" asChild>
+                <a href="https://t.me/alg0tradingwithighodalo" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Join Our Community
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -187,6 +195,14 @@ export default function HomePage() {
             <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Join a growing community of successful algorithmic traders
             </p>
+            <div className="mt-6 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+              <Button variant="default" className="hover-scale" asChild>
+                <a href="https://t.me/alg0tradingwithighodalo" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Join Our Telegram Community
+                </a>
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
