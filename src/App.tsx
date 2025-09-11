@@ -22,6 +22,10 @@ import EATitanXPage from "./pages/products/ea-titanx";
 import EAQuantumEdgePage from "./pages/products/ea-quantumedge";
 import EAVelocityProPage from "./pages/products/ea-velocitypro";
 import EADevelopmentPage from "./pages/ea-development";
+import PrivacyPolicyPage from "./pages/legal/privacy-policy";
+import TermsOfServicePage from "./pages/legal/terms-of-service";
+import LicenseAgreementPage from "./pages/legal/license-agreement";
+import CookiePolicyPage from "./pages/legal/cookie-policy";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +50,10 @@ function App() {
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/support" element={<SupportPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsOfServicePage />} />
+                  <Route path="/license" element={<LicenseAgreementPage />} />
+                  <Route path="/cookies" element={<CookiePolicyPage />} />
                   <Route path="/auth/login" element={<LoginPage />} />
                   <Route path="/auth/register" element={<RegisterPage />} />
                   <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
