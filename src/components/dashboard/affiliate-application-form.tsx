@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -85,9 +85,9 @@ export function AffiliateApplicationForm({ onSuccess }: AffiliateApplicationForm
   }
 
   // Fetch applications on component mount
-  useState(() => {
+  useEffect(() => {
     fetchApplications()
-  })
+  }, [user])
 
   return (
     <Card className="animate-fade-in">
