@@ -5,7 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
-import { Star, TrendingUp, Shield, Clock, ArrowRight } from "lucide-react"
+import { Star, TrendingUp, Shield, Clock, ArrowRight, BarChart3, Target, DollarSign, Timer } from "lucide-react"
+
+// Import EA images
+import scalperProImage from "@/assets/scalper-pro-ea.jpg"
+import swingMasterImage from "@/assets/swing-master-ea.jpg"
+import gridTraderImage from "@/assets/grid-trader-ea.jpg"
+import trendRiderImage from "@/assets/trend-rider-ea.jpg"
+import goldRushImage from "@/assets/gold-rush-ea.jpg"
+import nightOwlImage from "@/assets/night-owl-ea.jpg"
+import cryptoPulseImage from "@/assets/crypto-pulse-ea.jpg"
 
 const expertAdvisors = [
   {
@@ -20,10 +29,16 @@ const expertAdvisors = [
       "Multiple currency pair support",
       "Low drawdown strategy"
     ],
-    image: "/placeholder.svg",
+    image: scalperProImage,
     rating: 4.8,
     reviews: 127,
-    price: "$149"
+    price: "$149",
+    tradingPairs: "EURUSD, GBPUSD, USDJPY",
+    timeframes: "M1, M5",
+    strategyType: "Scalping",
+    minDeposit: "$500",
+    avgMonthlyReturn: "12-18%",
+    maxDrawdown: "8%"
   },
   {
     id: "swing-master-ea",
@@ -37,10 +52,16 @@ const expertAdvisors = [
       "Automated stop-loss management",
       "Market volatility adaptation"
     ],
-    image: "/placeholder.svg",
+    image: swingMasterImage,
     rating: 4.6,
     reviews: 89,
-    price: "$199"
+    price: "$199",
+    tradingPairs: "EURUSD, GBPUSD, AUDUSD, NZDUSD",
+    timeframes: "H1, H4, D1",
+    strategyType: "Swing Trading",
+    minDeposit: "$1,000",
+    avgMonthlyReturn: "8-15%",
+    maxDrawdown: "12%"
   },
   {
     id: "grid-trader-ea",
@@ -54,10 +75,16 @@ const expertAdvisors = [
       "Profit target optimization",
       "Risk control parameters"
     ],
-    image: "/placeholder.svg",
+    image: gridTraderImage,
     rating: 4.4,
     reviews: 156,
-    price: "$179"
+    price: "$179",
+    tradingPairs: "EURUSD, GBPUSD",
+    timeframes: "M15, M30, H1",
+    strategyType: "Grid Trading",
+    minDeposit: "$2,000",
+    avgMonthlyReturn: "5-12%",
+    maxDrawdown: "15%"
   },
   {
     id: "trend-rider-ea",
@@ -71,10 +98,16 @@ const expertAdvisors = [
       "Multi-currency optimization",
       "Low maintenance trading"
     ],
-    image: "/placeholder.svg",
+    image: trendRiderImage,
     rating: 4.7,
     reviews: 203,
-    price: "$229"
+    price: "$229",
+    tradingPairs: "EURUSD, GBPUSD, USDJPY, AUDUSD",
+    timeframes: "H4, D1, W1",
+    strategyType: "Trend Following",
+    minDeposit: "$1,500",
+    avgMonthlyReturn: "10-20%",
+    maxDrawdown: "10%"
   },
   {
     id: "gold-rush-ea",
@@ -105,10 +138,16 @@ const expertAdvisors = [
       "Time-based filtering",
       "Spread-aware trading"
     ],
-    image: "/placeholder.svg",
+    image: nightOwlImage,
     rating: 4.3,
     reviews: 67,
-    price: "$159"
+    price: "$159",
+    tradingPairs: "USDJPY, AUDJPY, NZDJPY",
+    timeframes: "M5, M15, M30",
+    strategyType: "Session Trading",
+    minDeposit: "$800",
+    avgMonthlyReturn: "6-12%",
+    maxDrawdown: "10%"
   },
   {
     id: "crypto-pulse-ea",
@@ -122,10 +161,16 @@ const expertAdvisors = [
       "Multi-coin support",
       "DeFi market awareness"
     ],
-    image: "/placeholder.svg",
+    image: cryptoPulseImage,
     rating: 4.9,
     reviews: 312,
-    price: "$249"
+    price: "$249",
+    tradingPairs: "BTCUSD, ETHUSD, ADAUSD",
+    timeframes: "M5, M15, H1",
+    strategyType: "Crypto Trading",
+    minDeposit: "$1,500",
+    avgMonthlyReturn: "20-35%",
+    maxDrawdown: "25%"
   }
 ]
 
@@ -192,7 +237,7 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
                 <Shield className="h-5 w-5" />
                 Key Features
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 mb-6">
                 {ea.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <div className="h-1.5 w-1.5 bg-primary rounded-full flex-shrink-0" />
@@ -200,6 +245,55 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
                   </li>
                 ))}
               </ul>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Trading Pairs</div>
+                      <div className="text-muted-foreground">{ea.tradingPairs}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Timer className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Timeframes</div>
+                      <div className="text-muted-foreground">{ea.timeframes}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Strategy</div>
+                      <div className="text-muted-foreground">{ea.strategyType}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Min. Deposit</div>
+                      <div className="text-muted-foreground">{ea.minDeposit}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-success" />
+                    <div>
+                      <div className="font-medium">Monthly Return</div>
+                      <div className="text-success">{ea.avgMonthlyReturn}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-warning" />
+                    <div>
+                      <div className="font-medium">Max Drawdown</div>
+                      <div className="text-warning">{ea.maxDrawdown}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -290,21 +384,15 @@ export default function ProductsPage() {
   return (
     <Layout>
       <div className="min-h-screen">
-        {/* Hero Section */}
-        <section className="py-16 bg-gradient-subtle">
-          <div className="container text-center">
-            <h1 className="text-4xl font-bold tracking-tight mb-4 animate-fade-in">
-              Expert Advisors Collection
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
-              Discover our comprehensive collection of proven Expert Advisors designed for various trading strategies and market conditions.
-            </p>
-          </div>
-        </section>
-
         {/* Products Grid */}
-        <section className="py-16">
+        <section className="py-8">
           <div className="container">
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-bold tracking-tight mb-4">Expert Advisors</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Professional automated trading solutions for every trading style and market condition.
+              </p>
+            </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {expertAdvisors.map((ea, index) => (
                 <Card 
@@ -327,7 +415,7 @@ export default function ProductsPage() {
                   </CardHeader>
                   
                   <CardContent className="space-y-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-3">
                       <div className="flex items-center gap-1">
                         {[...Array(5)].map((_, i) => (
                           <Star 
@@ -338,6 +426,21 @@ export default function ProductsPage() {
                       </div>
                       <span className="text-sm font-medium">{ea.rating}</span>
                       <span className="text-sm text-muted-foreground">({ea.reviews})</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-4">
+                      <div>
+                        <span className="font-medium">Pairs:</span> {ea.tradingPairs.split(',')[0]}+
+                      </div>
+                      <div>
+                        <span className="font-medium">Strategy:</span> {ea.strategyType}
+                      </div>
+                      <div>
+                        <span className="font-medium">Return:</span> <span className="text-success">{ea.avgMonthlyReturn}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Min Deposit:</span> {ea.minDeposit}
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
