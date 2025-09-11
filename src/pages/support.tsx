@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Search, Mail, MessageSquare, Phone, Clock, CheckCircle, ArrowRight, FileText, Shield, Download, Users, Zap } from "lucide-react"
+import { Search, Mail, MessageSquare, Phone, Clock, CheckCircle, ArrowRight, FileText, Shield, Download, Users, Zap, ExternalLink, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/integrations/supabase/client"
 
 const faqCategories = [
   {
@@ -81,6 +83,202 @@ const faqCategories = [
   }
 ]
 
+const documentGuides = [
+  {
+    title: "EA Installation Guide",
+    description: "Complete step-by-step guide to install and configure Expert Advisors",
+    icon: Download,
+    content: `
+# EA Installation Guide
+
+## Prerequisites
+- MetaTrader 5 platform installed
+- Valid broker account with MT5 access
+- Active EA license from your dashboard
+
+## Step-by-Step Installation
+
+### 1. Download Your EA
+1. Login to your dashboard
+2. Navigate to "Products & Licenses"
+3. Click "Download" next to your purchased EA
+4. Save the .ex5 file to your computer
+
+### 2. Install on MetaTrader 5
+1. Open MetaTrader 5
+2. Go to File → Open Data Folder
+3. Navigate to MQL5 → Experts folder
+4. Copy your .ex5 file into this folder
+5. Restart MetaTrader 5
+
+### 3. Activate Your License
+1. Drag the EA onto a chart
+2. Enter your license key when prompted
+3. Configure settings as needed
+4. Click "OK" to start trading
+
+### 4. Verify Installation
+- Check that EA shows a "smiley face" icon
+- Ensure "AutoTrading" is enabled
+- Monitor the "Experts" tab for any errors
+
+## Troubleshooting
+- **No smiley face**: Check if AutoTrading is enabled
+- **License error**: Verify your license key is correct
+- **No trades**: Check market hours and account balance
+    `
+  },
+  {
+    title: "Account Configuration",
+    description: "Optimize your broker account settings for best EA performance",
+    icon: Users,
+    content: `
+# Account Configuration Guide
+
+## Recommended Broker Settings
+
+### Account Type
+- **ECN accounts preferred** for tighter spreads
+- Raw spread accounts with commission structure
+- Minimum deposit: $500 for safe lot sizing
+
+### Leverage Settings
+- **1:100 to 1:500 recommended**
+- Higher leverage allows smaller lot sizes
+- Don't over-leverage your account
+
+### Symbol Settings
+- Enable all major currency pairs
+- Ensure 5-digit pricing is available
+- Check spread history during trading hours
+
+## EA Configuration
+
+### Risk Management
+- **Lot Size**: 0.01 per $1000 account balance
+- **Max Risk**: Never risk more than 2% per trade
+- **Stop Loss**: Always use protective stops
+
+### Trading Hours
+- Avoid major news events
+- Best performance during London/NY overlap
+- Consider your broker's server time
+
+### Money Management
+- Start with minimum lot sizes
+- Increase gradually as account grows
+- Never risk money you can't afford to lose
+
+## Monitoring Your EA
+- Check daily performance
+- Review trade history regularly
+- Adjust settings based on market conditions
+    `
+  },
+  {
+    title: "Risk Management",
+    description: "Essential risk management principles for algorithmic trading",
+    icon: Shield,
+    content: `
+# Risk Management Guide
+
+## Core Principles
+
+### Position Sizing
+- **2% Rule**: Never risk more than 2% of account per trade
+- **Lot Size Calculation**: Account Balance × 0.02 ÷ Stop Loss Pips
+- **Progressive Sizing**: Increase lots as account grows
+
+### Stop Loss Guidelines
+- Always set stop losses before entering trades
+- Use technical levels, not arbitrary numbers
+- ATR-based stops for volatile markets
+
+### Portfolio Management
+- Diversify across different EAs
+- Don't concentrate on single currency pairs
+- Monitor correlation between trading strategies
+
+## Risk Control Settings
+
+### Maximum Drawdown
+- Set maximum acceptable drawdown (15-20%)
+- Use equity stop-loss if available
+- Monitor daily, weekly, monthly performance
+
+### Trading Hours
+- Avoid major news events (NFP, FOMC, etc.)
+- Best hours: London (8-12 GMT) and NY (13-17 GMT)
+- Consider weekend gaps and Monday volatility
+
+### Market Conditions
+- **Trending Markets**: Use trend-following EAs
+- **Ranging Markets**: Use scalping/grid EAs
+- **High Volatility**: Reduce position sizes
+
+## Emergency Procedures
+1. **If EA malfunctions**: Stop AutoTrading immediately
+2. **If large drawdown**: Review and adjust settings
+3. **If broker issues**: Have backup broker ready
+4. **Regular backups**: Export EA settings regularly
+    `
+  },
+  {
+    title: "Troubleshooting Common Issues",
+    description: "Solutions to the most frequently encountered problems",
+    icon: Zap,
+    content: `
+# Troubleshooting Guide
+
+## License Issues
+
+### "Invalid License" Error
+1. **Check license key**: Ensure no extra spaces
+2. **Account binding**: License tied to specific MT5 account
+3. **Expiry date**: Check subscription status in dashboard
+4. **Contact support**: If still issues persist
+
+### "Hardware ID Mismatch"
+- License bound to computer hardware
+- Contact support for hardware reset
+- Pro/Elite plans have more transfer allowances
+
+## Trading Issues
+
+### EA Not Placing Trades
+1. **AutoTrading enabled**: Check MT5 settings
+2. **Sufficient balance**: Minimum required for lot size
+3. **Market hours**: EA may have time filters
+4. **Spread conditions**: Check maximum spread settings
+
+### Trades Closing Immediately
+- **Spread too wide**: Increase max spread setting
+- **Insufficient margin**: Reduce lot size
+- **Stop loss hit**: Normal risk management
+
+## Technical Problems
+
+### EA Disappeared from Chart
+1. **Check Experts folder**: File may be corrupted
+2. **Reinstall EA**: Download fresh copy
+3. **Check permissions**: Windows may block files
+4. **Antivirus interference**: Add MT5 to exceptions
+
+### Performance Issues
+- **VPS recommended**: For 24/7 trading
+- **Internet connection**: Stable connection required
+- **MT5 updates**: Keep platform updated
+- **Broker server**: Choose nearby server location
+
+## Getting Help
+- Check error messages in Experts tab
+- Take screenshots of issues
+- Note exact error codes
+- Contact support with detailed information
+    `
+  }
+]
+
 const supportChannels = [
   {
     icon: MessageSquare,
@@ -117,25 +315,51 @@ export default function SupportPage() {
     message: ""
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedDocument, setSelectedDocument] = useState<typeof documentGuides[0] | null>(null)
   const { toast } = useToast()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitted(true)
-    toast({
-      title: "Message Sent Successfully!",
-      description: "Our support team will get back to you within 24 hours.",
-    })
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormData({ name: "", email: "", topic: "", message: "" })
-      setIsSubmitted(false)
-    }, 3000)
+    setIsSubmitting(true)
+
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          topic: formData.topic,
+          message: formData.message
+        })
+
+      if (error) throw error
+
+      setIsSubmitted(true)
+      toast({
+        title: "Message Sent Successfully!",
+        description: "Our support team will get back to you within 24 hours.",
+      })
+      
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setFormData({ name: "", email: "", topic: "", message: "" })
+        setIsSubmitted(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Error submitting support ticket:', error)
+      toast({
+        title: "Error Sending Message",
+        description: "There was a problem sending your message. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const filteredQuestions = faqCategories.flatMap(category => 
@@ -210,6 +434,90 @@ export default function SupportPage() {
                   </Button>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+
+          {/* Community Section */}
+          <div className="mt-16 text-center">
+            <Card className="max-w-2xl mx-auto bg-gradient-subtle border-2">
+              <CardHeader>
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary">
+                  <MessageSquare className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-xl">Join Our Community</CardTitle>
+                <CardDescription>
+                  Connect with other traders, share strategies, and get real-time support from our community
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  className="w-full hover-scale" 
+                  onClick={() => window.open('https://t.me/+your-telegram-group', '_blank')}
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Join Telegram Community
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </Button>
+                <p className="text-sm text-muted-foreground mt-2">
+                  1,500+ active traders • 24/7 discussions • Expert tips
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Documentation & Guides */}
+      <section className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              Documentation & Guides
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Comprehensive guides to help you get the most out of our Expert Advisors
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {documentGuides.map((guide, index) => (
+              <Dialog key={index}>
+                <DialogTrigger asChild>
+                  <Card className="cursor-pointer hover-scale transition-all duration-200 hover:shadow-lg animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.1 + index * 0.1}s` }}>
+                    <CardHeader className="text-center">
+                      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary">
+                        <guide.icon className="h-6 w-6 text-primary-foreground" />
+                      </div>
+                      <CardTitle className="text-lg">{guide.title}</CardTitle>
+                      <CardDescription className="text-sm">
+                        {guide.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        Read Guide
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <guide.icon className="h-5 w-5" />
+                      {guide.title}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {guide.description}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <pre className="whitespace-pre-wrap text-sm leading-relaxed font-normal bg-muted p-4 rounded-lg">
+                      {guide.content}
+                    </pre>
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
         </div>
@@ -400,8 +708,13 @@ export default function SupportPage() {
                       />
                     </div>
 
-                    <Button type="submit" size="lg" className="w-full hover-scale">
-                      Send Message
+                    <Button 
+                      type="submit" 
+                      size="lg" 
+                      className="w-full hover-scale"
+                      disabled={!formData.name || !formData.email || !formData.topic || !formData.message || isSubmitting}
+                    >
+                      {isSubmitting ? "Sending..." : "Send Message"}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </form>

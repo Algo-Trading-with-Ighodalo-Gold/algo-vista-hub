@@ -44,66 +44,6 @@ export type Database = {
         }
         Relationships: []
       }
-      affiliates: {
-        Row: {
-          commission_earned: number | null
-          created_at: string | null
-          id: string
-          payout_status: string | null
-          referral_code: string
-          total_clicks: number | null
-          total_conversions: number | null
-          user_id: string
-        }
-        Insert: {
-          commission_earned?: number | null
-          created_at?: string | null
-          id?: string
-          payout_status?: string | null
-          referral_code: string
-          total_clicks?: number | null
-          total_conversions?: number | null
-          user_id: string
-        }
-        Update: {
-          commission_earned?: number | null
-          created_at?: string | null
-          id?: string
-          payout_status?: string | null
-          referral_code?: string
-          total_clicks?: number | null
-          total_conversions?: number | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      ea_development: {
-        Row: {
-          created_at: string
-          id: string
-          requirements: string
-          status: string
-          strategy_name: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          requirements: string
-          status?: string
-          strategy_name: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          requirements?: string
-          status?: string
-          strategy_name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       licenses: {
         Row: {
           created_at: string | null
@@ -301,6 +241,39 @@ export type Database = {
           start_date?: string | null
           status?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          topic?: string
+          updated_at?: string
         }
         Relationships: []
       }
