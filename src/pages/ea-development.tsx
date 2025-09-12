@@ -113,6 +113,7 @@ export default function EADevelopmentPage() {
     ndaAgreed: false
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showCalendly, setShowCalendly] = useState(false)
   const { toast } = useToast()
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -163,6 +164,9 @@ export default function EADevelopmentPage() {
         description: "We'll review your requirements and get back to you within 24 hours.",
       })
       
+      // Show Calendly booking
+      setShowCalendly(true)
+      
       // Reset form
       setFormData({
         name: "",
@@ -209,7 +213,11 @@ export default function EADevelopmentPage() {
               and ongoing support. Transform your trading ideas into profitable automated systems.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
-              <Button size="lg" className="text-lg px-8 hover-scale">
+              <Button 
+                size="lg" 
+                className="text-lg px-8 hover-scale"
+                onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 Start Your Project
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -291,26 +299,28 @@ export default function EADevelopmentPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section className="py-20">
+      <section className="py-20" id="project-form">
         <div className="container">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12 animate-fade-in">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-                Start Your EA Development Project
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Tell us about your trading strategy and we'll provide a detailed quote within 24 hours
-              </p>
-            </div>
+            {!showCalendly ? (
+              <>
+                <div className="text-center mb-12 animate-fade-in">
+                  <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+                    Start Your EA Development Project
+                  </h2>
+                  <p className="text-lg text-muted-foreground">
+                    Tell us about your trading strategy and we'll provide a detailed quote within 24 hours
+                  </p>
+                </div>
 
-            <Card className="animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
-              <CardHeader>
-                <CardTitle>Project Inquiry Form</CardTitle>
-                <CardDescription>
-                  Please provide as much detail as possible to help us understand your requirements
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                <Card className="animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+                  <CardHeader>
+                    <CardTitle>Project Inquiry Form</CardTitle>
+                    <CardDescription>
+                      Please provide as much detail as possible to help us understand your requirements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -473,6 +483,71 @@ export default function EADevelopmentPage() {
                 </form>
               </CardContent>
             </Card>
+          </>
+        ) : (
+          <div className="text-center space-y-8 animate-fade-in">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 text-success">
+                🎉 Project Inquiry Submitted!
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Thank you for your detailed submission. We'll review your requirements and get back to you within 24 hours.
+              </p>
+            </div>
+            
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 justify-center">
+                  📅 Book Your Free Consultation
+                </CardTitle>
+                <CardDescription>
+                  Schedule a 30-minute strategy session with our EA development experts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center space-y-6">
+                <p className="text-muted-foreground">
+                  During this consultation, we'll discuss your strategy in detail, answer any questions, 
+                  and provide you with a comprehensive development plan and timeline.
+                </p>
+                
+                <div className="bg-gradient-primary/10 rounded-lg p-6 space-y-4">
+                  <h3 className="font-semibold text-lg">What we'll cover:</h3>
+                  <ul className="text-left space-y-2 max-w-md mx-auto">
+                    <li className="flex items-center gap-2">
+                      <div className="h-2 w-2 bg-primary rounded-full" />
+                      Strategy analysis and optimization suggestions
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="h-2 w-2 bg-primary rounded-full" />
+                      Technical implementation approach
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="h-2 w-2 bg-primary rounded-full" />
+                      Timeline and project milestones
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="h-2 w-2 bg-primary rounded-full" />
+                      Final quote and next steps
+                    </li>
+                  </ul>
+                </div>
+                
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8 hover-scale"
+                  onClick={() => window.open('https://calendly.com/algotradingwithighodalo/30min', '_blank')}
+                >
+                  📅 Schedule Free Consultation
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                
+                <p className="text-sm text-muted-foreground">
+                  Prefer email? We'll also send you a detailed response within 24 hours.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
           </div>
         </div>
       </section>

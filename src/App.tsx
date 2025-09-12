@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Layout } from "@/components/layout/layout";
+import { DashboardLayout } from "@/layouts/dashboard-layout";
 import HomePage from "./pages/home";
 import ProductsPage from "./pages/products";
 import PricingPage from "./pages/pricing";
@@ -15,6 +16,8 @@ import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import ForgotPasswordPage from "./pages/auth/forgot-password";
 import DashboardPage from "./pages/dashboard/dashboard";
+import DashboardOverview from "./pages/dashboard/overview";
+import ProfilePage from "./pages/dashboard/profile";
 import AffiliateProgramPage from "./pages/affiliate-program";
 import CheckoutPage from "./pages/checkout";
 import NotFound from "./pages/NotFound";
@@ -57,11 +60,20 @@ function App() {
                   <Route path="/auth/login" element={<LoginPage />} />
                   <Route path="/auth/register" element={<RegisterPage />} />
                   <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+                  
+                  {/* Dashboard Routes with Sidebar Layout */}
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
-                      <DashboardPage />
+                      <DashboardLayout />
                     </ProtectedRoute>
-                  } />
+                  }>
+                    <Route index element={<DashboardOverview />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="subscriptions" element={<div className="animate-fade-in">Subscriptions coming soon...</div>} />
+                    <Route path="analytics" element={<div className="animate-fade-in">Analytics coming soon...</div>} />
+                    <Route path="ea-development" element={<div className="animate-fade-in">EA Development coming soon...</div>} />
+                    <Route path="affiliate" element={<div className="animate-fade-in">Affiliate management coming soon...</div>} />
+                  </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Layout>

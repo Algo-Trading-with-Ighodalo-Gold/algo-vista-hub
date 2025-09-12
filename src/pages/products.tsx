@@ -302,76 +302,79 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
         
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-center">Choose Your Payment Option</h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer group">
-              <CardHeader className="text-center">
-                <CardTitle className="flex items-center justify-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Subscription Plan
-                </CardTitle>
-                <CardDescription>Monthly access with all updates</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center space-y-4">
-                <div className="text-3xl font-bold">$29<span className="text-lg text-muted-foreground">/mo</span></div>
-                <ul className="text-sm space-y-2 text-left">
-                  <li className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 bg-success rounded-full" />
-                    Continuous updates
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 bg-success rounded-full" />
-                    24/7 support
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 bg-success rounded-full" />
-                    Performance monitoring
-                  </li>
-                </ul>
-                <Button 
-                  className="w-full hover-scale" 
-                  onClick={handleSubscriptionPayment}
-                >
-                  Subscribe Now
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer group">
-              <CardHeader className="text-center">
-                <CardTitle className="flex items-center justify-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  One-Time Purchase
-                </CardTitle>
-                <CardDescription>Lifetime license with current version</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center space-y-4">
-                <div className="text-3xl font-bold">{ea.price}<span className="text-lg text-muted-foreground"> once</span></div>
-                <ul className="text-sm space-y-2 text-left">
-                  <li className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full" />
-                    Lifetime license
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full" />
-                    Current version access
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full" />
-                    Basic support included
-                  </li>
-                </ul>
-                <Button 
-                  variant="outline" 
-                  className="w-full hover-scale" 
-                  onClick={handleOneTimePayment}
-                >
-                  Buy Once
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer group">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Subscription Plan
+              </CardTitle>
+              <CardDescription>Monthly access with all updates and support</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <div className="text-3xl font-bold">$29<span className="text-lg text-muted-foreground">/mo</span></div>
+              <ul className="text-sm space-y-2 text-left">
+                <li className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 bg-success rounded-full" />
+                  Continuous updates
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 bg-success rounded-full" />
+                  24/7 priority support
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 bg-success rounded-full" />
+                  Performance monitoring
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 bg-success rounded-full" />
+                  New features included
+                </li>
+              </ul>
+              <Button 
+                className="w-full hover-scale" 
+                onClick={handleSubscriptionPayment}
+              >
+                Subscribe Now
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-2 opacity-50 cursor-not-allowed">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Clock className="h-5 w-5" />
+                One-Time Purchase
+              </CardTitle>
+              <CardDescription>Coming Soon - Multiple Payment Options</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <div className="text-3xl font-bold text-muted-foreground">{ea.price}<span className="text-lg text-muted-foreground"> once</span></div>
+              <ul className="text-sm space-y-2 text-left">
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full" />
+                  Multiple payment providers
+                </li>
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full" />
+                  Lifetime license option
+                </li>
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full" />
+                  Flexible payment methods
+                </li>
+              </ul>
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                disabled
+              >
+                Coming Soon
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
