@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Layout } from "@/components/layout/layout";
+import { EnhancedLayout } from "@/components/layout/enhanced-layout";
 import { DashboardLayout } from "@/layouts/dashboard-layout";
 import HomePage from "./pages/home";
 import ProductsPage from "./pages/products";
@@ -41,7 +42,7 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <Layout>
+              <EnhancedLayout>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/products" element={<ProductsPage />} />
@@ -76,7 +77,7 @@ function App() {
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </Layout>
+              </EnhancedLayout>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

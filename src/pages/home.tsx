@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle } from "lucide-react"
+import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle, Code, Zap, Trophy, Target, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { StatsCard } from "@/components/ui/stats-card"
+import { FloatingIcon, GlowingOrb, MagneticButton } from "@/components/ui/interactive-elements"
+import { FloatingDots } from "@/components/ui/floating-background"
 
 const features = [
   {
@@ -132,14 +134,20 @@ export default function HomePage() {
               Join thousands of traders generating consistent profits with our proven algorithms.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
-              <Button size="lg" className="text-lg px-8 hover-scale" asChild>
-                <Link to="/auth/register">
-                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 hover-scale" asChild>
-                <Link to="/auth/login">Sign In</Link>
-              </Button>
+              <MagneticButton>
+                <Button size="lg" className="text-lg px-10 py-4 hover-glow shadow-2xl animate-pulse-glow" asChild>
+                  <Link to="/auth/register">
+                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </MagneticButton>
+              <MagneticButton>
+                <Button size="lg" variant="outline" className="text-lg px-10 py-4 backdrop-blur-sm border-2 hover-scale" asChild>
+                  <Link to="/auth/login">
+                    Sign In <Sparkles className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </MagneticButton>
             </div>
             <p className="mt-4 text-sm text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               30-day money-back guarantee • Lifetime updates • 24/7 support

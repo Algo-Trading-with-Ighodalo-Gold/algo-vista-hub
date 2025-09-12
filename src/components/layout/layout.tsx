@@ -1,11 +1,11 @@
 import { Header } from "./header"
 import { Footer } from "./footer"
 
-interface LayoutProps {
+interface BaseLayoutProps {
   children: React.ReactNode
 }
 
-export function Layout({ children }: LayoutProps) {
+function BaseLayout({ children }: BaseLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -16,3 +16,5 @@ export function Layout({ children }: LayoutProps) {
     </div>
   )
 }
+
+export { BaseLayout as Layout }
