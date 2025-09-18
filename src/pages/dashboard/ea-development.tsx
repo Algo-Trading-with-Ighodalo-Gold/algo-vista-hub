@@ -70,7 +70,7 @@ const getStatusVariant = (status: string) => {
   }
 }
 
-export default function EADevelopmentPage() {
+export default function DashboardEADevelopmentPage() {
   const [showCalendly, setShowCalendly] = useState(false)
   const { loading } = useDashboardData()
 
