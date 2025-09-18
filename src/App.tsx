@@ -26,8 +26,9 @@ import ResourcesPage from "./pages/dashboard/resources";
 import FAQPage from "./pages/dashboard/faq";
 import AffiliatePage from "./pages/dashboard/affiliate";
 import AffiliateProgramPage from "./pages/affiliate-program";
-import CheckoutPage from "./pages/checkout";
-import NotFound from "./pages/NotFound";
+import CheckoutPage from "./pages/checkout"
+import PaymentPage from "./pages/payment"
+import NotFound from "./pages/NotFound"
 import EATitanXPage from "./pages/products/ea-titanx";
 import EAQuantumEdgePage from "./pages/products/ea-quantumedge";
 import EAVelocityProPage from "./pages/products/ea-velocitypro";
@@ -60,6 +61,7 @@ function App() {
                 <Route path="/pricing" element={<EnhancedLayout><PricingPage /></EnhancedLayout>} />
                 <Route path="/support" element={<EnhancedLayout><SupportPage /></EnhancedLayout>} />
                 <Route path="/checkout" element={<EnhancedLayout><CheckoutPage /></EnhancedLayout>} />
+                <Route path="/payment" element={<EnhancedLayout><PaymentPage /></EnhancedLayout>} />
                 <Route path="/privacy" element={<EnhancedLayout><PrivacyPolicyPage /></EnhancedLayout>} />
                 <Route path="/terms" element={<EnhancedLayout><TermsOfServicePage /></EnhancedLayout>} />
                 <Route path="/license" element={<EnhancedLayout><LicenseAgreementPage /></EnhancedLayout>} />

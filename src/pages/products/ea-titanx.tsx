@@ -1,12 +1,11 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { ArrowLeft, Star, Download, Shield, TrendingUp, Users, CheckCircle, Clock, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 const equityData = [
@@ -81,17 +80,16 @@ const faqs = [
 ]
 
 export default function EATitanXPage() {
-  const [selectedPlan, setSelectedPlan] = useState("single")
+  const navigate = useNavigate()
   
   const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
 
-  const getPlanPrice = () => {
-    switch(selectedPlan) {
-      case "single": return 99
-      case "multi": return 199
-      case "lifetime": return 499
-      default: return 99
-    }
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  const handleSubscribe = () => {
+    navigate('/payment', { state: { product: 'EA TitanX', plan: 'Monthly', price: 29 } })
   }
 
   return (
@@ -145,23 +143,15 @@ export default function EATitanXPage() {
               </div>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Plan</label>
-                  <Select value={selectedPlan} onValueChange={setSelectedPlan}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="single">1 Account - $99</SelectItem>
-                      <SelectItem value="multi">3 Accounts - $199</SelectItem>
-                      <SelectItem value="lifetime">Lifetime License - $499</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="text-sm font-medium text-primary mb-2">Monthly Subscription</div>
+                  <div className="text-2xl font-bold">$29<span className="text-lg text-muted-foreground">/month</span></div>
+                  <div className="text-sm text-muted-foreground mt-1">Cancel anytime • Full access included</div>
                 </div>
                 
                 <div className="flex gap-4">
-                  <Button size="lg" className="flex-1 hover-scale">
-                    Buy Now - ${getPlanPrice()}
+                  <Button size="lg" className="flex-1 hover-scale" onClick={handleSubscribe}>
+                    Subscribe Now
                   </Button>
                   <Button size="lg" variant="outline" className="hover-scale">
                     <Download className="h-4 w-4 mr-2" />
@@ -462,8 +452,8 @@ export default function EATitanXPage() {
             Join thousands of successful traders using EA TitanX. Start your journey to consistent profits today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale">
-              Purchase EA TitanX - ${getPlanPrice()}
+            <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale" onClick={handleSubscribe}>
+              Subscribe to EA TitanX
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale">
               Contact Support

@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -181,14 +182,10 @@ interface EADetailModalProps {
 }
 
 function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
-  const handleSubscriptionPayment = () => {
-    // Redirect to subscription checkout
-    console.log("Redirecting to subscription checkout for", ea.name)
-  }
+  const navigate = useNavigate()
 
-  const handleOneTimePayment = () => {
-    // Redirect to one-time payment checkout
-    console.log("Redirecting to one-time payment checkout for", ea.name)
+  const handleSubscribe = () => {
+    navigate('/payment', { state: { product: ea.name, plan: 'Monthly', price: 29 } })
   }
 
   return (
@@ -333,7 +330,7 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
               </ul>
               <Button 
                 className="w-full hover-scale" 
-                onClick={handleSubscriptionPayment}
+                onClick={handleSubscribe}
               >
                 Subscribe Now
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -383,6 +380,10 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
 
 export default function ProductsPage() {
   const [selectedEA, setSelectedEA] = useState<typeof expertAdvisors[0] | null>(null)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   return (
     
