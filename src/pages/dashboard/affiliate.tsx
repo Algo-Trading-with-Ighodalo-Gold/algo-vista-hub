@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { useDashboardData } from '@/hooks/use-dashboard-data'
 import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/hooks/use-toast'
@@ -15,8 +16,112 @@ import {
   TrendingUp,
   UserPlus,
   Gift,
-  Target
+  Target,
+  Calendar,
+  BarChart3,
+  Star
 } from 'lucide-react'
+
+const commissionTiers = [
+  {
+    sales: "1-10",
+    commission: "20%",
+    description: "Great starting rate for new affiliates"
+  },
+  {
+    sales: "11-25", 
+    commission: "25%",
+    description: "Increased rate for consistent performers"
+  },
+  {
+    sales: "26-50",
+    commission: "30%",
+    description: "Premium rate for top affiliates"
+  },
+  {
+    sales: "50+",
+    commission: "35%",
+    description: "Maximum rate for super affiliates"
+  }
+]
+
+const benefits = [
+  {
+    icon: DollarSign,
+    title: "High Commissions",
+    description: "Earn 20-35% commission on all referred sales with performance-based increases",
+    highlight: "Up to 35%"
+  },
+  {
+    icon: Calendar,
+    title: "Long Cookie Duration", 
+    description: "60-day cookie lifetime ensures you get credit for delayed conversions",
+    highlight: "60 Days"
+  },
+  {
+    icon: TrendingUp,
+    title: "Monthly Payouts",
+    description: "Reliable monthly payments with $100 minimum payout threshold",
+    highlight: "$100 Min"
+  },
+  {
+    icon: BarChart3,
+    title: "Real-time Analytics",
+    description: "Advanced dashboard with detailed conversion tracking and performance metrics",
+    highlight: "Live Stats"
+  }
+]
+
+const faqs = [
+  {
+    question: "How much can I earn as an affiliate?",
+    answer: "Affiliates earn 20-35% commission on all sales. Top affiliates with 50+ monthly sales earn 35% commission, which can result in $3,000+ monthly earnings depending on sales volume and product mix."
+  },
+  {
+    question: "When do I get paid?",
+    answer: "Payments are made monthly on the 15th via PayPal, bank transfer, or cryptocurrency. Minimum payout is $100. If you don't reach the minimum, your earnings roll over to the next month."
+  },
+  {
+    question: "What is the cookie duration?",
+    answer: "We use a 60-day cookie, meaning if someone clicks your link and purchases within 60 days, you'll receive the commission. This is one of the longest cookie durations in the industry."
+  },
+  {
+    question: "What promotional materials do you provide?",
+    answer: "We provide banners, email templates, product images, video reviews, landing pages, and social media content. All materials are professionally designed and optimized for conversion."
+  },
+  {
+    question: "Can I promote on social media and paid ads?",
+    answer: "Yes! You can promote on social media, YouTube, blogs, email lists, and paid advertising. We only restrict trademark bidding and spam. Full promotional guidelines are provided upon approval."
+  },
+  {
+    question: "How do I track my performance?",
+    answer: "Your affiliate dashboard provides real-time statistics including clicks, conversions, earnings, and detailed analytics. You can track performance by traffic source, campaign, and time period."
+  }
+]
+
+const testimonials = [
+  {
+    name: "James Mitchell",
+    role: "YouTube Content Creator",
+    earnings: "$4,200",
+    content: "The conversion rates are incredible! My trading audience loves these EAs and the 35% commission rate makes it very worthwhile. Best affiliate program in the trading space.",
+    period: "Last Month"
+  },
+  {
+    name: "Lisa Chen",
+    role: "Trading Blog Owner", 
+    earnings: "$2,800",
+    content: "Excellent support team and marketing materials. The 60-day cookie duration really makes a difference for my blog readers who take time to decide.",
+    period: "Last Month"
+  },
+  {
+    name: "Robert Taylor",
+    role: "Email Marketer",
+    earnings: "$3,500",
+    content: "Consistent monthly payouts and great products that actually work. My subscribers trust my recommendations because these EAs deliver results.",
+    period: "Last Month"
+  }
+]
 
 export default function AffiliatePage() {
   const { user } = useAuth()
@@ -130,7 +235,7 @@ export default function AffiliatePage() {
                   Your Referral Link
                 </CardTitle>
                 <CardDescription>
-                  Share this link to earn 30% commission on all referral sales
+                  Share this link to earn commission on all referral sales
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -174,23 +279,35 @@ export default function AffiliatePage() {
                 Commission Structure
               </CardTitle>
               <CardDescription>
-                Earn competitive commissions on every successful referral
+                Performance-based commission tiers that reward consistent sales and growth
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {commissionTiers.map((tier, index) => (
+                  <Card key={index} className={`text-center hover-scale relative ${index === 3 ? 'border-primary shadow-lg' : ''}`}>
+                    {index === 3 && (
+                      <Badge className="absolute top-2 right-2 bg-primary text-xs">
+                        Best Rate
+                      </Badge>
+                    )}
+                    <CardHeader className="pb-2">
+                      <div className="text-2xl font-bold text-primary mb-2">{tier.commission}</div>
+                      <CardTitle className="text-sm">{tier.sales} Sales/Month</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-xs">{tier.description}</CardDescription>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center space-y-2">
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <DollarSign className="h-6 w-6 text-primary" />
+                    <Calendar className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold">30%</h3>
-                  <p className="text-sm text-muted-foreground">Commission Rate</p>
-                </div>
-                <div className="text-center space-y-2">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <UserPlus className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold">Lifetime</h3>
+                  <h3 className="font-semibold">60 Days</h3>
                   <p className="text-sm text-muted-foreground">Cookie Duration</p>
                 </div>
                 <div className="text-center space-y-2">
@@ -200,7 +317,95 @@ export default function AffiliatePage() {
                   <h3 className="font-semibold">Monthly</h3>
                   <p className="text-sm text-muted-foreground">Payout Schedule</p>
                 </div>
+                <div className="text-center space-y-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <BarChart3 className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold">$100</h3>
+                  <p className="text-sm text-muted-foreground">Minimum Payout</p>
+                </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Program Benefits */}
+          <Card className="animate-fade-in [animation-delay:0.5s] opacity-0 [animation-fill-mode:forwards]">
+            <CardHeader>
+              <CardTitle>Program Benefits</CardTitle>
+              <CardDescription>
+                Why join our affiliate program
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="text-center space-y-3">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary">
+                      <benefit.icon className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <div className="text-lg font-bold text-primary">{benefit.highlight}</div>
+                    <h3 className="font-semibold text-sm">{benefit.title}</h3>
+                    <p className="text-xs text-muted-foreground">{benefit.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Testimonials */}
+          <Card className="animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
+            <CardHeader>
+              <CardTitle>What Our Affiliates Say</CardTitle>
+              <CardDescription>
+                Success stories from our affiliate partners
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {testimonials.map((testimonial, index) => (
+                  <Card key={index} className="relative">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-sm">{testimonial.name}</CardTitle>
+                          <CardDescription className="text-xs">{testimonial.role}</CardDescription>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {testimonial.earnings}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground italic">"{testimonial.content}"</p>
+                      <p className="text-xs text-muted-foreground mt-2">{testimonial.period}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* FAQ Section */}
+          <Card className="animate-fade-in [animation-delay:0.7s] opacity-0 [animation-fill-mode:forwards]">
+            <CardHeader>
+              <CardTitle>Frequently Asked Questions</CardTitle>
+              <CardDescription>
+                Common questions about our affiliate program
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                {faqs.map((faq, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger className="text-left text-sm">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-sm text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </CardContent>
           </Card>
         </>
@@ -214,39 +419,23 @@ export default function AffiliatePage() {
                 Join Our Affiliate Program
               </CardTitle>
               <CardDescription>
-                Start earning 30% commission on every successful referral
+                Start earning commissions on every successful referral
               </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Benefits */}
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <div className="text-center space-y-3">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <DollarSign className="h-6 w-6 text-primary" />
+              <div className="grid md:grid-cols-4 gap-6 mb-8">
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="text-center space-y-3">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <benefit.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-sm">{benefit.title}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {benefit.description}
+                    </p>
                   </div>
-                  <h3 className="font-semibold">High Commissions</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Earn 30% on every sale you refer
-                  </p>
-                </div>
-                <div className="text-center space-y-3">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <Target className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold">Easy Tracking</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Advanced analytics and real-time reporting
-                  </p>
-                </div>
-                <div className="text-center space-y-3">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <Gift className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold">Marketing Materials</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Banners, links, and promotional content
-                  </p>
-                </div>
+                ))}
               </div>
 
               <AffiliateApplicationForm />
