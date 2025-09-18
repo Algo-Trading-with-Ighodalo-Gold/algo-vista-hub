@@ -48,46 +48,45 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <EnhancedLayout>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/products" element={<ProductsPage />} />
-                  <Route path="/products/ea-titanx" element={<EATitanXPage />} />
-                  <Route path="/products/ea-quantumedge" element={<EAQuantumEdgePage />} />
-                  <Route path="/products/ea-velocitypro" element={<EAVelocityProPage />} />
-                  <Route path="/development" element={<EADevelopmentPage />} />
-                  <Route path="/affiliate-program" element={<AffiliateProgramPage />} />
-                  <Route path="/pricing" element={<PricingPage />} />
-                  <Route path="/support" element={<SupportPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                  <Route path="/terms" element={<TermsOfServicePage />} />
-                  <Route path="/license" element={<LicenseAgreementPage />} />
-                  <Route path="/cookies" element={<CookiePolicyPage />} />
-                  <Route path="/auth/login" element={<LoginPage />} />
-                  <Route path="/auth/register" element={<RegisterPage />} />
-                  <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-                  
-                  {/* Dashboard Routes with Sidebar Layout */}
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <DashboardLayout />
-                    </ProtectedRoute>
-                  }>
-                    <Route index element={<ProfilePage />} />
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="analytics" element={<AnalyticsPage />} />
-                    <Route path="ea-development" element={<DashboardEADevelopmentPage />} />
-                    <Route path="accounts" element={<AccountsPage />} />
-                    <Route path="transactions" element={<TransactionsPage />} />
-                    <Route path="trading-rules" element={<TradingRulesPage />} />
-                    <Route path="resources" element={<ResourcesPage />} />
-                    <Route path="faq" element={<FAQPage />} />
-                    <Route path="affiliate" element={<AffiliatePage />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </EnhancedLayout>
+              <Routes>
+                {/* Public Routes with Enhanced Layout (includes public header) */}
+                <Route path="/" element={<EnhancedLayout><HomePage /></EnhancedLayout>} />
+                <Route path="/products" element={<EnhancedLayout><ProductsPage /></EnhancedLayout>} />
+                <Route path="/products/ea-titanx" element={<EnhancedLayout><EATitanXPage /></EnhancedLayout>} />
+                <Route path="/products/ea-quantumedge" element={<EnhancedLayout><EAQuantumEdgePage /></EnhancedLayout>} />
+                <Route path="/products/ea-velocitypro" element={<EnhancedLayout><EAVelocityProPage /></EnhancedLayout>} />
+                <Route path="/development" element={<EnhancedLayout><EADevelopmentPage /></EnhancedLayout>} />
+                <Route path="/affiliate-program" element={<EnhancedLayout><AffiliateProgramPage /></EnhancedLayout>} />
+                <Route path="/pricing" element={<EnhancedLayout><PricingPage /></EnhancedLayout>} />
+                <Route path="/support" element={<EnhancedLayout><SupportPage /></EnhancedLayout>} />
+                <Route path="/checkout" element={<EnhancedLayout><CheckoutPage /></EnhancedLayout>} />
+                <Route path="/privacy" element={<EnhancedLayout><PrivacyPolicyPage /></EnhancedLayout>} />
+                <Route path="/terms" element={<EnhancedLayout><TermsOfServicePage /></EnhancedLayout>} />
+                <Route path="/license" element={<EnhancedLayout><LicenseAgreementPage /></EnhancedLayout>} />
+                <Route path="/cookies" element={<EnhancedLayout><CookiePolicyPage /></EnhancedLayout>} />
+                <Route path="/auth/login" element={<EnhancedLayout><LoginPage /></EnhancedLayout>} />
+                <Route path="/auth/register" element={<EnhancedLayout><RegisterPage /></EnhancedLayout>} />
+                <Route path="/auth/forgot-password" element={<EnhancedLayout><ForgotPasswordPage /></EnhancedLayout>} />
+                
+                {/* Dashboard Routes with Dashboard Layout Only (no public header) */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<ProfilePage />} />
+                  <Route path="profile" element={<ProfilePage />} />
+                  <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="ea-development" element={<DashboardEADevelopmentPage />} />
+                  <Route path="accounts" element={<AccountsPage />} />
+                  <Route path="transactions" element={<TransactionsPage />} />
+                  <Route path="trading-rules" element={<TradingRulesPage />} />
+                  <Route path="resources" element={<ResourcesPage />} />
+                  <Route path="faq" element={<FAQPage />} />
+                  <Route path="affiliate" element={<AffiliatePage />} />
+                </Route>
+                <Route path="*" element={<EnhancedLayout><NotFound /></EnhancedLayout>} />
+              </Routes>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
