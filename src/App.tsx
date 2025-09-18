@@ -77,6 +77,7 @@ function App() {
                   <Route index element={<ProfilePage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="ea-development" element={<DashboardEADevelopmentPage />} />
                   <Route path="accounts" element={<AccountsPage />} />
                   <Route path="transactions" element={<TransactionsPage />} />
                   <Route path="trading-rules" element={<TradingRulesPage />} />
