@@ -6,8 +6,6 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useDashboardData } from '@/hooks/use-dashboard-data'
-import { EnhancedAffiliateTracking } from '@/components/dashboard/enhanced-affiliate-tracking'
-import { AffiliateApplicationForm } from '@/components/dashboard/affiliate-application-form'
 import { 
   User, 
   Mail, 
@@ -25,7 +23,6 @@ export default function ProfilePage() {
   const { toast } = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const { 
-    affiliate, 
     profile, 
     loading 
   } = useDashboardData()
@@ -61,7 +58,7 @@ export default function ProfilePage() {
             Profile Settings
           </h1>
           <p className="text-muted-foreground text-lg mt-2">
-            Manage your account information and affiliate settings
+            Manage your account information and settings
           </p>
         </div>
         
@@ -234,20 +231,6 @@ export default function ProfilePage() {
         </Card>
       </div>
 
-      {/* Affiliate Section */}
-      <div className="space-y-6 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Affiliate Program</h2>
-          <p className="text-muted-foreground">
-            Manage your affiliate status and track your earnings
-          </p>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <EnhancedAffiliateTracking affiliate={affiliate} loading={loading} />
-          <AffiliateApplicationForm />
-        </div>
-      </div>
     </div>
   )
 }

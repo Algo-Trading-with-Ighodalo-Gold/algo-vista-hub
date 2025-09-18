@@ -2,8 +2,6 @@ import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { 
-  LayoutDashboard, 
-  CreditCard, 
   User, 
   Settings, 
   LogOut, 
@@ -11,7 +9,12 @@ import {
   BarChart3,
   Trophy,
   FileCode,
-  Users
+  Users,
+  Wallet,
+  ScrollText,
+  BookOpen,
+  HelpCircle,
+  Activity
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -20,20 +23,9 @@ import { cn } from "@/lib/utils"
 
 const navigationItems = [
   {
-    title: "Overview",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    exact: true
-  },
-  {
     title: "Profile",
     href: "/dashboard/profile", 
     icon: User
-  },
-  {
-    title: "Subscriptions",
-    href: "/dashboard/subscriptions",
-    icon: CreditCard
   },
   {
     title: "Analytics",
@@ -44,6 +36,31 @@ const navigationItems = [
     title: "EA Development",
     href: "/dashboard/ea-development",
     icon: FileCode
+  },
+  {
+    title: "Accounts",
+    href: "/dashboard/accounts",
+    icon: Activity
+  },
+  {
+    title: "Transactions",
+    href: "/dashboard/transactions",
+    icon: Wallet
+  },
+  {
+    title: "Trading Rules",
+    href: "/dashboard/trading-rules",
+    icon: ScrollText
+  },
+  {
+    title: "Resources",
+    href: "/dashboard/resources",
+    icon: BookOpen
+  },
+  {
+    title: "FAQ",
+    href: "/dashboard/faq",
+    icon: HelpCircle
   },
   {
     title: "Affiliate",
@@ -93,22 +110,22 @@ export function DashboardSidebar({ collapsed, onToggle }: DashboardSidebarProps)
           <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
             <Trophy className="h-4 w-4 text-primary-foreground" />
           </div>
-          {!collapsed && (
-            <div>
-              <h2 className="font-bold text-lg">Dashboard</h2>
-              <p className="text-xs text-muted-foreground">Trading Hub</p>
-            </div>
-          )}
+           {!collapsed && (
+             <div>
+               <h2 className="font-bold text-lg">Algo Trading</h2>
+               <p className="text-xs text-muted-foreground">with Ighodalo</p>
+             </div>
+           )}
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 space-y-2">
           {navigationItems.map((item, index) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              end={item.exact}
-              className={({ isActive }) => cn(
+             <NavLink
+               key={item.href}
+               to={item.href}
+               onClick={() => window.scrollTo(0, 0)}
+               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group hover-scale animate-fade-in opacity-0 [animation-fill-mode:forwards]",
                 isActive 
                   ? "bg-primary text-primary-foreground shadow-md" 

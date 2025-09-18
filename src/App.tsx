@@ -16,9 +16,15 @@ import SupportPage from "./pages/support";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import ForgotPasswordPage from "./pages/auth/forgot-password";
-import DashboardPage from "./pages/dashboard/dashboard";
-import DashboardOverview from "./pages/dashboard/overview";
 import ProfilePage from "./pages/dashboard/profile";
+import AnalyticsPage from "./pages/dashboard/analytics";
+import DashboardEADevelopmentPage from "./pages/dashboard/ea-development";
+import AccountsPage from "./pages/dashboard/accounts";
+import TransactionsPage from "./pages/dashboard/transactions";
+import TradingRulesPage from "./pages/dashboard/trading-rules";
+import ResourcesPage from "./pages/dashboard/resources";
+import FAQPage from "./pages/dashboard/faq";
+import AffiliatePage from "./pages/dashboard/affiliate";
 import AffiliateProgramPage from "./pages/affiliate-program";
 import CheckoutPage from "./pages/checkout";
 import NotFound from "./pages/NotFound";
@@ -68,12 +74,16 @@ function App() {
                       <DashboardLayout />
                     </ProtectedRoute>
                   }>
-                    <Route index element={<DashboardOverview />} />
+                    <Route index element={<ProfilePage />} />
                     <Route path="profile" element={<ProfilePage />} />
-                    <Route path="subscriptions" element={<div className="animate-fade-in">Subscriptions coming soon...</div>} />
-                    <Route path="analytics" element={<div className="animate-fade-in">Analytics coming soon...</div>} />
-                    <Route path="ea-development" element={<div className="animate-fade-in">EA Development coming soon...</div>} />
-                    <Route path="affiliate" element={<div className="animate-fade-in">Affiliate management coming soon...</div>} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
+                    <Route path="ea-development" element={<DashboardEADevelopmentPage />} />
+                    <Route path="accounts" element={<AccountsPage />} />
+                    <Route path="transactions" element={<TransactionsPage />} />
+                    <Route path="trading-rules" element={<TradingRulesPage />} />
+                    <Route path="resources" element={<ResourcesPage />} />
+                    <Route path="faq" element={<FAQPage />} />
+                    <Route path="affiliate" element={<AffiliatePage />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
