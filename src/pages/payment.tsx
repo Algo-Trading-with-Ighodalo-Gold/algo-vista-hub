@@ -32,12 +32,13 @@ export default function PaymentPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
   
-  // Get plan data from navigation state
-  const planData = location.state || {
+  // Get plan data from navigation state with proper defaults
+  const planData = {
     planName: "Pro Plan",
     billingPeriod: "monthly", 
     price: 30,
-    features: []
+    features: [],
+    ...location.state
   }
 
   const [paymentMethod, setPaymentMethod] = useState("card")
