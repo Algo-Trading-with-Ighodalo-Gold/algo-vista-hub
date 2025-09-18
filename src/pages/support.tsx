@@ -648,7 +648,7 @@ export default function SupportPage() {
           <div className="max-w-4xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
             {searchTerm ? (
               // Show filtered results
-              <div className="space-y-4">
+              <Accordion type="single" collapsible className="space-y-4">
                 {filteredQuestions.length > 0 ? (
                   filteredQuestions.map((item, index) => (
                     <Card key={index}>
@@ -669,6 +669,7 @@ export default function SupportPage() {
                           </CardContent>
                         </AccordionContent>
                       </AccordionItem>
+              
                     </Card>
                   ))
                 ) : (
@@ -681,7 +682,7 @@ export default function SupportPage() {
                     </CardContent>
                   </Card>
                 )}
-              </div>
+              </Accordion>
             ) : (
               // Show categorized FAQs
               <Accordion type="single" collapsible className="space-y-6">
