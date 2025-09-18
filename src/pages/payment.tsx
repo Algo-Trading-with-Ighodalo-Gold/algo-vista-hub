@@ -32,11 +32,12 @@ export default function PaymentPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
   
-  // Get product data from navigation state
-  const productData = location.state || {
-    product: "Expert Advisor",
-    plan: "Monthly",
-    price: 29
+  // Get plan data from navigation state
+  const planData = location.state || {
+    planName: "Pro Plan",
+    billingPeriod: "monthly", 
+    price: 30,
+    features: []
   }
 
   const [paymentMethod, setPaymentMethod] = useState("card")
@@ -134,30 +135,20 @@ export default function PaymentPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="font-medium">{productData.product}</span>
+                    <span className="font-medium">{planData.planName}</span>
                     <Badge variant="secondary">AI-Powered</Badge>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {productData.plan} Subscription
+                    {planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription
                   </div>
                   
                   <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Check className="h-3 w-3 text-success" />
-                      <span>Full EA access & usage</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-3 w-3 text-success" />
-                      <span>Continuous updates & improvements</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-3 w-3 text-success" />
-                      <span>24/7 priority support</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-3 w-3 text-success" />
-                      <span>Performance monitoring</span>
-                    </div>
+                    {planData.features.map((feature: string, index: number) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Check className="h-3 w-3 text-success" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
                     <div className="flex items-center gap-2">
                       <Check className="h-3 w-3 text-success" />
                       <span>Cancel anytime</span>
@@ -169,11 +160,11 @@ export default function PaymentPage() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between font-medium text-lg">
-                    <span>Monthly Subscription</span>
-                    <span>${productData.price}</span>
+                    <span>{planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription</span>
+                    <span>${planData.price}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Recurring monthly • Cancel anytime
+                    Recurring {planData.billingPeriod} • Cancel anytime
                   </div>
                 </div>
 
@@ -396,7 +387,7 @@ export default function PaymentPage() {
                     ) : (
                       <>
                         <Lock className="h-4 w-4 mr-2" />
-                        Start Subscription - ${productData.price}/month
+                        Start Subscription - ${planData.price}/{planData.billingPeriod === 'yearly' ? 'year' : 'month'}
                       </>
                     )}
                   </Button>

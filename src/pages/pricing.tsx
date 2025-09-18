@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Check, X, ArrowRight, Crown, Shield, Users, Download, Clock, Headphones, Star, Zap, CheckCircle, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,8 +28,7 @@ const plans = [
       "Email support only"
     ],
     monthlyPrice: 15,
-    yearlyPrice: 150,
-    lifetimePrice: 299
+    yearlyPrice: 150
   },
   {
     id: "pro",
@@ -51,8 +50,7 @@ const plans = [
       "Limited to 3 trading accounts"
     ],
     monthlyPrice: 30,
-    yearlyPrice: 300,
-    lifetimePrice: 599
+    yearlyPrice: 300
   },
   {
     id: "elite",
@@ -73,8 +71,7 @@ const plans = [
     ],
     limits: [],
     monthlyPrice: 75,
-    yearlyPrice: 750,
-    lifetimePrice: 1499
+    yearlyPrice: 750
   }
 ]
 
@@ -130,20 +127,27 @@ const faqs = [
 ]
 
 export default function PricingPage() {
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly' | 'lifetime'>('yearly')
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly')
+  const navigate = useNavigate()
 
   const handlePlanSelection = (planId: string, period: string) => {
-    // TODO: Implement payment flow
-    console.log(`Selected plan: ${planId}, period: ${period}`)
-    // This will redirect to Stripe checkout once we set up the payment system
-    alert(`Payment system setup needed! Selected: ${planId} - ${period}`)
+    const selectedPlan = plans.find(plan => plan.id === planId)
+    if (selectedPlan) {
+      const planData = {
+        planId: planId,
+        planName: selectedPlan.name,
+        billingPeriod: period,
+        price: period === 'monthly' ? selectedPlan.monthlyPrice : selectedPlan.yearlyPrice,
+        features: selectedPlan.features
+      }
+      navigate('/payment', { state: planData })
+    }
   }
 
   const getPrice = (plan: typeof plans[0]) => {
     switch(billingPeriod) {
       case 'monthly': return plan.monthlyPrice
       case 'yearly': return plan.yearlyPrice  
-      case 'lifetime': return plan.lifetimePrice
       default: return plan.yearlyPrice
     }
   }
@@ -196,17 +200,6 @@ export default function PricingPage() {
               <Badge variant="secondary" className="ml-2 bg-success/10 text-success">
                 Save 17%
               </Badge>
-              <span className="text-muted-foreground">|</span>
-              <button
-                onClick={() => setBillingPeriod('lifetime')}
-                className={`text-sm px-3 py-1 rounded ${
-                  billingPeriod === 'lifetime' 
-                    ? 'bg-primary text-primary-foreground font-medium' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Lifetime
-              </button>
             </div>
           </div>
 
@@ -261,7 +254,7 @@ export default function PricingPage() {
                     <div className="flex items-baseline justify-center mb-2">
                       <span className="text-5xl font-extrabold tracking-tight">${getPrice(plan)}</span>
                       <span className="text-muted-foreground ml-2 text-lg">
-                        {billingPeriod === 'lifetime' ? ' once' : billingPeriod === 'yearly' ? '/year' : '/month'}
+                        {billingPeriod === 'yearly' ? '/year' : '/month'}
                       </span>
                     </div>
                     
@@ -269,13 +262,6 @@ export default function PricingPage() {
                       <Badge variant="secondary" className="bg-success/15 text-success border-success/20">
                         <Sparkles className="w-3 h-3 mr-1" />
                         Save {getSavings(plan)}%
-                      </Badge>
-                    )}
-                    
-                    {billingPeriod === 'lifetime' && (
-                      <Badge variant="secondary" className="bg-primary/15 text-primary border-primary/20">
-                        <Zap className="w-3 h-3 mr-1" />
-                        One-time payment
                       </Badge>
                     )}
                   </div>
