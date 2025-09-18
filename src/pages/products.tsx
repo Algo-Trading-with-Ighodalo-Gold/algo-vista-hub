@@ -219,7 +219,6 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
                 <span className="ml-2 font-medium">{ea.rating}</span>
               </div>
               <span className="text-muted-foreground">({ea.reviews} reviews)</span>
-              <Badge variant="secondary" className="ml-auto">{ea.price}</Badge>
             </div>
           </div>
           
@@ -297,19 +296,16 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
         
         <Separator className="my-6" />
         
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-center">Choose Your Payment Option</h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer group">
+        <div className="text-center">
+          <Card className="max-w-md mx-auto border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Subscription Plan
+                Subscription Access
               </CardTitle>
               <CardDescription>Monthly access with all updates and support</CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <div className="text-3xl font-bold">$29<span className="text-lg text-muted-foreground">/mo</span></div>
               <ul className="text-sm space-y-2 text-left">
                 <li className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 bg-success rounded-full" />
@@ -337,41 +333,6 @@ function EADetailModal({ ea, isOpen, onClose }: EADetailModalProps) {
               </Button>
             </CardContent>
           </Card>
-          
-          <Card className="border-2 opacity-50 cursor-not-allowed">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Clock className="h-5 w-5" />
-                One-Time Purchase
-              </CardTitle>
-              <CardDescription>Coming Soon - Multiple Payment Options</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <div className="text-3xl font-bold text-muted-foreground">{ea.price}<span className="text-lg text-muted-foreground"> once</span></div>
-              <ul className="text-sm space-y-2 text-left">
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full" />
-                  Multiple payment providers
-                </li>
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full" />
-                  Lifetime license option
-                </li>
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full" />
-                  Flexible payment methods
-                </li>
-              </ul>
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                disabled
-              >
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -32,7 +32,7 @@ import NotFound from "./pages/NotFound"
 import EATitanXPage from "./pages/products/ea-titanx";
 import EAQuantumEdgePage from "./pages/products/ea-quantumedge";
 import EAVelocityProPage from "./pages/products/ea-velocitypro";
-import EADevelopmentPage from "./pages/ea-development";
+
 import PrivacyPolicyPage from "./pages/legal/privacy-policy";
 import TermsOfServicePage from "./pages/legal/terms-of-service";
 import LicenseAgreementPage from "./pages/legal/license-agreement";
@@ -56,8 +56,6 @@ function App() {
                 <Route path="/products/ea-titanx" element={<EnhancedLayout><EATitanXPage /></EnhancedLayout>} />
                 <Route path="/products/ea-quantumedge" element={<EnhancedLayout><EAQuantumEdgePage /></EnhancedLayout>} />
                 <Route path="/products/ea-velocitypro" element={<EnhancedLayout><EAVelocityProPage /></EnhancedLayout>} />
-                <Route path="/development" element={<EnhancedLayout><EADevelopmentPage /></EnhancedLayout>} />
-                <Route path="/affiliate-program" element={<EnhancedLayout><AffiliateProgramPage /></EnhancedLayout>} />
                 <Route path="/pricing" element={<EnhancedLayout><PricingPage /></EnhancedLayout>} />
                 <Route path="/support" element={<EnhancedLayout><SupportPage /></EnhancedLayout>} />
                 <Route path="/checkout" element={<EnhancedLayout><CheckoutPage /></EnhancedLayout>} />
@@ -79,7 +77,6 @@ function App() {
                   <Route index element={<ProfilePage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
-                  <Route path="ea-development" element={<DashboardEADevelopmentPage />} />
                   <Route path="accounts" element={<AccountsPage />} />
                   <Route path="transactions" element={<TransactionsPage />} />
                   <Route path="trading-rules" element={<TradingRulesPage />} />
