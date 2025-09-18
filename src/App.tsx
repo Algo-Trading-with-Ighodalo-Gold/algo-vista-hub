@@ -19,6 +19,7 @@ import ForgotPasswordPage from "./pages/auth/forgot-password";
 import ProfilePage from "./pages/dashboard/profile";
 import AnalyticsPage from "./pages/dashboard/analytics";
 import DashboardEADevelopmentPage from "./pages/dashboard/ea-development";
+import EADevelopmentPage from "./pages/ea-development";
 import AccountsPage from "./pages/dashboard/accounts";
 import TransactionsPage from "./pages/dashboard/transactions";
 import TradingRulesPage from "./pages/dashboard/trading-rules";
@@ -58,6 +59,7 @@ function App() {
                 <Route path="/products/ea-velocitypro" element={<EnhancedLayout><EAVelocityProPage /></EnhancedLayout>} />
                 <Route path="/pricing" element={<EnhancedLayout><PricingPage /></EnhancedLayout>} />
                 <Route path="/support" element={<EnhancedLayout><SupportPage /></EnhancedLayout>} />
+                <Route path="/ea-development" element={<EnhancedLayout><EADevelopmentPage /></EnhancedLayout>} />
                 <Route path="/checkout" element={<EnhancedLayout><CheckoutPage /></EnhancedLayout>} />
                 <Route path="/payment" element={<EnhancedLayout><PaymentPage /></EnhancedLayout>} />
                 <Route path="/privacy" element={<EnhancedLayout><PrivacyPolicyPage /></EnhancedLayout>} />
