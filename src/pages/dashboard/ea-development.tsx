@@ -1,313 +1,487 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useDashboardData } from '@/hooks/use-dashboard-data'
-import { EADevelopmentForm } from '@/components/dashboard/ea-development-form'
-import { 
-  FileCode,
-  Plus,
-  Settings,
-  Download,
-  Play,
-  Pause,
-  BarChart3,
-  Calendar,
-  ExternalLink
-} from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { ArrowRight, Upload, FileText, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/contexts/auth-context'
 
-const mockEAs = [
-  {
-    id: '1',
-    name: 'Scalper Pro EA',
-    version: '2.1.0',
-    status: 'Active',
-    performance: '+24.5%',
-    trades: 1247,
-    lastUpdate: '2024-09-10'
-  },
-  {
-    id: '2',
-    name: 'Trend Rider EA',
-    version: '1.8.3', 
-    status: 'Paused',
-    performance: '+18.2%',
-    trades: 856,
-    lastUpdate: '2024-09-08'
-  }
-]
-
-const mockRequests = [
-  {
-    id: '1',
-    name: 'Custom Grid Strategy',
-    status: 'In Development',
-    submitted: '2024-09-01',
-    progress: 75
-  },
-  {
-    id: '2',
-    name: 'News Trading Bot',
-    status: 'Under Review',
-    submitted: '2024-08-28',
-    progress: 25
-  }
-]
-
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case 'Active':
-      return 'default' as const
-    case 'Paused':
-      return 'secondary' as const
-    case 'In Development':
-      return 'outline' as const
-    case 'Under Review':
-      return 'secondary' as const
-    default:
-      return 'outline' as const
-  }
+interface ProjectInquiry {
+  id: string
+  name: string
+  email: string
+  strategy: string
+  instruments: string
+  timeframes: string
+  entry_logic: string
+  exit_logic: string
+  risk_management: string
+  special_features: string
+  budget: string
+  timeline: string
+  status: string
+  created_at: string
+  updated_at: string
 }
 
 export default function DashboardEADevelopmentPage() {
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [showCalendly, setShowCalendly] = useState(false)
-  const { loading } = useDashboardData()
+  const [projectInquiries, setProjectInquiries] = useState<ProjectInquiry[]>([])
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    strategy: "",
+    instruments: "",
+    timeframes: "",
+    entryLogic: "",
+    exitLogic: "",
+    riskManagement: "",
+    specialFeatures: "",
+    budget: "",
+    timeline: "",
+    ndaAgreed: false
+  })
 
-  const handleRequestSubmitted = () => {
-    setShowCalendly(true)
+  const fetchProjectInquiries = async () => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('project_inquiries')
+        .select('*')
+        .eq('email', user.email)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setProjectInquiries(data || [])
+    } catch (error) {
+      console.error('Error fetching project inquiries:', error)
+    }
   }
 
-  if (showCalendly) {
-    return (
-      <div className="space-y-8">
-        <div className="animate-fade-in">
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-            <Calendar className="h-8 w-8 text-primary" />
-            Book Your Consultation
-          </h1>
-          <p className="text-muted-foreground text-lg mt-2">
-            Schedule a consultation to discuss your EA development requirements
-          </p>
-        </div>
-
-        <Card className="animate-fade-in [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
-          <CardHeader className="text-center">
-            <CardTitle className="text-green-600">Request Submitted Successfully!</CardTitle>
-            <CardDescription>
-              Your EA development request has been received. Please book a consultation below to discuss your requirements in detail.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Calendly Embed Placeholder */}
-            <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center space-y-4">
-              <Calendar className="h-16 w-16 text-primary mx-auto" />
-              <h3 className="text-xl font-semibold">Calendly Integration</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Click the button below to open our calendar booking system and schedule your consultation at a time that works best for you.
-              </p>
-              <Button size="lg" className="hover-scale">
-                <Calendar className="h-5 w-5 mr-2" />
-                Book Appointment
-              </Button>
-            </div>
-
-            <div className="flex gap-4 justify-center">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowCalendly(false)}
-                className="hover-scale"
-              >
-                Back to Dashboard
-              </Button>
-              <Button variant="outline" className="hover-scale">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View Request Details
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formData.ndaAgreed) {
+      toast({
+        title: "NDA Agreement Required",
+        description: "Please agree to the NDA terms to submit your inquiry.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    try {
+      const { error } = await supabase.from('project_inquiries').insert({
+        name: formData.name,
+        email: formData.email,
+        strategy: formData.strategy,
+        instruments: formData.instruments,
+        timeframes: formData.timeframes,
+        entry_logic: formData.entryLogic,
+        exit_logic: formData.exitLogic,
+        risk_management: formData.riskManagement,
+        special_features: formData.specialFeatures,
+        budget: formData.budget,
+        timeline: formData.timeline,
+        nda_agreed: formData.ndaAgreed
+      })
+
+      if (error) {
+        console.error('Error submitting inquiry:', error)
+        toast({
+          title: "Submission Failed",
+          description: "There was an error submitting your inquiry. Please try again.",
+          variant: "destructive"
+        })
+        return
+      }
+
+      toast({
+        title: "Project Inquiry Submitted!",
+        description: "We'll review your requirements and get back to you within 24 hours.",
+      })
+      
+      setShowCalendly(true)
+      
+      setFormData({
+        name: "",
+        email: "",
+        strategy: "",
+        instruments: "",
+        timeframes: "",
+        entryLogic: "",
+        exitLogic: "",
+        riskManagement: "",
+        specialFeatures: "",
+        budget: "",
+        timeline: "",
+        ndaAgreed: false
+      })
+
+      await fetchProjectInquiries()
+    } catch (error) {
+      console.error('Error submitting inquiry:', error)
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your inquiry. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />
+      case 'in_progress':
+        return <Clock className="h-4 w-4 text-blue-500" />
+      case 'pending':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />
+      default:
+        return <Clock className="h-4 w-4 text-gray-500" />
+    }
+  }
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'default'
+      case 'in_progress':
+        return 'secondary'
+      case 'pending':
+        return 'outline'
+      default:
+        return 'outline'
+    }
+  }
+
+  useEffect(() => {
+    fetchProjectInquiries()
+  }, [user])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-start animate-fade-in">
-        <div>
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-            <FileCode className="h-8 w-8 text-primary" />
-            EA Development
-          </h1>
-          <p className="text-muted-foreground text-lg mt-2">
-            Manage your Expert Advisors and request custom development
-          </p>
-        </div>
-        
-        <Button 
-          onClick={() => setShowCalendly(false)}
-          className="hover-scale"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Request New EA
-        </Button>
-      </div>
+    <div className="space-y-6 animate-fade-in">
+      {!showCalendly ? (
+        <>
+          <div className="text-center space-y-4 mb-8">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Start Your EA Development Project
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Tell us about your trading strategy and we'll provide a detailed quote within 24 hours
+            </p>
+          </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-6 md:grid-cols-4 animate-fade-in [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
-        <Card className="hover:shadow-lg transition-shadow hover-scale">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active EAs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">2</div>
-            <p className="text-xs text-muted-foreground">Currently running</p>
-          </CardContent>
-        </Card>
+          <Card className="max-w-4xl mx-auto">
+            <CardHeader>
+              <CardTitle>Project Inquiry Form</CardTitle>
+              <CardDescription>
+                Please provide as much detail as possible to help us understand your requirements
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      required
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      required
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                </div>
 
-        <Card className="hover:shadow-lg transition-shadow hover-scale">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Trades</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">2,103</div>
-            <p className="text-xs text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
+                <div className="space-y-2">
+                  <Label htmlFor="strategy">Strategy Description *</Label>
+                  <Textarea
+                    id="strategy"
+                    value={formData.strategy}
+                    onChange={(e) => handleInputChange('strategy', e.target.value)}
+                    required
+                    placeholder="Describe your trading strategy in detail..."
+                    className="min-h-[100px]"
+                  />
+                </div>
 
-        <Card className="hover:shadow-lg transition-shadow hover-scale">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">+21.4%</div>
-            <p className="text-xs text-muted-foreground">Average return</p>
-          </CardContent>
-        </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="instruments">Instruments/Pairs</Label>
+                    <Input
+                      id="instruments"
+                      value={formData.instruments}
+                      onChange={(e) => handleInputChange('instruments', e.target.value)}
+                      placeholder="EURUSD, GBPUSD, etc."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="timeframes">Timeframes</Label>
+                    <Input
+                      id="timeframes"
+                      value={formData.timeframes}
+                      onChange={(e) => handleInputChange('timeframes', e.target.value)}
+                      placeholder="M1, M5, H1, H4, D1"
+                    />
+                  </div>
+                </div>
 
-        <Card className="hover:shadow-lg transition-shadow hover-scale">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Dev Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">2</div>
-            <p className="text-xs text-muted-foreground">In progress</p>
-          </CardContent>
-        </Card>
-      </div>
+                <div className="space-y-2">
+                  <Label htmlFor="entryLogic">Entry Logic *</Label>
+                  <Textarea
+                    id="entryLogic"
+                    value={formData.entryLogic}
+                    onChange={(e) => handleInputChange('entryLogic', e.target.value)}
+                    required
+                    placeholder="Describe the entry conditions and signals..."
+                    className="min-h-[80px]"
+                  />
+                </div>
 
-      {/* Main Content Tabs */}
-      <div className="animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
-        <Tabs defaultValue="my-eas" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="my-eas">My EAs</TabsTrigger>
-            <TabsTrigger value="request-new">Request New EA</TabsTrigger>
-            <TabsTrigger value="updates">Updates</TabsTrigger>
-          </TabsList>
+                <div className="space-y-2">
+                  <Label htmlFor="exitLogic">Exit Logic *</Label>
+                  <Textarea
+                    id="exitLogic"
+                    value={formData.exitLogic}
+                    onChange={(e) => handleInputChange('exitLogic', e.target.value)}
+                    required
+                    placeholder="Describe the exit conditions, stop loss, and take profit..."
+                    className="min-h-[80px]"
+                  />
+                </div>
 
-          <TabsContent value="my-eas" className="space-y-6">
-            <Card>
+                <div className="space-y-2">
+                  <Label htmlFor="riskManagement">Risk Management</Label>
+                  <Textarea
+                    id="riskManagement"
+                    value={formData.riskManagement}
+                    onChange={(e) => handleInputChange('riskManagement', e.target.value)}
+                    placeholder="Lot sizing, maximum positions, drawdown limits, etc."
+                    className="min-h-[80px]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="specialFeatures">Special Features</Label>
+                  <Textarea
+                    id="specialFeatures"
+                    value={formData.specialFeatures}
+                    onChange={(e) => handleInputChange('specialFeatures', e.target.value)}
+                    placeholder="Any special requirements like news filters, time filters, etc."
+                    className="min-h-[60px]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="budget">Budget Range</Label>
+                    <Select value={formData.budget} onValueChange={(value) => handleInputChange('budget', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select budget range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="500-1000">$500 - $1,000</SelectItem>
+                        <SelectItem value="1000-2500">$1,000 - $2,500</SelectItem>
+                        <SelectItem value="2500-5000">$2,500 - $5,000</SelectItem>
+                        <SelectItem value="5000+">$5,000+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="timeline">Required Timeline</Label>
+                    <Select value={formData.timeline} onValueChange={(value) => handleInputChange('timeline', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timeline" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-2weeks">1-2 weeks</SelectItem>
+                        <SelectItem value="2-4weeks">2-4 weeks</SelectItem>
+                        <SelectItem value="1-2months">1-2 months</SelectItem>
+                        <SelectItem value="flexible">Flexible</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="nda"
+                      checked={formData.ndaAgreed}
+                      onCheckedChange={(checked) => handleInputChange('ndaAgreed', checked as boolean)}
+                    />
+                    <Label htmlFor="nda" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      I agree to sign an NDA to protect confidential strategy information
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-start space-x-2">
+                    <Upload className="h-4 w-4 text-muted-foreground mt-1" />
+                    <div className="text-sm text-muted-foreground">
+                      <p>Additional files (charts, documents, etc.) can be shared after initial contact</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button type="submit" size="lg" className="w-full hover-scale" disabled={isSubmitting}>
+                  {isSubmitting ? "Submitting..." : "Submit Project Inquiry"}
+                  {!isSubmitting && <ArrowRight className="ml-2 h-5 w-5" />}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {projectInquiries.length > 0 && (
+            <Card className="mt-8">
               <CardHeader>
-                <CardTitle>Your Expert Advisors</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Your Project Inquiries
+                </CardTitle>
                 <CardDescription>
-                  Manage and monitor your active trading algorithms
+                  Track the progress of your EA development requests
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockEAs.map((ea, index) => (
-                    <div key={ea.id} className={`flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors animate-fade-in opacity-0 [animation-fill-mode:forwards]`}
-                         style={{ animationDelay: `${0.3 + index * 0.1}s` }}>
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <FileCode className="h-6 w-6 text-primary" />
+                  {projectInquiries.map((inquiry) => (
+                    <div key={inquiry.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(inquiry.status)}
+                          <h4 className="font-medium">{inquiry.strategy.substring(0, 50)}...</h4>
+                        </div>
+                        <Badge variant={getStatusVariant(inquiry.status)}>
+                          {inquiry.status.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                        <div>
+                          <strong>Submitted:</strong> {new Date(inquiry.created_at).toLocaleDateString()}
                         </div>
                         <div>
-                          <h3 className="font-semibold">{ea.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Version {ea.version} • {ea.trades} trades • Updated {ea.lastUpdate}
-                          </p>
+                          <strong>Budget:</strong> {inquiry.budget || 'Not specified'}
+                        </div>
+                        <div>
+                          <strong>Timeline:</strong> {inquiry.timeline || 'Flexible'}
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="font-semibold text-green-600">{ea.performance}</p>
-                          <Badge variant={getStatusVariant(ea.status)}>
-                            {ea.status}
-                          </Badge>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm" className="hover-scale">
-                            <BarChart3 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="hover-scale">
-                            <Settings className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="hover-scale">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">View Details</Button>
+                        <Button size="sm" variant="outline">Message Team</Button>
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
+        </>
+      ) : (
+        <div className="text-center space-y-8 animate-fade-in">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 text-success">
+              🎉 Project Inquiry Submitted!
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Thank you for your detailed submission. We'll review your requirements and get back to you within 24 hours.
+            </p>
+          </div>
+          
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 justify-center">
+                📅 Book Your Free Consultation
+              </CardTitle>
+              <CardDescription>
+                Schedule a 30-minute strategy session with our EA development experts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-6">
+              <p className="text-muted-foreground">
+                During this consultation, we'll discuss your strategy in detail, answer any questions, 
+                and provide you with a comprehensive development plan and timeline.
+              </p>
+              
+              <div className="bg-gradient-primary/10 rounded-lg p-6 space-y-4">
+                <h3 className="font-semibold text-lg">What we'll cover:</h3>
+                <ul className="text-left space-y-2 max-w-md mx-auto">
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    Strategy analysis and optimization suggestions
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    Technical implementation approach
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    Timeline and project milestones
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    Final quote and next steps
+                  </li>
+                </ul>
+              </div>
+              
+              <Button 
+                size="lg" 
+                className="text-lg px-8 hover-scale"
+                onClick={() => window.open('https://calendly.com/algotradingwithighodalo/30min', '_blank')}
+              >
+                📅 Schedule Free Consultation
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              
+              <p className="text-sm text-muted-foreground">
+                Prefer email? We'll also send you a detailed response within 24 hours.
+              </p>
+            </CardContent>
+          </Card>
 
-          <TabsContent value="request-new" className="space-y-6">
-            <EADevelopmentForm onSuccess={handleRequestSubmitted} />
-          </TabsContent>
-
-          <TabsContent value="updates" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Development Requests</CardTitle>
-                <CardDescription>
-                  Track the progress of your custom EA development requests
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockRequests.map((request, index) => (
-                    <div key={request.id} className={`flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors animate-fade-in opacity-0 [animation-fill-mode:forwards]`}
-                         style={{ animationDelay: `${0.3 + index * 0.1}s` }}>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{request.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Submitted {request.submitted}
-                        </p>
-                        <div className="mt-2">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-primary rounded-full transition-all duration-300"
-                                style={{ width: `${request.progress}%` }}
-                              />
-                            </div>
-                            <span className="text-sm text-muted-foreground">{request.progress}%</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <Badge variant={getStatusVariant(request.status)}>
-                          {request.status}
-                        </Badge>
-                        <Button variant="ghost" size="sm" className="hover-scale">
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowCalendly(false)}
+            className="mt-4"
+          >
+            Submit Another Request
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

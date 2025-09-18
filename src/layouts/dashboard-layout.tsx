@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Outlet, useLocation } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { FloatingBackground } from "@/components/ui/floating-background"
@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User, Settings, LogOut } from "lucide-react"
+import { User, Settings, LogOut, ArrowLeft } from "lucide-react"
 
 const pageTitle: { [key: string]: string } = {
   '/dashboard': 'Profile',
@@ -33,6 +33,7 @@ export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { user, signOut } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Auto scroll to top on route change
   useEffect(() => {
@@ -61,9 +62,20 @@ export function DashboardLayout() {
         {/* Top Bar */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-16 items-center justify-between px-6">
-            <h1 className="text-2xl font-semibold text-foreground animate-fade-in">
-              {currentTitle}
-            </h1>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Website
+              </Button>
+              <h1 className="text-2xl font-semibold text-foreground animate-fade-in">
+                {currentTitle}
+              </h1>
+            </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

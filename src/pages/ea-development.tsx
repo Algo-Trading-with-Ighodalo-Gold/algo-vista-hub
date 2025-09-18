@@ -216,7 +216,7 @@ export default function EADevelopmentPage() {
               <Button 
                 size="lg" 
                 className="text-lg px-8 hover-scale"
-                onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => window.location.href = '/dashboard/ea-development'}
               >
                 Start Your Project
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -599,7 +599,12 @@ export default function EADevelopmentPage() {
             Get started with a free consultation today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale">
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="text-lg px-8 hover-scale"
+              onClick={() => window.location.href = '/dashboard/ea-development'}
+            >
               Start Your Project
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
