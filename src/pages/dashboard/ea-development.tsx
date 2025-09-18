@@ -182,12 +182,74 @@ export default function DashboardEADevelopmentPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Hero Section */}
+      <section className="py-12 bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container">
+          <div className="max-w-4xl mx-auto text-center space-y-6 animate-fade-in">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Custom Development
+              </Badge>
+              <Badge variant="outline">Expert Advisors</Badge>
+              <Badge variant="outline">Trading Bots</Badge>
+            </div>
+            
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              Start Your EA Development Project
+            </h1>
+            
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Transform your trading strategy into a profitable automated system. Our expert developers create custom EAs tailored to your specific requirements with proven results.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 mt-12">
+              <Card className="text-center hover-scale">
+                <CardContent className="p-6">
+                  <div className="mb-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto">
+                      <FileText className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="font-semibold mb-2">Strategy Analysis</h3>
+                  <p className="text-sm text-muted-foreground">We analyze your trading strategy and optimize it for automation</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center hover-scale">
+                <CardContent className="p-6">
+                  <div className="mb-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto">
+                      <Clock className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="font-semibold mb-2">Fast Delivery</h3>
+                  <p className="text-sm text-muted-foreground">Most projects completed within 1-4 weeks with regular updates</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center hover-scale">
+                <CardContent className="p-6">
+                  <div className="mb-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto">
+                      <CheckCircle className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="font-semibold mb-2">Full Support</h3>
+                  <p className="text-sm text-muted-foreground">Ongoing support and updates to ensure optimal performance</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {!showCalendly ? (
         <>
           <div className="text-center space-y-4 mb-8">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Start Your EA Development Project
-            </h1>
+            <h2 className="text-2xl font-bold tracking-tight">
+              Ready to Build Your EA?
+            </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Tell us about your trading strategy and we'll provide a detailed quote within 24 hours
             </p>

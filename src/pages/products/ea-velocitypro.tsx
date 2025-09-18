@@ -143,17 +143,32 @@ export default function EAVelocityProPage() {
               </div>
               
               <div className="space-y-4">
-                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                  <div className="text-sm font-medium text-primary mb-2">Monthly Subscription</div>
-                  <div className="text-2xl font-bold">$29<span className="text-lg text-muted-foreground">/month</span></div>
-                  <div className="text-sm text-muted-foreground mt-1">Cancel anytime • Full access included</div>
+                <div className="grid gap-4">
+                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="text-sm font-medium text-primary mb-2">One-Time Purchase</div>
+                    <div className="text-3xl font-bold">$279<span className="text-lg text-muted-foreground line-through ml-2">$379</span></div>
+                    <div className="text-sm text-muted-foreground mt-1">Lifetime license • No monthly fees</div>
+                  </div>
+                  
+                  <div className="p-4 bg-muted/30 rounded-lg border">
+                    <div className="text-sm font-medium mb-2">Monthly Subscription</div>
+                    <div className="text-2xl font-bold">$29<span className="text-lg text-muted-foreground">/month</span></div>
+                    <div className="text-sm text-muted-foreground mt-1">Cancel anytime • Full access included</div>
+                  </div>
                 </div>
                 
                 <div className="flex gap-4">
-                  <Button size="lg" className="flex-1 hover-scale" onClick={handleSubscribe}>
-                    Subscribe Now
+                  <Button size="lg" className="flex-1 hover-scale" onClick={() => navigate('/payment', { state: { product: 'EA VelocityPro', plan: 'Lifetime', price: 279 } })}>
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Buy Now - $279
                   </Button>
-                  <Button size="lg" variant="outline" className="hover-scale">
+                  <Button size="lg" variant="outline" className="hover-scale" onClick={handleSubscribe}>
+                    Subscribe $29/mo
+                  </Button>
+                </div>
+                
+                <div className="flex gap-4">
+                  <Button size="lg" variant="outline" className="flex-1 hover-scale">
                     <Download className="h-4 w-4 mr-2" />
                     Demo Version
                   </Button>
