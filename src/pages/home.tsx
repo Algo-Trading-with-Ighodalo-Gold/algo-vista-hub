@@ -334,7 +334,7 @@ export default function HomePage() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale" asChild>
-              <Link to="/development">Get Custom EA</Link>
+              <Link to="/ea-development">Get Custom EA</Link>
             </Button>
           </div>
         </div>
