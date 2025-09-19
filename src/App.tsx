@@ -61,6 +61,7 @@ function App() {
                 <Route path="/products/ea-velocitypro" element={<EnhancedLayout><EAVelocityProPage /></EnhancedLayout>} />
                 <Route path="/pricing" element={<EnhancedLayout><PricingPage /></EnhancedLayout>} />
                 <Route path="/support" element={<EnhancedLayout><SupportPage /></EnhancedLayout>} />
+                <Route path="/affiliate-program" element={<EnhancedLayout><AffiliateProgramPage /></EnhancedLayout>} />
                 <Route path="/ea-development" element={<EnhancedLayout><EADevelopmentPage /></EnhancedLayout>} />
                 <Route path="/checkout" element={<EnhancedLayout><CheckoutPage /></EnhancedLayout>} />
                 <Route path="/payment" element={<EnhancedLayout><PaymentPage /></EnhancedLayout>} />
