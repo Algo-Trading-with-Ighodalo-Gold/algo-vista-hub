@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Layout } from "@/components/layout/layout";
 import { EnhancedLayout } from "@/components/layout/enhanced-layout";
@@ -49,6 +50,7 @@ function App() {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <AuthProvider>
               <Routes>
                 {/* Public Routes with Enhanced Layout (includes public header) */}
