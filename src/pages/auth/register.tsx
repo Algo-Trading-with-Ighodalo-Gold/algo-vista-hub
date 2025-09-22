@@ -112,7 +112,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <Card className="animate-fade-in">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Create Your Account</CardTitle>
+            <CardTitle className="text-heading">Create Your Account</CardTitle>
             <CardDescription>
               Join thousands of successful algorithmic traders
             </CardDescription>

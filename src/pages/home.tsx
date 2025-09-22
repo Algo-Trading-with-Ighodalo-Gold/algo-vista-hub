@@ -92,25 +92,25 @@ export default function HomePage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               🚀 New: Custom EA Development Available
             </Badge>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-hero font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional{" "}
               <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
               Solutions
             </h1>
-            <p className="mt-4 text-base leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-4 text-body leading-6 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
               Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
               Join thousands of traders generating consistent profits with our proven algorithms.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
               <MagneticButton>
-                <Button size="lg" className="text-base px-8 py-3 hover-glow shadow-trading animate-pulse-glow gradient-trading border-0" asChild>
+                <Button size="lg" variant="premium" className="px-8" asChild>
                   <Link to="/auth/register">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </MagneticButton>
               <MagneticButton>
-                <Button size="lg" variant="outline" className="text-base px-8 py-3 backdrop-blur-sm border-2 border-primary/50 hover:border-primary hover-scale hover:shadow-glow" asChild>
+                <Button size="lg" variant="hero" className="px-8" asChild>
                   <Link to="/auth/login">
                     Sign In <Sparkles className="ml-2 h-4 w-4" />
                   </Link>

@@ -72,7 +72,7 @@ export default function AccountsPage() {
       {/* Header */}
       <div className="flex justify-between items-start animate-fade-in">
         <div>
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
+          <h1 className="text-title font-bold text-foreground flex items-center gap-3">
             <Activity className="h-8 w-8 text-primary" />
             Connected Accounts
           </h1>
@@ -153,7 +153,7 @@ export default function AccountsPage() {
             <CardTitle className="text-lg">Total Accounts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">3</div>
+            <div className="text-title font-bold text-primary">3</div>
             <p className="text-sm text-muted-foreground mt-1">2 Active, 1 Inactive</p>
           </CardContent>
         </Card>
@@ -163,7 +163,7 @@ export default function AccountsPage() {
             <CardTitle className="text-lg">Total Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">$30,371.49</div>
+            <div className="text-title font-bold text-primary">$30,371.49</div>
             <p className="text-sm text-muted-foreground mt-1">Across all accounts</p>
           </CardContent>
         </Card>
@@ -173,7 +173,7 @@ export default function AccountsPage() {
             <CardTitle className="text-lg">Total Equity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">$30,863.25</div>
+            <div className="text-title font-bold text-primary">$30,863.25</div>
             <p className="text-sm text-muted-foreground mt-1">Current market value</p>
           </CardContent>
         </Card>

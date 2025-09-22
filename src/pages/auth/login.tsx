@@ -67,7 +67,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="animate-fade-in">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome Back</CardTitle>
+            <CardTitle className="text-heading">Welcome Back</CardTitle>
             <CardDescription>
               Sign in to access your trading dashboard and Expert Advisors
             </CardDescription>

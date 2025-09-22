@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { FloatingBackground } from "@/components/ui/floating-background"
 import { AnimatedBackground } from "@/components/ui/animated-background"
+import { CandlestickBackground } from "@/components/ui/candlestick-background"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
@@ -53,6 +54,7 @@ export function DashboardLayout() {
       {/* Dashboard-specific animated background */}
       <AnimatedBackground variant="geometric" className="opacity-30" />
       <FloatingBackground elementCount={8} variant="particles" className="opacity-40" />
+      <CandlestickBackground variant="dashboard" intensity="low" />
       
       <DashboardSidebar 
         collapsed={sidebarCollapsed}
@@ -73,7 +75,7 @@ export function DashboardLayout() {
                 <ArrowLeft className="h-4 w-4" />
                 Back to Website
               </Button>
-              <h1 className="text-2xl font-semibold text-foreground animate-fade-in">
+              <h1 className="text-heading font-semibold text-foreground animate-fade-in">
                 {currentTitle}
               </h1>
             </div>

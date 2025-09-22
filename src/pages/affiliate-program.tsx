@@ -14,7 +14,7 @@ export default function AffiliateProgramPage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               💰 High Converting Affiliate Program
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-display font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Earn by Referring{" "}
               <span className="text-gradient">Traders</span>
             </h1>
@@ -57,7 +57,7 @@ export default function AffiliateProgramPage() {
       <section className="py-20">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="text-title font-bold tracking-tight mb-4">
               Ready to Start Earning?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">

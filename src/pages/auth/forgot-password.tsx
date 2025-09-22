@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
                 <CheckCircle2 className="h-6 w-6 text-success" />
               </div>
-              <CardTitle className="text-2xl">Check Your Email</CardTitle>
+              <CardTitle className="text-heading">Check Your Email</CardTitle>
               <CardDescription>
                 We've sent a password reset link to <strong>{email}</strong>
               </CardDescription>
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <Card className="animate-fade-in">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Reset Your Password</CardTitle>
+            <CardTitle className="text-heading">Reset Your Password</CardTitle>
             <CardDescription>
               Enter your email address and we'll send you a link to reset your password
             </CardDescription>
