@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { StatsCard } from "@/components/ui/stats-card"
 import { FloatingIcon, GlowingOrb, MagneticButton } from "@/components/ui/interactive-elements"
 import { FloatingDots } from "@/components/ui/floating-background"
+import { getFeaturedEAs } from "@/data/expert-advisors"
 
 const features = [
   {
@@ -25,41 +26,8 @@ const features = [
   }
 ]
 
-const eaShowcase = [
-  {
-    id: 1,
-    name: "Momentum Pro EA",
-    description: "Advanced momentum-based trading strategy with dynamic risk management",
-    rating: 4.8,
-    reviews: 127,
-    price: "$299",
-    tags: ["EURUSD", "Scalping", "High Frequency"],
-    performance: "+234.5%",
-    image: "/placeholder.svg"
-  },
-  {
-    id: 2,
-    name: "Grid Master EA",
-    description: "Sophisticated grid trading system with intelligent position sizing",
-    rating: 4.6,
-    reviews: 89,
-    price: "$399",
-    tags: ["Multi-Pair", "Grid Trading", "Low Risk"],
-    performance: "+186.2%",
-    image: "/placeholder.svg"
-  },
-  {
-    id: 3,
-    name: "Breakout Hunter EA",
-    description: "High-precision breakout detection with smart entry and exit logic",
-    rating: 4.9,
-    reviews: 156,
-    price: "$449",
-    tags: ["GBPUSD", "Breakout", "Medium Risk"],
-    performance: "+312.8%",
-    image: "/placeholder.svg"
-  }
-]
+// Get featured EAs from shared data
+const eaShowcase = getFeaturedEAs()
 
 const testimonials = [
   {
@@ -124,32 +92,32 @@ export default function HomePage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               🚀 New: Custom EA Development Available
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional{" "}
-              <span className="text-gradient">Algorithmic Trading</span>{" "}
+              <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
               Solutions
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-4 text-base leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
               Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
               Join thousands of traders generating consistent profits with our proven algorithms.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
               <MagneticButton>
-                <Button size="lg" className="text-lg px-10 py-4 hover-glow shadow-2xl animate-pulse-glow" asChild>
+                <Button size="lg" className="text-base px-8 py-3 hover-glow shadow-trading animate-pulse-glow gradient-trading border-0" asChild>
                   <Link to="/auth/register">
-                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </MagneticButton>
               <MagneticButton>
-                <Button size="lg" variant="outline" className="text-lg px-10 py-4 backdrop-blur-sm border-2 hover-scale" asChild>
+                <Button size="lg" variant="outline" className="text-base px-8 py-3 backdrop-blur-sm border-2 border-primary/50 hover:border-primary hover-scale hover:shadow-glow" asChild>
                   <Link to="/auth/login">
-                    Sign In <Sparkles className="ml-2 h-5 w-5" />
+                    Sign In <Sparkles className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </MagneticButton>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-4 text-xs text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               30-day money-back guarantee • Lifetime updates • 24/7 support
             </p>
             <div className="mt-6 animate-fade-in [animation-delay:1s] opacity-0 [animation-fill-mode:forwards]">
@@ -168,10 +136,10 @@ export default function HomePage() {
       <section className="py-20">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl animate-fade-in">
               Why Choose Our Trading Solutions?
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-3 text-base text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional-grade tools built by experts for serious traders
             </p>
           </div>
@@ -179,10 +147,10 @@ export default function HomePage() {
             {features.map((feature, index) => (
               <Card key={index} className="text-center hover:shadow-lg hover-scale transition-all duration-300 animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.4 + index * 0.2}s` }}>
                 <CardHeader>
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-primary transition-transform duration-300 hover:scale-110">
-                    <feature.icon className="h-6 w-6 text-primary-foreground" />
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg gradient-trading transition-transform duration-300 hover:scale-110 shadow-glow">
+                    <feature.icon className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <CardTitle className="transition-colors duration-300 hover:text-primary">{feature.title}</CardTitle>
+                  <CardTitle className="text-lg transition-colors duration-300 hover:text-primary">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>{feature.description}</CardDescription>
@@ -197,10 +165,10 @@ export default function HomePage() {
       <section className="py-20 bg-muted/50">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl animate-fade-in">
               Trusted by Traders Worldwide
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-3 text-base text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Join a growing community of successful algorithmic traders
             </p>
             <div className="mt-6 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
@@ -227,10 +195,10 @@ export default function HomePage() {
         <div className="container">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-16">
             <div className="animate-fade-in">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Featured Expert Advisors
               </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
+              <p className="mt-3 text-base text-muted-foreground">
                 Proven strategies ready for your portfolio
               </p>
             </div>
@@ -242,38 +210,44 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {eaShowcase.map((ea, index) => (
-              <Card key={ea.id} className="overflow-hidden hover:shadow-xl hover-scale transition-all duration-300 animate-fade-in opacity-0 [animation-fill-mode:forwards] group" style={{ animationDelay: `${0.4 + index * 0.2}s` }}>
-                <div className="aspect-video bg-gradient-subtle transition-all duration-300 group-hover:scale-105" />
-                <CardHeader>
+              <Card key={ea.id} className="overflow-hidden hover:shadow-xl hover-scale transition-all duration-500 animate-fade-in opacity-0 [animation-fill-mode:forwards] group gradient-border shadow-trading" style={{ animationDelay: `${0.4 + index * 0.2}s` }}>
+                <div className="aspect-video bg-gradient-trading transition-all duration-300 group-hover:scale-105 overflow-hidden rounded-lg">
+                  <img 
+                    src={ea.image} 
+                    alt={ea.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </div>
+                <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-xl transition-colors duration-300 group-hover:text-primary">{ea.name}</CardTitle>
+                      <CardTitle className="text-lg transition-colors duration-300 group-hover:text-primary">{ea.name}</CardTitle>
                       <div className="flex items-center mt-2">
-                        <Star className="h-4 w-4 fill-warning text-warning transition-transform duration-300 group-hover:scale-110" />
-                        <span className="text-sm font-medium ml-1">{ea.rating}</span>
-                        <span className="text-sm text-muted-foreground ml-1">
+                        <Star className="h-3 w-3 fill-warning text-warning transition-transform duration-300 group-hover:scale-110" />
+                        <span className="text-xs font-medium ml-1">{ea.rating}</span>
+                        <span className="text-xs text-muted-foreground ml-1">
                           ({ea.reviews} reviews)
                         </span>
                       </div>
                     </div>
-                    <Badge variant="secondary" className="text-success transition-transform duration-300 group-hover:scale-105">
+                    <Badge variant="secondary" className="text-success transition-transform duration-300 group-hover:scale-105 gradient-success text-xs px-2 py-1">
                       {ea.performance}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <CardDescription className="mb-4">{ea.description}</CardDescription>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                <CardContent className="pt-0">
+                  <CardDescription className="mb-3 text-sm">{ea.shortDescription}</CardDescription>
+                  <div className="flex flex-wrap gap-1 mb-3">
                     {ea.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs transition-colors duration-300 hover:bg-primary hover:text-primary-foreground">
+                      <Badge key={tag} variant="outline" className="text-xs px-2 py-0.5 transition-colors duration-300 hover:bg-primary hover:text-primary-foreground">
                         {tag}
                       </Badge>
                     ))}
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold transition-colors duration-300 group-hover:text-primary">{ea.price}</span>
-                    <Button className="hover-scale" asChild>
-                      <Link to={`/products/${ea.id}`}>View Details</Link>
+                    <span className="text-xl font-bold transition-colors duration-300 group-hover:text-primary">{ea.price}</span>
+                    <Button size="sm" className="hover-scale gradient-trading border-0 text-xs px-3 py-1" asChild>
+                      <Link to={`/products/ea-${ea.id.replace('-ea', '')}`}>View Details</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -287,10 +261,10 @@ export default function HomePage() {
       <section className="py-20 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl animate-fade-in">
               What Our Traders Say
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-3 text-base text-muted-foreground animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Real results from real traders using our Expert Advisors
             </p>
           </div>
@@ -320,20 +294,20 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-primary text-primary-foreground">
         <div className="container text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl mb-3 animate-fade-in">
             Ready to Automate Your Trading?
           </h2>
-          <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8 animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+          <p className="text-base opacity-90 max-w-2xl mx-auto mb-6 animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
             Join thousands of successful traders using our proven algorithmic trading solutions. 
             Start your journey to consistent profits today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-            <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale" asChild>
+            <Button size="lg" variant="secondary" className="text-base px-6 hover-scale shadow-glow" asChild>
               <Link to="/products">
-                Browse EAs <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                Browse EAs <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale" asChild>
+            <Button size="lg" variant="outline" className="text-base px-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale" asChild>
               <Link to="/ea-development">Get Custom EA</Link>
             </Button>
           </div>

@@ -354,10 +354,10 @@ export default function ProductsPage() {
           <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
           <div className="container relative py-16 lg:py-20">
             <div className="mx-auto max-w-4xl text-center">
-              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl animate-fade-in">
+              <h1 className="text-3xl font-bold tracking-tight lg:text-4xl animate-fade-in">
                 Expert Advisors
               </h1>
-              <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+              <p className="mt-4 text-base leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
                 Professional automated trading solutions designed for every trading style and market condition. 
                 Choose from our collection of proven, backtested Expert Advisors to automate your trading strategy.
               </p>
@@ -385,8 +385,8 @@ export default function ProductsPage() {
         <section className="py-16">
           <div className="container">
             <div className="mb-12 text-center">
-              <h2 className="text-3xl font-bold tracking-tight mb-4">Choose Your Trading Strategy</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <h2 className="text-2xl font-bold tracking-tight mb-3">Choose Your Trading Strategy</h2>
+              <p className="text-base text-muted-foreground max-w-2xl mx-auto">
                 Each Expert Advisor is carefully crafted and backtested to deliver consistent performance across different market conditions.
               </p>
             </div>
@@ -443,7 +443,7 @@ export default function ProductsPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold">{ea.price}</span>
                       <Button 
-                        className="hover-scale" 
+                        className="hover-scale gradient-trading border-0 shadow-glow" 
                         onClick={() => setSelectedEA(ea)}
                       >
                         Learn More
