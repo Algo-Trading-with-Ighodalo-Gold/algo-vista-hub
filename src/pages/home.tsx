@@ -92,7 +92,7 @@ export default function HomePage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               🚀 New: Custom EA Development Available
             </Badge>
-            <h1 className="text-hero font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-4xl font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional{" "}
               <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
               Solutions
