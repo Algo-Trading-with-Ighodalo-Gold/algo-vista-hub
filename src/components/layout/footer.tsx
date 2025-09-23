@@ -11,8 +11,6 @@ const footerLinks = {
   ],
   product: [
     { name: "Expert Advisors", href: "/products" },
-    
-    { name: "Pricing Plans", href: "/pricing" },
     { name: "API Documentation", href: "/docs" },
     { name: "System Status", href: "/status" },
   ],

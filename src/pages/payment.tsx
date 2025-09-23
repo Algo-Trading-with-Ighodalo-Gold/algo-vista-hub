@@ -14,16 +14,16 @@ import { useToast } from "@/hooks/use-toast"
 
 const paymentMethods = [
   {
-    id: "card",
+    id: "stripe",
     name: "Credit/Debit Card",
     icon: CreditCard,
     description: "Visa, Mastercard, American Express"
   },
   {
-    id: "paypal", 
-    name: "PayPal",
-    icon: "💰",
-    description: "Pay with your PayPal account"
+    id: "confirmo", 
+    name: "Cryptocurrency",
+    icon: "₿",
+    description: "Bitcoin, Ethereum, USDT and 50+ cryptocurrencies"
   }
 ]
 
@@ -34,14 +34,17 @@ export default function PaymentPage() {
   
   // Get plan data from navigation state with proper defaults
   const planData = {
+    eaId: "",
+    eaName: "Expert Advisor",
     planName: "Pro Plan",
     billingPeriod: "monthly", 
     price: 30,
     features: [],
+    paymentMethod: "stripe",
     ...location.state
   }
 
-  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [paymentMethod, setPaymentMethod] = useState(planData.paymentMethod || "stripe")
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -136,11 +139,11 @@ export default function PaymentPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="font-medium">{planData.planName}</span>
+                    <span className="font-medium">{planData.eaName}</span>
                     <Badge variant="secondary">AI-Powered</Badge>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription
+                    {planData.planName} Plan - {planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription
                   </div>
                   
                   <div className="space-y-2 text-sm">
@@ -169,13 +172,13 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 p-3 bg-success/10 rounded-lg">
-                  <div className="flex items-center gap-2 text-success text-sm font-medium">
+                <div className="mt-6 p-3 bg-accent/10 rounded-lg">
+                  <div className="flex items-center gap-2 text-accent text-sm font-medium">
                     <Shield className="h-4 w-4" />
-                    7-Day Free Trial Included
+                    Secure & Encrypted
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    Cancel within 7 days for no charge
+                    Your subscription includes continuous updates and support
                   </div>
                 </div>
               </CardContent>
@@ -294,7 +297,7 @@ export default function PaymentPage() {
                   </div>
 
                   {/* Payment Details */}
-                  {paymentMethod === "card" && (
+                  {paymentMethod === "stripe" && (
                     <div className="space-y-4">
                       <h3 className="font-semibold">Card Information</h3>
                       <div className="space-y-4">
@@ -345,6 +348,22 @@ export default function PaymentPage() {
                             placeholder="John Doe"
                           />
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Confirmo Crypto Payment */}
+                  {paymentMethod === "confirmo" && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Cryptocurrency Payment</h3>
+                      <div className="p-4 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-2xl">₿</span>
+                          <span className="font-medium">Pay with Crypto</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          You'll be redirected to Confirmo to complete your payment with Bitcoin, Ethereum, USDT, or 50+ other cryptocurrencies. Your subscription will be activated immediately after payment confirmation.
+                        </p>
                       </div>
                     </div>
                   )}

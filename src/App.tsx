@@ -12,7 +12,6 @@ import { EnhancedLayout } from "@/components/layout/enhanced-layout";
 import { DashboardLayout } from "@/layouts/dashboard-layout";
 import HomePage from "./pages/home";
 import ProductsPage from "./pages/products";
-import PricingPage from "./pages/pricing";
 import SupportPage from "./pages/support";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
@@ -34,6 +33,8 @@ import NotFound from "./pages/NotFound"
 import EATitanXPage from "./pages/products/ea-titanx";
 import EAQuantumEdgePage from "./pages/products/ea-quantumedge";
 import EAVelocityProPage from "./pages/products/ea-velocitypro";
+import ProductDetailPage from "./pages/products/product-detail";
+import SubscriptionPlansPage from "./pages/products/subscription-plans";
 
 import PrivacyPolicyPage from "./pages/legal/privacy-policy";
 import TermsOfServicePage from "./pages/legal/terms-of-service";
@@ -56,10 +57,11 @@ function App() {
                 {/* Public Routes with Enhanced Layout (includes public header) */}
                 <Route path="/" element={<EnhancedLayout><HomePage /></EnhancedLayout>} />
                 <Route path="/products" element={<EnhancedLayout><ProductsPage /></EnhancedLayout>} />
+                <Route path="/products/:eaId" element={<EnhancedLayout><ProductDetailPage /></EnhancedLayout>} />
+                <Route path="/products/:eaId/plans" element={<EnhancedLayout><SubscriptionPlansPage /></EnhancedLayout>} />
                 <Route path="/products/ea-titanx" element={<EnhancedLayout><EATitanXPage /></EnhancedLayout>} />
                 <Route path="/products/ea-quantumedge" element={<EnhancedLayout><EAQuantumEdgePage /></EnhancedLayout>} />
                 <Route path="/products/ea-velocitypro" element={<EnhancedLayout><EAVelocityProPage /></EnhancedLayout>} />
-                <Route path="/pricing" element={<EnhancedLayout><PricingPage /></EnhancedLayout>} />
                 <Route path="/support" element={<EnhancedLayout><SupportPage /></EnhancedLayout>} />
                 <Route path="/affiliate-program" element={<EnhancedLayout><AffiliateProgramPage /></EnhancedLayout>} />
                 <Route path="/ea-development" element={<EnhancedLayout><EADevelopmentPage /></EnhancedLayout>} />
