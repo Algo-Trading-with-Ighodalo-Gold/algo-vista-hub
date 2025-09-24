@@ -133,7 +133,7 @@ export default function SubscriptionPlansPage() {
   const { eaId } = useParams()
   const navigate = useNavigate()
   const [ea, setEa] = useState<typeof expertAdvisors[0] | null>(null)
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly')
+  const [billingPeriod, setBillingPeriod] = useState<'quaterly' | 'yearly'>('yearly')
   const [selectedPlan, setSelectedPlan] = useState('pro')
   const [paymentMethod, setPaymentMethod] = useState('stripe')
 
