@@ -28,11 +28,6 @@ const navigationItems = [
     icon: User
   },
   {
-    title: "Analytics",
-    href: "/dashboard/analytics",
-    icon: BarChart3
-  },
-  {
     title: "EA Development",
     href: "/dashboard/ea-development",
     icon: FileCode
@@ -46,11 +41,6 @@ const navigationItems = [
     title: "Transactions",
     href: "/dashboard/transactions",
     icon: Wallet
-  },
-  {
-    title: "Trading Rules",
-    href: "/dashboard/trading-rules",
-    icon: ScrollText
   },
   {
     title: "Resources",

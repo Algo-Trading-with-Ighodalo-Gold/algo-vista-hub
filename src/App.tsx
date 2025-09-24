@@ -17,12 +17,10 @@ import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import ForgotPasswordPage from "./pages/auth/forgot-password";
 import ProfilePage from "./pages/dashboard/profile";
-import AnalyticsPage from "./pages/dashboard/analytics";
 import DashboardEADevelopmentPage from "./pages/dashboard/ea-development";
 import EADevelopmentPage from "./pages/ea-development";
 import AccountsPage from "./pages/dashboard/accounts";
 import TransactionsPage from "./pages/dashboard/transactions";
-import TradingRulesPage from "./pages/dashboard/trading-rules";
 import ResourcesPage from "./pages/dashboard/resources";
 import FAQPage from "./pages/dashboard/faq";
 import AffiliatePage from "./pages/dashboard/affiliate";
@@ -40,6 +38,10 @@ import PrivacyPolicyPage from "./pages/legal/privacy-policy";
 import TermsOfServicePage from "./pages/legal/terms-of-service";
 import LicenseAgreementPage from "./pages/legal/license-agreement";
 import CookiePolicyPage from "./pages/legal/cookie-policy";
+import AboutUsPage from "./pages/about-us";
+import ContactUsPage from "./pages/contact-us";
+import PublicFAQPage from "./pages/faq";
+import RefundPolicyPage from "./pages/refund-policy";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,10 @@ function App() {
                 <Route path="/terms" element={<EnhancedLayout><TermsOfServicePage /></EnhancedLayout>} />
                 <Route path="/license" element={<EnhancedLayout><LicenseAgreementPage /></EnhancedLayout>} />
                 <Route path="/cookies" element={<EnhancedLayout><CookiePolicyPage /></EnhancedLayout>} />
+                <Route path="/about" element={<EnhancedLayout><AboutUsPage /></EnhancedLayout>} />
+                <Route path="/contact" element={<EnhancedLayout><ContactUsPage /></EnhancedLayout>} />
+                <Route path="/faq" element={<EnhancedLayout><PublicFAQPage /></EnhancedLayout>} />
+                <Route path="/refund" element={<EnhancedLayout><RefundPolicyPage /></EnhancedLayout>} />
                 <Route path="/auth/login" element={<EnhancedLayout><LoginPage /></EnhancedLayout>} />
                 <Route path="/auth/register" element={<EnhancedLayout><RegisterPage /></EnhancedLayout>} />
                 <Route path="/auth/forgot-password" element={<EnhancedLayout><ForgotPasswordPage /></EnhancedLayout>} />
@@ -83,11 +89,9 @@ function App() {
                 }>
                   <Route index element={<ProfilePage />} />
                   <Route path="profile" element={<ProfilePage />} />
-                  <Route path="analytics" element={<AnalyticsPage />} />
                   <Route path="ea-development" element={<DashboardEADevelopmentPage />} />
                   <Route path="accounts" element={<AccountsPage />} />
                   <Route path="transactions" element={<TransactionsPage />} />
-                  <Route path="trading-rules" element={<TradingRulesPage />} />
                   <Route path="resources" element={<ResourcesPage />} />
                   <Route path="faq" element={<FAQPage />} />
                   <Route path="affiliate" element={<AffiliatePage />} />
