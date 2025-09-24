@@ -26,7 +26,7 @@ export default function EADevelopmentPage() {
               <Badge variant="outline">Trading Bots</Badge>
             </div>
             
-            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
+            <h1 className="text-hero font-bold tracking-tight sm:text-6xl">
               Professional EA Development
             </h1>
             
