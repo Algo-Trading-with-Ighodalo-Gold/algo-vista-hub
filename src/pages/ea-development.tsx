@@ -30,7 +30,7 @@ export default function EADevelopmentPage() {
               Professional EA Development
             </h1>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-bodytext-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Transform your trading strategy into a profitable automated system. Our expert developers create custom Expert Advisors tailored to your specific requirements with proven results.
             </p>
 

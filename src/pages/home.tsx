@@ -117,7 +117,7 @@ export default function HomePage() {
                 </Button>
               </MagneticButton>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               30-day money-back guarantee • Lifetime updates • 24/7 support
             </p>
             <div className="mt-6 animate-fade-in [animation-delay:1s] opacity-0 [animation-fill-mode:forwards]">
