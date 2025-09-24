@@ -71,7 +71,7 @@ const plans = [
       "Basic Risk Management Tools",
       "Monthly Performance Reports"
     ],
-    monthlyPrice: 29,
+    quaterlyPrice: 29,
     yearlyPrice: 290
   },
   {
@@ -90,7 +90,7 @@ const plans = [
       "Weekly Strategy Updates",
       "VPS Setup Guide"
     ],
-    monthlyPrice: 49,
+    quaterlyPrice: 49,
     yearlyPrice: 490
   },
   {
@@ -109,7 +109,7 @@ const plans = [
       "Dedicated Telegram Group",
       "Monthly Strategy Calls"
     ],
-    monthlyPrice: 99,
+    quaterlyPrice: 99,
     yearlyPrice: 990
   }
 ]
@@ -237,9 +237,9 @@ export default function SubscriptionPlansPage() {
           <div className="flex justify-center mb-12">
             <div className="flex items-center gap-4 p-2 bg-muted rounded-xl">
               <span className={`px-4 py-2 font-medium transition-colors ${
-                billingPeriod === 'monthly' ? 'text-accent' : 'text-muted-foreground'
+                billingPeriod === 'quaterly' ? 'text-accent' : 'text-muted-foreground'
               }`}>
-                Monthly
+                Quaterly
               </span>
               <Switch
                 checked={billingPeriod === 'yearly'}
