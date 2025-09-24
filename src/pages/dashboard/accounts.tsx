@@ -25,8 +25,8 @@ const mockAccounts = [
   {
     id: '2', 
     name: 'Demo Account',
-    accountId: 'MT4-987654321',
-    platform: 'MT4',
+    accountId: 'MT5-987654321',
+    platform: 'MT5',
     status: 'Active',
     balance: '$10,000.00',
     equity: '$9,847.35',
