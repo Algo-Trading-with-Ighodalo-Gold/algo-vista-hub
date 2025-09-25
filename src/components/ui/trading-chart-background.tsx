@@ -26,18 +26,26 @@ export function TradingChartBackground({
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // Trading data points
-    const lines = Array.from({ length: intensity === 'low' ? 3 : intensity === 'medium' ? 5 : 8 }, (_, i) => ({
-      points: Array.from({ length: 50 }, (_, j) => ({
-        x: (j / 49) * canvas.width,
-        y: Math.random() * canvas.height * 0.8 + canvas.height * 0.1,
-        originalY: Math.random() * canvas.height * 0.8 + canvas.height * 0.1
-      })),
-      color: `hsl(${260 + i * 20}, 70%, ${60 + i * 5}%)`,
-      speed: 0.5 + Math.random() * 0.5,
-      amplitude: 20 + Math.random() * 40,
-      offset: i * Math.PI / 4
-    }))
+    // Generate candlestick data
+    const candleCount = intensity === 'low' ? 25 : intensity === 'medium' ? 40 : 60
+    const candleWidth = canvas.width / (candleCount + 10)
+    const candles = Array.from({ length: candleCount }, (_, i) => {
+      const x = (i + 5) * candleWidth
+      const high = Math.random() * canvas.height * 0.3 + canvas.height * 0.2
+      const low = high + Math.random() * canvas.height * 0.4 + 50
+      const open = high + Math.random() * (low - high)
+      const close = high + Math.random() * (low - high)
+      
+      return {
+        x,
+        open,
+        high,
+        low,
+        close,
+        bullish: close > open,
+        volume: Math.random() * 0.3 + 0.1
+      }
+    })
 
     let animationId: number
     let time = 0
@@ -45,41 +53,105 @@ export function TradingChartBackground({
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       
-      lines.forEach((line, lineIndex) => {
-        ctx.strokeStyle = line.color
-        ctx.lineWidth = 1.5
-        ctx.globalAlpha = intensity === 'low' ? 0.15 : intensity === 'medium' ? 0.25 : 0.35
+      // Grid lines
+      ctx.strokeStyle = 'rgba(34, 197, 94, 0.1)'
+      ctx.lineWidth = 1
+      ctx.globalAlpha = 0.3
+      
+      // Horizontal grid lines
+      for (let i = 0; i < 20; i++) {
+        const y = (i / 19) * canvas.height
         ctx.beginPath()
-
-        line.points.forEach((point, i) => {
-          // Animate the points
-          const wave = Math.sin(time * line.speed + line.offset + i * 0.1) * line.amplitude
-          point.y = point.originalY + wave
-
-          if (i === 0) {
-            ctx.moveTo(point.x, point.y)
-          } else {
-            ctx.lineTo(point.x, point.y)
-          }
-        })
-
+        ctx.moveTo(0, y)
+        ctx.lineTo(canvas.width, y)
         ctx.stroke()
+      }
+      
+      // Vertical grid lines
+      for (let i = 0; i < 30; i++) {
+        const x = (i / 29) * canvas.width
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, canvas.height)
+        ctx.stroke()
+      }
 
-        // Add some floating particles
-        if (lineIndex === 0) {
-          ctx.fillStyle = line.color
-          ctx.globalAlpha = 0.6
-          for (let i = 0; i < 5; i++) {
-            const x = (time * 30 + i * 100) % (canvas.width + 100)
-            const y = 100 + Math.sin(time * 0.01 + i) * 50
-            ctx.beginPath()
-            ctx.arc(x, y, 2, 0, Math.PI * 2)
-            ctx.fill()
-          }
+      // Trend lines
+      ctx.strokeStyle = 'rgba(34, 197, 94, 0.4)'
+      ctx.lineWidth = 2
+      ctx.globalAlpha = 0.6
+      
+      // Main trend line
+      ctx.beginPath()
+      for (let i = 0; i < canvas.width; i += 20) {
+        const y = canvas.height * 0.3 + Math.sin((i + time * 50) * 0.01) * 100
+        if (i === 0) {
+          ctx.moveTo(i, y)
+        } else {
+          ctx.lineTo(i, y)
         }
+      }
+      ctx.stroke()
+
+      // Secondary trend line
+      ctx.strokeStyle = 'rgba(34, 197, 94, 0.2)'
+      ctx.beginPath()
+      for (let i = 0; i < canvas.width; i += 25) {
+        const y = canvas.height * 0.6 + Math.sin((i + time * 30) * 0.008) * 80
+        if (i === 0) {
+          ctx.moveTo(i, y)
+        } else {
+          ctx.lineTo(i, y)
+        }
+      }
+      ctx.stroke()
+
+      // Candlesticks
+      candles.forEach((candle, index) => {
+        const bodyHeight = Math.abs(candle.close - candle.open)
+        const bodyTop = Math.min(candle.close, candle.open)
+        const wickColor = candle.bullish ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)'
+        const bodyColor = candle.bullish ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)'
+        
+        ctx.globalAlpha = intensity === 'low' ? 0.4 : intensity === 'medium' ? 0.6 : 0.8
+        
+        // Wick
+        ctx.strokeStyle = wickColor
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(candle.x, candle.high)
+        ctx.lineTo(candle.x, candle.low)
+        ctx.stroke()
+        
+        // Body
+        ctx.fillStyle = bodyColor
+        if (candle.bullish) {
+          ctx.strokeStyle = bodyColor
+          ctx.lineWidth = 1
+          ctx.strokeRect(candle.x - candleWidth * 0.3, bodyTop, candleWidth * 0.6, bodyHeight)
+        } else {
+          ctx.fillRect(candle.x - candleWidth * 0.3, bodyTop, candleWidth * 0.6, bodyHeight)
+        }
+        
+        // Volume bars at bottom
+        const volumeHeight = candle.volume * 50
+        const volumeY = canvas.height - volumeHeight - 20
+        ctx.fillStyle = `rgba(34, 197, 94, ${0.2 + candle.volume * 0.3})`
+        ctx.fillRect(candle.x - candleWidth * 0.2, volumeY, candleWidth * 0.4, volumeHeight)
       })
 
-      time += 0.005
+      // Floating particles
+      ctx.fillStyle = 'rgba(34, 197, 94, 0.5)'
+      ctx.globalAlpha = 0.7
+      for (let i = 0; i < 8; i++) {
+        const x = (time * 20 + i * 150) % (canvas.width + 100)
+        const y = 80 + Math.sin(time * 0.008 + i) * 40
+        ctx.beginPath()
+        ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      time += 1
       animationId = requestAnimationFrame(animate)
     }
 
