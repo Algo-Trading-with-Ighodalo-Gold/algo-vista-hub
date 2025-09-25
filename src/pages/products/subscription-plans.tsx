@@ -153,7 +153,7 @@ export default function SubscriptionPlansPage() {
 
   const getPrice = (plan: typeof plans[0]) => {
     switch(billingPeriod) {
-      case 'monthly': return plan.monthlyPrice
+      case 'quaterly': return plan.quaterlyPrice
       case 'yearly': return plan.yearlyPrice  
       default: return plan.yearlyPrice
     }
@@ -161,8 +161,8 @@ export default function SubscriptionPlansPage() {
 
   const getSavings = (plan: typeof plans[0]) => {
     if (billingPeriod === 'yearly') {
-      const yearlySavings = (plan.monthlyPrice * 12) - plan.yearlyPrice
-      return Math.round((yearlySavings / (plan.monthlyPrice * 12)) * 100)
+      const yearlySavings = (plan.quaterlyPrice * 4) - plan.yearlyPrice
+      return Math.round((yearlySavings / (plan.quaterlyPrice * 4)) * 100)
     }
     return 0
   }
@@ -243,7 +243,7 @@ export default function SubscriptionPlansPage() {
               </span>
               <Switch
                 checked={billingPeriod === 'yearly'}
-                onCheckedChange={(checked) => setBillingPeriod(checked ? 'yearly' : 'monthly')}
+                onCheckedChange={(checked) => setBillingPeriod(checked ? 'yearly' : 'quaterly')}
               />
               <div className="flex items-center gap-2">
                 <span className={`px-4 py-2 font-medium transition-colors ${
