@@ -92,12 +92,12 @@ export default function HomePage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               🚀 New: Custom EA Development Available
             </Badge>
-            <h1 className="text-hero font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional{" "}
               <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
               Solutions
             </h1>
-            <p className="mt-4 text-body leading-6 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-4 text-lg sm:text-xl leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
               Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
               Join thousands of traders generating consistent profits with our proven algorithms.
             </p>
@@ -117,13 +117,13 @@ export default function HomePage() {
                 </Button>
               </MagneticButton>
             </div>
-            <p className="mt-4 text-lg text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-4 text-xl text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               30-day money-back guarantee • Lifetime updates • 24/7 support
             </p>
             <div className="mt-6 animate-fade-in [animation-delay:1s] opacity-0 [animation-fill-mode:forwards]">
-              <Button variant="outline" size="sm" className="hover-scale" asChild>
+              <Button variant="outline" size="lg" className="hover-scale px-8 text-lg" asChild>
                 <a href="https://t.me/alg0tradingwithighodalo" target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <MessageCircle className="mr-2 h-5 w-5" />
                   Join Our Community
                 </a>
               </Button>
@@ -180,12 +180,20 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <div key={index} className="animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.4 + index * 0.15}s` }}>
-                <StatsCard {...stat} />
-              </div>
-            ))}
+          <div className="overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-left">
+              {stats.map((stat, index) => (
+                <div key={index} className="min-w-[280px] animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.4 + index * 0.15}s` }}>
+                  <StatsCard {...stat} />
+                </div>
+              ))}
+              {/* Duplicate for seamless loop */}
+              {stats.map((stat, index) => (
+                <div key={`duplicate-${index}`} className="min-w-[280px] animate-fade-in opacity-0 [animation-fill-mode:forwards]" style={{ animationDelay: `${0.4 + index * 0.15}s` }}>
+                  <StatsCard {...stat} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

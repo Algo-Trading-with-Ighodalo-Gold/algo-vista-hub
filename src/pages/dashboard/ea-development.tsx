@@ -195,11 +195,11 @@ export default function DashboardEADevelopmentPage() {
               <Badge variant="outline">Trading Bots</Badge>
             </div>
             
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            <h1 className="dashboard-title font-bold tracking-tight">
               Start Your EA Development Project
             </h1>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="dashboard-text text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Transform your trading strategy into a profitable automated system. Our expert developers create custom EAs tailored to your specific requirements with proven results.
             </p>
 
@@ -211,8 +211,8 @@ export default function DashboardEADevelopmentPage() {
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <h3 className="font-semibold mb-2">Strategy Analysis</h3>
-                  <p className="text-sm text-muted-foreground">We analyze your trading strategy and optimize it for automation</p>
+                  <h3 className="dashboard-heading mb-2">Strategy Analysis</h3>
+                  <p className="dashboard-text text-muted-foreground">We analyze your trading strategy and optimize it for automation</p>
                 </CardContent>
               </Card>
               
@@ -223,8 +223,8 @@ export default function DashboardEADevelopmentPage() {
                       <Clock className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <h3 className="font-semibold mb-2">Fast Delivery</h3>
-                  <p className="text-sm text-muted-foreground">Most projects completed within 1-4 weeks with regular updates</p>
+                  <h3 className="dashboard-heading mb-2">Fast Delivery</h3>
+                  <p className="dashboard-text text-muted-foreground">Most projects completed within 1-4 weeks with regular updates</p>
                 </CardContent>
               </Card>
               
@@ -235,8 +235,8 @@ export default function DashboardEADevelopmentPage() {
                       <CheckCircle className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <h3 className="font-semibold mb-2">Full Support</h3>
-                  <p className="text-sm text-muted-foreground">Ongoing support and updates to ensure optimal performance</p>
+                  <h3 className="dashboard-heading mb-2">Full Support</h3>
+                  <p className="dashboard-text text-muted-foreground">Ongoing support and updates to ensure optimal performance</p>
                 </CardContent>
               </Card>
             </div>
@@ -247,10 +247,10 @@ export default function DashboardEADevelopmentPage() {
       {!showCalendly ? (
         <>
           <div className="text-center space-y-4 mb-8">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="dashboard-title font-bold tracking-tight">
               Ready to Build Your EA?
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="dashboard-text text-muted-foreground max-w-2xl mx-auto">
               Tell us about your trading strategy and we'll provide a detailed quote within 24 hours
             </p>
           </div>

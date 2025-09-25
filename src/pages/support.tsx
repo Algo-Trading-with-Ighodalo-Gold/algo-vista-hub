@@ -379,11 +379,11 @@ export default function SupportPage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               🎯 Expert Support & Resources
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="dashboard-title font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               We're Here to{" "}
               <span className="text-gradient">Help You Succeed</span>
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-6 dashboard-text leading-6 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
               Get expert support, comprehensive guides, and answers to all your questions about 
               algorithmic trading with our Expert Advisors.
             </p>
@@ -395,10 +395,10 @@ export default function SupportPage() {
       <section className="py-20">
         <div className="container">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="dashboard-title font-bold tracking-tight mb-4">
               Multiple Ways to Get Help
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="dashboard-text text-muted-foreground max-w-2xl mx-auto">
               Choose the support channel that works best for you
             </p>
           </div>
