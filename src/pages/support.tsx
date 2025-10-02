@@ -379,11 +379,11 @@ export default function SupportPage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               🎯 Expert Support & Resources
             </Badge>
-            <h1 className="dashboard-title font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-hero font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               We're Here to{" "}
               <span className="text-gradient">Help You Succeed</span>
             </h1>
-            <p className="mt-6 dashboard-text leading-6 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Get expert support, comprehensive guides, and answers to all your questions about 
               algorithmic trading with our Expert Advisors.
             </p>
@@ -433,7 +433,15 @@ export default function SupportPage() {
                     size="sm"
                     onClick={() => {
                       if (channel.title === "Live Chat") {
-                        window.open('https://lovable.dev', '_blank')
+                        // Trigger the live chat bot
+                        const chatButton = document.querySelector('[data-chat-trigger]') as HTMLButtonElement
+                        if (chatButton) {
+                          chatButton.click()
+                        } else {
+                          // Fallback: scroll to top and show a message
+                          window.scrollTo({ top: 0, behavior: 'smooth' })
+                          alert('Live chat is available in the bottom right corner of the page!')
+                        }
                       } else if (channel.title === "Email Support") {
                         window.location.href = 'mailto:support@yourcompany.com?subject=Support Request'
                       } else {
@@ -485,7 +493,7 @@ export default function SupportPage() {
       <section id="knowledge-base" className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="text-hero mb-4">
               Knowledge Base & Guides
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -626,7 +634,7 @@ export default function SupportPage() {
       <section className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="text-hero mb-4">
               Frequently Asked Questions
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
@@ -727,7 +735,7 @@ export default function SupportPage() {
         <div className="container">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-12 animate-fade-in">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              <h2 className="text-hero mb-4">
                 Still Need Help?
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -746,7 +754,7 @@ export default function SupportPage() {
                 {isSubmitted ? (
                   <div className="text-center py-12">
                     <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
+                    <h3 className="text-title mb-2">Message Sent!</h3>
                     <p className="text-muted-foreground">
                       Thank you for contacting us. Our support team will respond within 24 hours.
                     </p>
@@ -828,7 +836,7 @@ export default function SupportPage() {
       <section className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="text-hero mb-4">
               Additional Resources
             </h2>
             <p className="text-lg text-muted-foreground">

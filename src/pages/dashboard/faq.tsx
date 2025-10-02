@@ -114,8 +114,8 @@ export default function FAQPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="animate-fade-in">
-        <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-          <HelpCircle className="h-8 w-8 text-primary" />
+        <h1 className="dashboard-section-title flex items-center gap-3">
+          <HelpCircle className="h-6 w-6 text-primary" />
           FAQ
         </h1>
         <p className="text-muted-foreground text-lg mt-2">
@@ -143,7 +143,7 @@ export default function FAQPage() {
             <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">16</div>
+            <div className="text-xl font-bold text-primary">16</div>
             <p className="text-xs text-muted-foreground">Across all categories</p>
           </CardContent>
         </Card>
@@ -153,7 +153,7 @@ export default function FAQPage() {
             <CardTitle className="text-sm font-medium">Most Helpful</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">234</div>
+            <div className="text-xl font-bold text-primary">234</div>
             <p className="text-xs text-muted-foreground">Helpful votes</p>
           </CardContent>
         </Card>

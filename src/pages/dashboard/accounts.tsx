@@ -159,7 +159,7 @@ export default function AccountsPage() {
       {/* Header */}
       <div className="flex justify-between items-start animate-fade-in">
         <div>
-          <h1 className="dashboard-title text-foreground flex items-center gap-2">
+          <h1 className="dashboard-section-title text-foreground flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
             EA Management & Accounts
           </h1>

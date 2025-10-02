@@ -109,11 +109,11 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="flex justify-between items-start animate-fade-in">
         <div>
-          <h1 className="dashboard-title text-foreground flex items-center gap-2">
+          <h1 className="dashboard-section-title flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
             Profile Settings
           </h1>
-          <p className="text-muted-foreground dashboard-text mt-1">
+          <p className="dashboard-subtitle mt-1">
             Manage your account information and settings
           </p>
         </div>
@@ -141,11 +141,11 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Avatar Section */}
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-6">
               <div className="relative group">
-                <Avatar className="w-16 h-16">
+                <Avatar className="w-20 h-20 border-2 border-muted">
                   <AvatarImage src={avatarUrl || profile?.avatar_url} alt={displayName} />
-                  <AvatarFallback className="text-lg font-semibold">
+                  <AvatarFallback className="text-lg font-semibold bg-muted">
                     {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -171,11 +171,25 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="flex-1">
-                <h3 className="dashboard-heading font-semibold">{displayName}</h3>
+                <h3 className="dashboard-heading font-semibold text-lg">{displayName}</h3>
                 <p className="dashboard-text text-muted-foreground">{user?.email}</p>
-                <Badge variant={profile?.subscription_status === 'active' ? 'default' : 'secondary'} className="mt-2 text-xs">
-                  {profile?.subscription_status || 'Free'} Plan
-                </Badge>
+                <div className="mt-3">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={triggerFileInput}
+                    className="btn-hover"
+                    disabled={isUploading}
+                  >
+                    <Upload className="h-3 w-3 mr-1" />
+                    Upload Profile Picture
+                  </Button>
+                </div>
+                <div className="mt-2">
+                  <Badge variant={profile?.subscription_status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                    {profile?.subscription_status || 'Free'} Plan
+                  </Badge>
+                </div>
               </div>
             </div>
 

@@ -14,11 +14,11 @@ export default function AffiliateProgramPage() {
             <Badge variant="secondary" className="mb-4 animate-fade-in">
               💰 High Converting Affiliate Program
             </Badge>
-            <h1 className="text-display font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <h1 className="text-hero font-bold tracking-tight animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Earn by Referring{" "}
               <span className="text-gradient">Traders</span>
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Join our exclusive affiliate program and earn up to 35% commission promoting premium Expert Advisors 
               to the algorithmic trading community. High converting products with proven results.
             </p>

@@ -26,11 +26,11 @@ export default function EADevelopmentPage() {
               <Badge variant="outline">Trading Bots</Badge>
             </div>
             
-            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
+            <h1 className="font-bold tracking-tight text-hero">
               Professional EA Development
             </h1>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Transform your trading strategy into a profitable automated system. Our expert developers create custom Expert Advisors tailored to your specific requirements with proven results.
             </p>
 

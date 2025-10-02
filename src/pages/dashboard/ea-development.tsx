@@ -45,6 +45,7 @@ export default function DashboardEADevelopmentPage() {
     entryLogic: "",
     exitLogic: "",
     riskManagement: "",
+    tradeManagement: "",
     specialFeatures: "",
     budget: "",
     timeline: "",
@@ -95,6 +96,7 @@ export default function DashboardEADevelopmentPage() {
         entry_logic: formData.entryLogic,
         exit_logic: formData.exitLogic,
         risk_management: formData.riskManagement,
+        trade_management: formData.tradeManagement,
         special_features: formData.specialFeatures,
         budget: formData.budget,
         timeline: formData.timeline,
@@ -127,6 +129,7 @@ export default function DashboardEADevelopmentPage() {
         entryLogic: "",
         exitLogic: "",
         riskManagement: "",
+        tradeManagement: "",
         specialFeatures: "",
         budget: "",
         timeline: "",
@@ -195,7 +198,7 @@ export default function DashboardEADevelopmentPage() {
               <Badge variant="outline">Trading Bots</Badge>
             </div>
             
-            <h1 className="dashboard-title font-bold tracking-tight">
+            <h1 className="dashboard-section-title font-bold tracking-tight">
               Start Your EA Development Project
             </h1>
             
@@ -357,6 +360,17 @@ export default function DashboardEADevelopmentPage() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="tradeManagement">Trade Management</Label>
+                  <Textarea
+                    id="tradeManagement"
+                    value={formData.tradeManagement}
+                    onChange={(e) => handleInputChange('tradeManagement', e.target.value)}
+                    placeholder="Position sizing, trailing stops, partial closes, breakeven management, etc."
+                    className="min-h-[80px]"
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="specialFeatures">Special Features</Label>
                   <Textarea
                     id="specialFeatures"
@@ -475,7 +489,7 @@ export default function DashboardEADevelopmentPage() {
       ) : (
         <div className="text-center space-y-8 animate-fade-in">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 text-success">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl mb-4 text-success">
               🎉 Project Inquiry Submitted!
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

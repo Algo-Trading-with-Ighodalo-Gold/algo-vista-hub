@@ -57,8 +57,8 @@ export default function DashboardOverview() {
       {/* Header */}
       <div className="flex justify-between items-start animate-fade-in">
         <div>
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-            <Sparkles className="h-8 w-8 text-primary" />
+          <h1 className="dashboard-section-title flex items-center gap-3 animate-crazy-float">
+            <Sparkles className="h-6 w-6 text-primary animate-crazy-spin" />
             Welcome back, {displayName}!
           </h1>
           <p className="text-muted-foreground text-lg mt-2">
@@ -98,10 +98,10 @@ export default function DashboardOverview() {
 
       {/* Quick Actions */}
       <div className="grid gap-6 lg:grid-cols-3 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-        <Card className="hover:shadow-lg transition-all duration-300 hover-scale border-2 hover:border-primary/20">
+        <Card className="hover:shadow-lg transition-all duration-300 hover-scale border-2 hover:border-primary/20 hover-crazy-float">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
+              <Users className="h-5 w-5 text-primary animate-crazy-wiggle" />
               Affiliate Program
             </CardTitle>
             <CardDescription>Earn commissions by referring traders</CardDescription>
@@ -149,10 +149,10 @@ export default function DashboardOverview() {
 
         <SubscriptionStatus subscriptions={subscriptions} loading={loading} />
 
-        <Card className="hover:shadow-lg transition-all duration-300 hover-scale border-2 hover:border-primary/20">
+        <Card className="hover:shadow-lg transition-all duration-300 hover-scale border-2 hover:border-primary/20 hover-crazy-glow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
+              <Clock className="h-5 w-5 text-primary animate-crazy-pulse" />
               Recent Activity
             </CardTitle>
             <CardDescription>Your latest account activities</CardDescription>

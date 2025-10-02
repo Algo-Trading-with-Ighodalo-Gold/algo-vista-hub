@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Eye, EyeOff, CheckCircle, X, Mail, User } from "lucide-react"
+import { Eye, EyeOff, CheckCircle, X, Mail, User, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from "@/contexts/auth-context"
 
 const passwordRequirements = [
@@ -18,6 +19,22 @@ const passwordRequirements = [
   { text: "One special character", regex: /[^A-Za-z0-9]/ }
 ]
 
+const countries = [
+  "United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Italy", "Spain",
+  "Netherlands", "Sweden", "Norway", "Denmark", "Finland", "Switzerland", "Austria", "Belgium",
+  "Ireland", "Portugal", "Greece", "Poland", "Czech Republic", "Hungary", "Romania", "Bulgaria",
+  "Croatia", "Slovenia", "Slovakia", "Estonia", "Latvia", "Lithuania", "Malta", "Cyprus",
+  "Japan", "South Korea", "Singapore", "Hong Kong", "Taiwan", "Thailand", "Malaysia", "Indonesia",
+  "Philippines", "Vietnam", "India", "China", "Brazil", "Argentina", "Chile", "Mexico",
+  "Colombia", "Peru", "Uruguay", "South Africa", "Nigeria", "Kenya", "Ghana", "Egypt",
+  "Morocco", "Tunisia", "Algeria", "Israel", "UAE", "Saudi Arabia", "Qatar", "Kuwait",
+  "Bahrain", "Oman", "Jordan", "Lebanon", "Turkey", "Russia", "Ukraine", "Belarus",
+  "Kazakhstan", "Uzbekistan", "Kyrgyzstan", "Tajikistan", "Turkmenistan", "Azerbaijan",
+  "Armenia", "Georgia", "Moldova", "Serbia", "Montenegro", "Bosnia and Herzegovina",
+  "North Macedonia", "Albania", "Kosovo", "New Zealand", "Fiji", "Papua New Guinea",
+  "Other"
+]
+
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -25,6 +42,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    country: "",
     agreeToTerms: false,
     agreeMarketing: false
   })
@@ -81,7 +99,8 @@ export default function RegisterPage() {
         formData.email, 
         formData.password, 
         formData.firstName, 
-        formData.lastName
+        formData.lastName,
+        formData.country
       )
       
       if (!error) {
@@ -163,6 +182,22 @@ export default function RegisterPage() {
                   required
                   placeholder="your@email.com"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="country">Country</Label>
+                <Select onValueChange={(value) => handleInputChange('country', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">

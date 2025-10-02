@@ -88,8 +88,8 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="flex justify-between items-start animate-fade-in">
         <div>
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-            <Wallet className="h-8 w-8 text-primary" />
+          <h1 className="dashboard-section-title flex items-center gap-3">
+            <Wallet className="h-6 w-6 text-primary" />
             Transactions
           </h1>
           <p className="text-muted-foreground text-lg mt-2">
@@ -127,7 +127,7 @@ export default function TransactionsPage() {
             <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">$772.00</div>
+            <div className="text-xl font-bold text-primary">$772.00</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
@@ -187,7 +187,7 @@ export default function TransactionsPage() {
             <CardTitle className="text-lg">Purchases</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">4</div>
+            <div className="text-xl font-bold text-primary">4</div>
             <p className="text-sm text-muted-foreground mt-1">This month</p>
           </CardContent>
         </Card>
@@ -197,7 +197,7 @@ export default function TransactionsPage() {
             <CardTitle className="text-lg">Earnings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">$50.00</div>
+            <div className="text-xl font-bold text-green-600">$50.00</div>
             <p className="text-sm text-muted-foreground mt-1">Pending payout</p>
           </CardContent>
         </Card>
@@ -207,7 +207,7 @@ export default function TransactionsPage() {
             <CardTitle className="text-lg">Average</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">$193.00</div>
+            <div className="text-xl font-bold text-primary">$193.00</div>
             <p className="text-sm text-muted-foreground mt-1">Per transaction</p>
           </CardContent>
         </Card>

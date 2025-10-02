@@ -136,17 +136,17 @@ export default function ProductsPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-subtle border-b">
         <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
-        <div className="container relative py-16 lg:py-20">
+        <div className="container relative py-20 lg:py-32">
           <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-hero font-bold tracking-tight animate-fade-in">
+            <h1 className="text-hero animate-fade-in-up">
               Expert Advisors
             </h1>
-            <p className="mt-4 text-body leading-6 text-muted-foreground max-w-2xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Professional automated trading solutions designed for every trading style and market condition. 
               Choose from our collection of proven, backtested Expert Advisors to automate your trading strategy.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in-up [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+              <div className="flex flex-wrap items-center justify-center gap-6 text-body text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-success" />
                   <span>Secure & Licensed</span>
@@ -166,33 +166,33 @@ export default function ProductsPage() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-16">
+      <section className="py-20">
         <div className="container">
-          <div className="mb-12 text-center">
-            <h2 className="text-title font-bold tracking-tight mb-3">Choose Your Trading Strategy</h2>
-            <p className="text-body text-muted-foreground max-w-2xl mx-auto">
+          <div className="mb-16 text-center">
+            <h2 className="text-title animate-fade-in-up">Choose Your Trading Strategy</h2>
+            <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
               Each Expert Advisor is carefully crafted and backtested to deliver consistent performance across different market conditions.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="responsive-grid-3 gap-8">
             {expertAdvisors.map((ea, index) => (
               <Card 
                 key={ea.id} 
-                className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="group card-hover animate-stagger opacity-0 [animation-fill-mode:forwards]"
+                style={{ animationDelay: `${0.4 + index * 0.1}s` }}
               >
                 <CardHeader className="pb-4">
-                  <div className="aspect-video bg-muted rounded-lg mb-4 overflow-hidden">
+                  <div className="aspect-video bg-gradient-subtle rounded-lg mb-4 overflow-hidden">
                     <img 
                       src={ea.image} 
                       alt={ea.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                  <CardTitle className="text-heading group-hover:text-primary transition-colors">
                     {ea.name}
                   </CardTitle>
-                  <CardDescription>{ea.shortDescription}</CardDescription>
+                  <CardDescription className="text-body">{ea.shortDescription}</CardDescription>
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
@@ -252,18 +252,18 @@ export default function ProductsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16">
+      <section className="py-20 bg-muted/30">
         <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Automate Your Trading?</h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <h2 className="text-title mb-4 animate-fade-in-up">Ready to Automate Your Trading?</h2>
+          <p className="text-body text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
             Start your journey with professional algorithmic trading. Choose an Expert Advisor that matches your trading style and risk tolerance.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => handleViewDetails(expertAdvisors[1])}>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <Button size="lg" className="btn-hover" onClick={() => handleViewDetails(expertAdvisors[1])}>
               Start with Most Popular
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button variant="outline" size="lg" asChild>
+            <Button variant="outline" size="lg" className="btn-hover" asChild>
               <a href="/support">Get Expert Advice</a>
             </Button>
           </div>
