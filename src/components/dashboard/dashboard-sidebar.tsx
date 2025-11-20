@@ -1,6 +1,11 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
+import { useDashboardData } from "@/hooks/use-dashboard-data"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
   User, 
   Settings, 
@@ -16,9 +21,6 @@ import {
   HelpCircle,
   Activity
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 const navigationItems = [
@@ -66,12 +68,18 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ collapsed, onToggle }: DashboardSidebarProps) {
   const { user, signOut } = useAuth()
+  const { profile } = useDashboardData()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
   }
+
+  // Get display name from profile or user metadata
+  const displayName = profile?.first_name && profile?.last_name 
+    ? `${profile.first_name} ${profile.last_name}`
+    : profile?.first_name || user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'Trader'
 
   return (
     <div className={cn(
@@ -140,12 +148,15 @@ export function DashboardSidebar({ collapsed, onToggle }: DashboardSidebarProps)
           {!collapsed && (
             <Card className="p-3 bg-background/50 animate-fade-in">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                  <User className="h-4 w-4 text-primary-foreground" />
-                </div>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
+                  <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
+                    {profile?.first_name ? profile.first_name.slice(0, 1).toUpperCase() : 'T'}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">
-                    {user?.email?.split('@')[0] || 'Trader'}
+                    {displayName}
                   </p>
                   <Badge variant="secondary" className="text-xs">
                     Free Plan

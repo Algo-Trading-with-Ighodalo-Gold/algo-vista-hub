@@ -14,6 +14,8 @@ import { FloatingIcon, GlowingOrb, MagneticButton } from "@/components/ui/intera
 
 import { FloatingDots } from "@/components/ui/floating-background"
 
+import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal, FadeIn } from "@/components/ui/scroll-reveal"
+
 import { getFeaturedEAs } from "@/data/expert-advisors"
 
 
@@ -180,83 +182,95 @@ export default function HomePage() {
 
           <div className="mx-auto max-w-4xl text-center">
 
-            <Badge variant="secondary" className="mb-4 animate-fade-in">
+            <ScrollReveal direction="up" delay={0.1}>
+              <Badge variant="secondary" className="mb-4">
 
-              🚀 New: Custom EA Development Available
+                🚀 New: Custom EA Development Available
 
-            </Badge>
+              </Badge>
+            </ScrollReveal>
 
-            <h1 className="text-hero animate-fade-in-up animate-crazy-float">
+            <ScrollReveal direction="up" delay={0.2}>
+              <h1 className="text-hero animate-crazy-float">
 
-              Professional{" "}
+                Professional{" "}
 
-              <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
+                <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
 
-              Solutions
+                Solutions
 
-            </h1>
+              </h1>
+            </ScrollReveal>
 
-            <p className="mt-4 text-lg sm:text-xl leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in">
+            <ScrollReveal direction="up" delay={0.3}>
+              <p className="mt-4 text-lg sm:text-xl leading-7 text-muted-foreground max-w-2xl mx-auto">
 
-              Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
+                Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
 
-              Join thousands of traders generating consistent profits with our proven algorithms.
+                Join thousands of traders generating consistent profits with our proven algorithms.
 
-            </p>
+              </p>
+            </ScrollReveal>
 
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">
+            <ScrollReveal direction="up" delay={0.4}>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
 
-              <MagneticButton>
+                <MagneticButton>
 
-                <Button size="lg" variant="premium" className="px-8" asChild>
+                  <Button size="xl" variant="cta" className="px-10" asChild>
 
-                  <Link to="/auth/register">
+                    <Link to="/auth/register">
 
-                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                      Get Started <ArrowRight className="ml-2 h-5 w-5" />
 
-                  </Link>
+                    </Link>
+
+                  </Button>
+
+                </MagneticButton>
+
+                <MagneticButton>
+
+                  <Button size="lg" variant="outline" className="px-8 border-2" asChild>
+
+                    <Link to="/auth/login">
+
+                      Sign In <Sparkles className="ml-2 h-4 w-4" />
+
+                    </Link>
+
+                  </Button>
+
+                </MagneticButton>
+
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal direction="up" delay={0.5}>
+              <p className="mt-4 text-xl text-muted-foreground">
+
+                30-day money-back guarantee • Lifetime updates • 24/7 support
+
+              </p>
+            </ScrollReveal>
+
+            <ScrollReveal direction="up" delay={0.6}>
+              <div className="mt-6">
+
+                <Button variant="outline" size="lg" className="hover-scale px-8 text-lg" asChild>
+
+                  <a href="https://t.me/AlgotradingwithIghodalo" target="_blank" rel="noopener noreferrer">
+
+                    <MessageCircle className="mr-2 h-5 w-5" />
+
+                    Join Our Community
+
+                  </a>
 
                 </Button>
 
-              </MagneticButton>
-
-              <MagneticButton>
-
-                <Button size="lg" variant="hero" className="px-8" asChild>
-
-                  <Link to="/auth/login">
-
-                    Sign In <Sparkles className="ml-2 h-4 w-4" />
-
-                  </Link>
-
-                </Button>
-
-              </MagneticButton>
-
-            </div>
-
-            <p className="mt-4 text-xl text-muted-foreground animate-fade-in">
-
-              30-day money-back guarantee • Lifetime updates • 24/7 support
-
-            </p>
-
-            <div className="mt-6 animate-fade-in">
-
-              <Button variant="outline" size="lg" className="hover-scale px-8 text-lg" asChild>
-
-                <a href="https://t.me/alg0tradingwithighodalo" target="_blank" rel="noopener noreferrer">
-
-                  <MessageCircle className="mr-2 h-5 w-5" />
-
-                  Join Our Community
-
-                </a>
-
-              </Button>
-
-            </div>
+              </div>
+            </ScrollReveal>
 
           </div>
 
@@ -274,49 +288,55 @@ export default function HomePage() {
 
           <div className="mx-auto max-w-2xl text-center mb-16">
 
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl animate-fade-in">
+            <ScrollReveal direction="up" delay={0.1}>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
 
-              Why Choose Our Trading Solutions?
+                Why Choose Our Trading Solutions?
 
-            </h2>
+              </h2>
+            </ScrollReveal>
 
-            <p className="mt-3 text-base text-muted-foreground animate-fade-in">
+            <ScrollReveal direction="up" delay={0.2}>
+              <p className="mt-3 text-base text-muted-foreground">
 
-              Professional-grade tools built by experts for serious traders
+                Professional-grade tools built by experts for serious traders
 
-            </p>
+              </p>
+            </ScrollReveal>
 
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
             {features.map((feature, index) => (
 
-              <Card key={index} className="text-center hover:shadow-hover hover-scale transition-all duration-300 animate-fade-in bg-gradient-card">
+              <StaggerItem key={index} direction={index % 2 === 0 ? 'left' : 'right'}>
+                <Card className="text-center hover:shadow-hover hover-scale transition-all duration-300 bg-gradient-card">
 
-                <CardHeader>
+                  <CardHeader>
 
-                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg gradient-trading transition-transform duration-300 hover:scale-110 shadow-glow">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg gradient-trading transition-transform duration-300 hover:scale-110 shadow-glow">
 
-                    <feature.icon className="h-5 w-5 text-primary-foreground" />
+                      <feature.icon className="h-5 w-5 text-primary-foreground" />
 
-                  </div>
+                    </div>
 
-                  <CardTitle className="text-lg transition-colors duration-300 hover:text-primary">{feature.title}</CardTitle>
+                    <CardTitle className="text-lg transition-colors duration-300 hover:text-primary">{feature.title}</CardTitle>
 
-                </CardHeader>
+                  </CardHeader>
 
-                <CardContent>
+                  <CardContent>
 
-                  <CardDescription>{feature.description}</CardDescription>
+                    <CardDescription>{feature.description}</CardDescription>
 
-                </CardContent>
+                  </CardContent>
 
-              </Card>
+                </Card>
+              </StaggerItem>
 
             ))}
 
-          </div>
+          </StaggerContainer>
 
         </div>
 
@@ -348,7 +368,7 @@ export default function HomePage() {
 
               <Button variant="default" className="hover-scale" asChild>
 
-                <a href="https://t.me/alg0tradingwithighodalo" target="_blank" rel="noopener noreferrer">
+                <a href="https://t.me/AlgotradingwithIghodalo" target="_blank" rel="noopener noreferrer">
 
                   <MessageCircle className="mr-2 h-4 w-4" />
 
@@ -364,11 +384,12 @@ export default function HomePage() {
 
           <div className="overflow-hidden">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-left">
+            <div className="flex gap-6 animate-continuous-scroll">
 
+              {/* First set of stats */}
               {stats.map((stat, index) => (
 
-                <div key={index} className="min-w-[280px] animate-fade-in">
+                <div key={`first-${index}`} className="min-w-[280px] flex-shrink-0">
 
                   <StatsCard {...stat} />
 
@@ -376,9 +397,16 @@ export default function HomePage() {
 
               ))}
 
-             
+              {/* Duplicate set for seamless loop */}
+              {stats.map((stat, index) => (
 
-              
+                <div key={`second-${index}`} className="min-w-[280px] flex-shrink-0">
+
+                  <StatsCard {...stat} />
+
+                </div>
+
+              ))}
 
             </div>
 

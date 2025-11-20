@@ -95,8 +95,109 @@ export default function AboutUsPage() {
         </Card>
       </section>
 
+      {/* Meet the Team */}
+      <section className="space-y-8 animate-fade-in [animation-delay:0.3s] opacity-0 [animation-fill-mode:forwards]">
+        <div className="text-center">
+          <h2 className="text-hero font-bold mb-4">Meet the Team</h2>
+          <p className="text-body text-muted-foreground max-w-2xl mx-auto">
+            Our dedicated team of experts brings together decades of experience in trading, 
+            software development, and financial markets.
+          </p>
+        </div>
+
+        {/* Team Image */}
+        <div className="flex justify-center">
+          <Card className="max-w-4xl overflow-hidden">
+            <CardContent className="p-0">
+              <img 
+                src="/src/assets/meet-the-team.jpg" 
+                alt="Meet the Team - Ighodalo Gold, Michael King, and Alabi Esther"
+                className="w-full h-auto object-cover"
+                onError={(e) => {
+                  // Fallback if image doesn't exist yet
+                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.nextElementSibling.style.display = 'block'
+                }}
+              />
+              {/* Fallback content if image is not available */}
+              <div className="hidden p-8 text-center bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+                <h3 className="text-2xl font-bold mb-6 text-yellow-300">Meet the Team</h3>
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="space-y-3">
+                    <div className="w-24 h-24 mx-auto bg-orange-500 rounded-full flex items-center justify-center text-2xl font-bold">
+                      IG
+                    </div>
+                    <h4 className="font-bold text-lg">Ighodalo Gold</h4>
+                    <p className="text-sm opacity-90">Expert EA Architect & Client Strategy Lead</p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="w-24 h-24 mx-auto bg-gray-600 rounded-full flex items-center justify-center text-2xl font-bold">
+                      MK
+                    </div>
+                    <h4 className="font-bold text-lg">Michael King</h4>
+                    <p className="text-sm opacity-90">EA Performance Analyst & Growth Strategist</p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="w-24 h-24 mx-auto bg-pink-500 rounded-full flex items-center justify-center text-2xl font-bold">
+                      AE
+                    </div>
+                    <h4 className="font-bold text-lg">Alabi Esther</h4>
+                    <p className="text-sm opacity-90">Web Developer & Automation Integrator</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Team Details */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            {
+              name: "Ighodalo Gold",
+              role: "Expert EA Architect & Client Strategy Lead",
+              description: "With over 5 years of experience in algorithmic trading, Ighodalo leads our EA development and client strategy initiatives.",
+              expertise: ["EA Development", "Strategy Design", "Client Relations"]
+            },
+            {
+              name: "Michael King", 
+              role: "EA Performance Analyst & Growth Strategist",
+              description: "Michael specializes in performance analysis and growth strategies, ensuring our EAs deliver consistent results.",
+              expertise: ["Performance Analysis", "Risk Management", "Growth Strategy"]
+            },
+            {
+              name: "Alabi Esther",
+              role: "Web Developer & Automation Integrator", 
+              description: "Esther handles our web development and automation integration, creating seamless user experiences.",
+              expertise: ["Web Development", "Automation", "User Experience"]
+            }
+          ].map((member, index) => (
+            <Card key={member.name} className="text-center hover:shadow-lg transition-shadow hover-scale">
+              <CardHeader>
+                <CardTitle className="text-heading">{member.name}</CardTitle>
+                <CardDescription className="text-primary font-medium">
+                  {member.role}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-caption text-muted-foreground">
+                  {member.description}
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {member.expertise.map((skill) => (
+                    <Badge key={skill} variant="secondary" className="text-xs">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* Values */}
-      <section className="space-y-8 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+      <section className="space-y-8 animate-fade-in [animation-delay:0.5s] opacity-0 [animation-fill-mode:forwards]">
         <div className="text-center">
           <h2 className="text-hero font-bold mb-4">Our Core Values</h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
@@ -143,7 +244,7 @@ export default function AboutUsPage() {
       </section>
 
       {/* Stats */}
-      <section className="animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
+      <section className="animate-fade-in [animation-delay:0.7s] opacity-0 [animation-fill-mode:forwards]">
         <Card className="bg-gradient-primary text-primary-foreground">
           <CardContent className="p-8">
             <div className="grid md:grid-cols-4 gap-8 text-center">
@@ -169,7 +270,7 @@ export default function AboutUsPage() {
       </section>
 
       {/* CTA */}
-      <section className="text-center space-y-6 animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
+      <section className="text-center space-y-6 animate-fade-in [animation-delay:0.9s] opacity-0 [animation-fill-mode:forwards]">
         <h2 className="text-hero font-bold">Ready to Start Your Journey?</h2>
         <p className="text-body text-muted-foreground max-w-2xl mx-auto">
           Join thousands of traders who have transformed their trading with our algorithmic solutions.

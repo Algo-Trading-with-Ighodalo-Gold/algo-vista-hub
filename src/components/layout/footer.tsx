@@ -16,10 +16,10 @@ const footerLinks = {
   ],
   support: [
     { name: "Help Center", href: "/support" },
-    { name: "Live Chat", href: "#", onClick: () => window.open('https://lovable.dev', '_blank') },
-    { name: "Email Support", href: "mailto:support@algotrading.com" },
+    { name: "Live Chat", href: "#", onClick: () => document.querySelector('[data-chat-trigger]')?.click() },
+    { name: "Contact Us", href: "mailto:algotradingwithighodalo@gmail.com" },
     { name: "Knowledge Base", href: "/support#knowledge-base" },
-    { name: "Community Forum", href: "https://t.me/+your-telegram-group", external: true },
+    { name: "Community Forum", href: "https://t.me/AlgotradingwithIghodalo", external: true },
   ],
   resources: [
     { name: "Trading Guides", href: "/guides" },

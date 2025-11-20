@@ -114,9 +114,6 @@ export function validatePhone(phone: string): string | null {
   return validateField(phone, validationRules.phone)
 }
 
-export function validateCountry(country: string): string | null {
-  return validateField(country, validationRules.country)
-}
 
 export function validateStrategy(strategy: string): string | null {
   return validateField(strategy, validationRules.strategy)
@@ -137,7 +134,6 @@ export function validateRegistrationForm(data: {
   email: string
   password: string
   confirmPassword: string
-  country: string
 }): ValidationResult {
   const errors: Record<string, string> = {}
 
@@ -153,9 +149,6 @@ export function validateRegistrationForm(data: {
 
   const passwordError = validatePassword(data.password)
   if (passwordError) errors.password = passwordError
-
-  const countryError = validateCountry(data.country)
-  if (countryError) errors.country = countryError
 
   // Validate password confirmation
   if (data.password !== data.confirmPassword) {

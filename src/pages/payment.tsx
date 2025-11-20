@@ -19,12 +19,6 @@ const paymentMethods = [
     icon: CreditCard,
     description: "Visa, Mastercard, American Express"
   },
-  {
-    id: "confirmo", 
-    name: "Cryptocurrency",
-    icon: "₿",
-    description: "Bitcoin, Ethereum, USDT and 50+ cryptocurrencies"
-  }
 ]
 
 export default function PaymentPage() {
@@ -348,22 +342,6 @@ export default function PaymentPage() {
                             placeholder="John Doe"
                           />
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Confirmo Crypto Payment */}
-                  {paymentMethod === "confirmo" && (
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Cryptocurrency Payment</h3>
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-2xl">₿</span>
-                          <span className="font-medium">Pay with Crypto</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          You'll be redirected to Confirmo to complete your payment with Bitcoin, Ethereum, USDT, or 50+ other cryptocurrencies. Your subscription will be activated immediately after payment confirmation.
-                        </p>
                       </div>
                     </div>
                   )}

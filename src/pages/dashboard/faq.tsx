@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -110,6 +111,29 @@ const faqCategories = [
 ]
 
 export default function FAQPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return faqCategories
+
+    return faqCategories
+      .map(category => ({
+        ...category,
+        faqs: category.faqs.filter(faq =>
+          faq.question.toLowerCase().includes(term) ||
+          faq.answer.toLowerCase().includes(term)
+        )
+      }))
+      .filter(category => category.faqs.length > 0)
+  }, [searchTerm])
+
+  const totalQuestions = filteredCategories.reduce((sum, category) => sum + category.faqs.length, 0)
+  const mostHelpful = filteredCategories.reduce((max, category) => {
+    const categoryMax = category.faqs.reduce((catMax, faq) => Math.max(catMax, faq.helpful), 0)
+    return Math.max(max, categoryMax)
+  }, 0)
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -131,8 +155,15 @@ export default function FAQPage() {
             <Input 
               placeholder="Search FAQs..." 
               className="pl-10 h-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          {searchTerm && filteredCategories.length === 0 && (
+            <p className="text-xs text-muted-foreground mt-3">
+              No FAQs match “{searchTerm}”.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -143,8 +174,10 @@ export default function FAQPage() {
             <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-primary">16</div>
-            <p className="text-xs text-muted-foreground">Across all categories</p>
+            <div className="text-xl font-bold text-primary">{totalQuestions}</div>
+            <p className="text-xs text-muted-foreground">
+              {searchTerm ? 'Matching results' : 'Across all categories'}
+            </p>
           </CardContent>
         </Card>
         
@@ -153,8 +186,8 @@ export default function FAQPage() {
             <CardTitle className="text-sm font-medium">Most Helpful</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-primary">234</div>
-            <p className="text-xs text-muted-foreground">Helpful votes</p>
+            <div className="text-xl font-bold text-primary">{mostHelpful}</div>
+            <p className="text-xs text-muted-foreground">Top helpful votes</p>
           </CardContent>
         </Card>
         
@@ -173,7 +206,22 @@ export default function FAQPage() {
 
       {/* FAQ Categories */}
       <div className="space-y-6 animate-fade-in [animation-delay:0.3s] opacity-0 [animation-fill-mode:forwards]">
-        {faqCategories.map((category, categoryIndex) => (
+        {filteredCategories.length === 0 ? (
+          <Card className="text-center py-10">
+            <CardHeader>
+              <CardTitle>No FAQs found</CardTitle>
+              <CardDescription>
+                Try a different search term or reset to view all questions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" onClick={() => setSearchTerm('')}>
+                Clear search
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredCategories.map((category, categoryIndex) => (
           <Card key={category.title} className={`hover:shadow-lg transition-shadow animate-fade-in opacity-0 [animation-fill-mode:forwards]`}
                 style={{ animationDelay: `${0.4 + categoryIndex * 0.1}s` }}>
             <CardHeader>
@@ -216,7 +264,8 @@ export default function FAQPage() {
               </Accordion>
             </CardContent>
           </Card>
-        ))}
+        ))
+        )}
       </div>
 
       {/* Contact Support */}

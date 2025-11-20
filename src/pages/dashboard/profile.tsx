@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useDashboardData } from '@/hooks/use-dashboard-data'
+import { UserAPI } from '@/lib/api'
 import { 
   User, 
   Mail, 
@@ -17,7 +18,9 @@ import {
   Star,
   UserCheck,
   Upload,
-  Camera
+  Camera,
+  Save,
+  X
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
@@ -27,11 +30,26 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   const [isUploading, setIsUploading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: ''
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { 
     profile, 
     loading 
   } = useDashboardData()
+
+  // Initialize form data when profile loads
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        firstName: profile.first_name || '',
+        lastName: profile.last_name || ''
+      })
+    }
+  }, [profile])
 
   const displayName = 
     profile?.first_name && profile?.last_name 
@@ -65,18 +83,25 @@ export default function ProfilePage() {
     setIsUploading(true)
     
     try {
-      // Create preview URL
-      const imageUrl = URL.createObjectURL(file)
-      setAvatarUrl(imageUrl)
-      
-      toast({
-        title: "Avatar updated!",
-        description: "Your profile picture has been updated",
-      })
-    } catch (error) {
+      if (!user?.id) {
+        throw new Error('User not authenticated')
+      }
+
+      // Upload avatar using UserAPI
+      const result = await UserAPI.uploadAvatar(user.id, file)
+      if (result.success && result.data) {
+        setAvatarUrl(result.data)
+        toast({
+          title: "Avatar updated!",
+          description: "Your profile picture has been updated",
+        })
+      } else {
+        throw new Error(result.error || 'Failed to upload avatar')
+      }
+    } catch (error: any) {
       toast({
         title: "Upload failed",
-        description: "Failed to upload avatar. Please try again.",
+        description: error.message || "Failed to upload avatar. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -86,6 +111,44 @@ export default function ProfilePage() {
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
+  }
+
+  const handleSaveProfile = async () => {
+    if (!user?.id) return
+
+    setIsSaving(true)
+    try {
+      const result = await UserAPI.updateProfile(user.id, {
+        first_name: formData.firstName,
+        last_name: formData.lastName
+      })
+
+      if (result.success) {
+        toast({
+          title: "Profile updated!",
+          description: "Your profile information has been saved",
+        })
+        setIsEditing(false)
+      } else {
+        throw new Error(result.error || 'Failed to update profile')
+      }
+    } catch (error: any) {
+      toast({
+        title: "Update failed",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setFormData({
+      firstName: profile?.first_name || '',
+      lastName: profile?.last_name || ''
+    })
+    setIsEditing(false)
   }
 
   const copyToClipboard = async (text: string, label: string) => {
@@ -201,7 +264,8 @@ export default function ProfilePage() {
                     <Input 
                       id="firstName"
                       placeholder="Enter first name"
-                      defaultValue={profile?.first_name || ''}
+                      value={formData.firstName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
                       className="h-8 text-xs"
                     />
                   </div>
@@ -210,7 +274,8 @@ export default function ProfilePage() {
                     <Input 
                       id="lastName"
                       placeholder="Enter last name"
-                      defaultValue={profile?.last_name || ''}
+                      value={formData.lastName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
                       className="h-8 text-xs"
                     />
                   </div>
@@ -229,8 +294,32 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" className="hover-scale h-7 text-xs">Save Changes</Button>
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} className="h-7 text-xs">
+                  <Button 
+                    size="sm" 
+                    className="hover-scale h-7 text-xs"
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-3 w-3 mr-1" />
+                        Save Changes
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleCancelEdit} 
+                    className="h-7 text-xs"
+                    disabled={isSaving}
+                  >
+                    <X className="h-3 w-3 mr-1" />
                     Cancel
                   </Button>
                 </div>

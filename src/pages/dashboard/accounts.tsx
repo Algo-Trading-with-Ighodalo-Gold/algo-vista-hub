@@ -1,391 +1,450 @@
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useMemo } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { 
   Activity, 
-  Plus,
   Search,
-  Play,
-  Pause,
-  ExternalLink,
+  RefreshCw,
+  Key,
+  BarChart3,
+  Loader2,
+  Trash2,
   CheckCircle,
   XCircle,
-  AlertCircle,
-  BarChart3,
-  Clock,
-  Users
+  TrendingUp
 } from 'lucide-react'
-
-const mockEAData = [
-  {
-    id: '1',
-    name: 'Scalper Pro EA',
-    status: 'active',
-    expiryDate: '2024-12-15',
-    connectedAccounts: 2,
-    isMonitoring: true,
-    lastActivity: '2 minutes ago',
-    performance: '+12.5%'
-  },
-  {
-    id: '2', 
-    name: 'Grid Trader EA',
-    status: 'active',
-    expiryDate: '2024-11-30',
-    connectedAccounts: 1,
-    isMonitoring: true,
-    lastActivity: '5 minutes ago',
-    performance: '+8.2%'
-  },
-  {
-    id: '3',
-    name: 'Night Owl EA',
-    status: 'inactive',
-    expiryDate: '2024-12-20',
-    connectedAccounts: 0,
-    isMonitoring: false,
-    lastActivity: '2 hours ago',
-    performance: '+5.1%'
-  },
-  {
-    id: '4',
-    name: 'Trend Rider EA',
-    status: 'expired',
-    expiryDate: '2024-09-15',
-    connectedAccounts: 0,
-    isMonitoring: false,
-    lastActivity: '2 weeks ago',
-    performance: '-2.3%'
-  }
-]
-
-const mockAccounts = [
-  {
-    id: '1',
-    name: 'Main Trading Account',
-    accountId: 'MT5-123456789',
-    platform: 'MT5',
-    status: 'online',
-    balance: '$15,247.82',
-    equity: '$15,892.45',
-    lastSync: '2 minutes ago'
-  },
-  {
-    id: '2', 
-    name: 'Demo Account',
-    accountId: 'MT5-987654321',
-    platform: 'MT5',
-    status: 'online',
-    balance: '$10,000.00',
-    equity: '$9,847.35',
-    lastSync: '5 minutes ago'
-  },
-  {
-    id: '3',
-    name: 'Scalping Account',
-    accountId: 'MT5-456789123',
-    platform: 'MT5', 
-    status: 'offline',
-    balance: '$5,123.67',
-    equity: '$5,123.67',
-    lastSync: '2 hours ago'
-  }
-]
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'active':
-    case 'online':
-      return <CheckCircle className="h-3 w-3 text-green-500" />
-    case 'inactive':
-    case 'offline':
-      return <XCircle className="h-3 w-3 text-red-500" />
-    case 'expired':
-      return <Clock className="h-3 w-3 text-yellow-500" />
-    default:
-      return <AlertCircle className="h-3 w-3 text-yellow-500" />
-  }
-}
-
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case 'active':
-    case 'online':
-      return 'default' as const
-    case 'inactive':
-    case 'offline':
-      return 'secondary' as const
-    case 'expired':
-      return 'destructive' as const
-    default:
-      return 'outline' as const
-  }
-}
-
-const getExpiryColor = (expiryDate: string) => {
-  const expiry = new Date(expiryDate)
-  const now = new Date()
-  const daysUntilExpiry = (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  
-  if (daysUntilExpiry < 0) return 'text-red-500'
-  if (daysUntilExpiry < 7) return 'text-yellow-500'
-  if (daysUntilExpiry < 30) return 'text-orange-500'
-  return 'text-green-500'
-}
+import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal } from '@/components/ui/scroll-reveal'
+import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/contexts/auth-context'
+import { useAccountsData, EnrichedLicense } from '@/hooks/use-accounts-data'
+import { LicenseCard } from '@/components/accounts/license-card'
+import { supabase } from '@/integrations/supabase/client'
+import { isLicenseActive, getLicenseStatusVariant } from '@/lib/accounts-utils'
 
 export default function AccountsPage() {
+  const { user } = useAuth()
+  const { licenses, loading, error, refetch } = useAccountsData()
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState('active')
+  const [activeTab, setActiveTab] = useState('licenses')
+  const [isLoading, setIsLoading] = useState(false)
+  const [removingAccount, setRemovingAccount] = useState<{ licenseId: string; account: number } | null>(null)
 
-  const filteredEAs = mockEAData.filter(ea => {
-    const matchesSearch = ea.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesTab = activeTab === 'all' || ea.status === activeTab
-    return matchesSearch && matchesTab
-  })
+  // Filter licenses by search term
+  const filteredLicenses = useMemo(() => {
+    if (!searchTerm) return licenses
+
+    const term = searchTerm.toLowerCase()
+    return licenses.filter(license => 
+      license.ea_product_name?.toLowerCase().includes(term) ||
+      license.license_key.toLowerCase().includes(term) ||
+      license.connected_accounts.some(acc => 
+        acc.account.toString().includes(term) ||
+        acc.account_name?.toLowerCase().includes(term)
+      )
+    )
+  }, [licenses, searchTerm])
+
+  // Get all accounts across all licenses
+  const allAccounts = useMemo(() => {
+    return licenses.flatMap(license => 
+      license.connected_accounts.map(acc => ({
+        ...acc,
+        license_id: license.id,
+        license_name: license.ea_product_name || 'EA License',
+        license_status: license.status,
+        license_active: isLicenseActive(license)
+      }))
+    )
+  }, [licenses])
+
+  // Filter accounts by search term
+  const filteredAccounts = useMemo(() => {
+    if (!searchTerm) return allAccounts
+
+    const term = searchTerm.toLowerCase()
+    return allAccounts.filter(account =>
+      account.account.toString().includes(term) ||
+      account.account_name?.toLowerCase().includes(term) ||
+      account.broker?.toLowerCase().includes(term) ||
+      account.license_name?.toLowerCase().includes(term)
+    )
+  }, [allAccounts, searchTerm])
+
+  const handleConnectAccount = async (
+    licenseId: string, 
+    account: number, 
+    accountName?: string, 
+    broker?: string
+  ) => {
+    setIsLoading(true)
+    try {
+      const { data, error: rpcError } = await supabase.rpc('link_account_to_license' as any, {
+        p_license_id: licenseId,
+        p_account: account
+      }) as { data: any; error: any }
+
+      if (rpcError) throw rpcError
+
+      const result = data as { success: boolean; error?: string; message?: string }
+      if (!result || !result.success) {
+        throw new Error(result?.error || 'Failed to connect account')
+      }
+
+      // Update account metadata if provided (optional fields)
+      if (accountName || broker) {
+        const { error: updateError } = await supabase
+          .from('license_accounts' as any)
+          .update({
+            account_name: accountName || null,
+            broker: broker || null
+          })
+          .eq('license_id', licenseId)
+          .eq('account', account)
+
+        if (updateError) {
+          console.warn('Failed to update account metadata:', updateError)
+          // Don't fail the whole operation, just log it
+        }
+      }
+
+      toast({
+        title: "Account Connected!",
+        description: `MT5 account ${account} has been linked successfully`,
+      })
+
+      await refetch()
+    } catch (error: any) {
+      console.error('Error connecting account:', error)
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to connect account. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRemoveAccount = async (licenseId: string, account: number) => {
+    setIsLoading(true)
+    try {
+      const { data, error: rpcError } = await supabase.rpc('unlink_account_from_license' as any, {
+        p_license_id: licenseId,
+        p_account: account
+      }) as { data: any; error: any }
+
+      if (rpcError) throw rpcError
+
+      const result = data as { success: boolean; error?: string; message?: string }
+      if (!result || !result.success) {
+        throw new Error(result?.error || 'Failed to remove account')
+      }
+
+      toast({
+        title: "Account Removed",
+        description: `MT5 account ${account} has been unlinked`,
+      })
+
+      await refetch()
+    } catch (error: any) {
+      console.error('Error removing account:', error)
+      toast({
+        title: "Removal Failed",
+        description: error.message || "Failed to remove account. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+      setRemovingAccount(null)
+    }
+  }
+
+  const handleRefresh = async () => {
+    setIsLoading(true)
+    try {
+      await refetch()
+      toast({
+        title: "Refreshed!",
+        description: "Account data has been updated",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const activeLicenses = licenses.filter(l => isLicenseActive(l)).length
+  const activeAccounts = allAccounts.filter(a => a.status === 'active').length
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-12 text-center">
+          <XCircle className="h-12 w-12 mx-auto mb-4 text-destructive" />
+          <h3 className="font-semibold mb-2">Error Loading Data</h3>
+          <p className="text-sm text-muted-foreground mb-4">{error}</p>
+          <Button onClick={refetch}>Try Again</Button>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start animate-fade-in">
-        <div>
-          <h1 className="dashboard-section-title text-foreground flex items-center gap-2">
-            <Activity className="h-5 w-5 text-primary" />
-            EA Management & Accounts
-          </h1>
-          <p className="text-muted-foreground dashboard-text mt-1">
-            Monitor your Expert Advisors and connected trading accounts
-          </p>
-        </div>
-        
-        <Button size="sm" className="hover-scale">
-          <Plus className="h-3 w-3 mr-1" />
-          Connect Account
-        </Button>
-      </div>
-
-      {/* EA Management Section */}
-      <Card className="animate-fade-in [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
-        <CardHeader className="pb-3">
-          <CardTitle className="dashboard-heading flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-primary" />
-            Expert Advisors
-          </CardTitle>
-          <CardDescription className="dashboard-text">
-            Manage your EA licenses and monitoring status
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Search and Tabs */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-between">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-2 top-2 h-3 w-3 text-muted-foreground" />
-                <Input
-                  placeholder="Search EAs..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-7 h-8 text-xs"
-                />
-              </div>
-              
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
-                <TabsList className="grid w-full grid-cols-4 h-8">
-                  <TabsTrigger value="all" className="text-xs px-2">All</TabsTrigger>
-                  <TabsTrigger value="active" className="text-xs px-2">Active</TabsTrigger>
-                  <TabsTrigger value="inactive" className="text-xs px-2">Inactive</TabsTrigger>
-                  <TabsTrigger value="expired" className="text-xs px-2">Expired</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-
-            {/* EA Table */}
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="dashboard-text">EA Name</TableHead>
-                    <TableHead className="dashboard-text">Status</TableHead>
-                    <TableHead className="dashboard-text">Expiry Date</TableHead>
-                    <TableHead className="dashboard-text">Accounts</TableHead>
-                    <TableHead className="dashboard-text">Monitoring</TableHead>
-                    <TableHead className="dashboard-text">Performance</TableHead>
-                    <TableHead className="dashboard-text">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredEAs.map((ea) => (
-                    <TableRow key={ea.id} className="hover:bg-muted/50">
-                      <TableCell className="font-medium dashboard-text">
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(ea.status)}
-                          {ea.name}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusVariant(ea.status)} className="text-xs">
-                          {ea.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className={`dashboard-text ${getExpiryColor(ea.expiryDate)}`}>
-                        {new Date(ea.expiryDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="dashboard-text">
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3 text-muted-foreground" />
-                          {ea.connectedAccounts}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${ea.isMonitoring ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                          <span className="dashboard-text text-muted-foreground">
-                            {ea.isMonitoring ? 'Active' : 'Stopped'}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className={`dashboard-text font-medium ${
-                        ea.performance.startsWith('+') ? 'text-green-500' : 'text-red-500'
-                      }`}>
-                        {ea.performance}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover-scale"
-                            onClick={() => {}}
-                          >
-                            {ea.isMonitoring ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover-scale"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+      <ScrollReveal direction="up" delay={0.1}>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Activity className="h-7 w-7 text-primary" />
+              EA Licenses & Accounts
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your Expert Advisor licenses and connected trading accounts
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <Button onClick={handleRefresh} variant="outline" className="gap-2" disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+      </ScrollReveal>
 
-      {/* Connected Accounts */}
-      <div className="grid gap-4 animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
-        <h2 className="dashboard-heading text-foreground">Connected Trading Accounts</h2>
-        {mockAccounts.map((account, index) => (
-          <Card key={account.id} className={`hover:shadow-lg transition-shadow animate-fade-in opacity-0 [animation-fill-mode:forwards]`} 
-                style={{ animationDelay: `${0.3 + index * 0.1}s` }}>
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <ScaleReveal delay={0.1}>
+          <Card>
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="dashboard-heading flex items-center gap-2">
-                    {getStatusIcon(account.status)}
-                    {account.name}
-                  </CardTitle>
-                  <CardDescription className="dashboard-text flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs">
-                      {account.platform}
-                    </Badge>
-                    {account.accountId}
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={getStatusVariant(account.status)} className="text-xs">
-                    {account.status}
-                  </Badge>
-                </div>
-              </div>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active Licenses</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-3">
-                <div className="space-y-1">
-                  <p className="dashboard-text font-medium text-muted-foreground">Balance</p>
-                  <p className="dashboard-title font-semibold">{account.balance}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="dashboard-text font-medium text-muted-foreground">Equity</p>
-                  <p className="dashboard-title font-semibold">{account.equity}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="dashboard-text font-medium text-muted-foreground">Last Sync</p>
-                  <p className="dashboard-text text-muted-foreground">{account.lastSync}</p>
-                </div>
-              </div>
-              
-              <div className="flex gap-2 mt-3">
-                <Button variant="outline" size="sm" className="hover-scale h-7 text-xs">
-                  <ExternalLink className="h-3 w-3 mr-1" />
-                  Details
-                </Button>
-                <Button variant="outline" size="sm" className="hover-scale h-7 text-xs">
-                  Sync Now
-                </Button>
-              </div>
+            <CardContent className="pt-0">
+              <div className="text-3xl font-bold">{activeLicenses}</div>
+              <p className="text-sm text-muted-foreground">{licenses.length} total</p>
             </CardContent>
           </Card>
-        ))}
+        </ScaleReveal>
+
+        <ScaleReveal delay={0.2}>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Accounts</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-3xl font-bold">{allAccounts.length}</div>
+              <p className="text-sm text-muted-foreground">{activeAccounts} active</p>
+            </CardContent>
+          </Card>
+        </ScaleReveal>
+
+        <ScaleReveal delay={0.3}>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Connected Accounts</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-3xl font-bold text-primary">
+                {licenses.reduce((sum, l) => sum + l.connected_count, 0)}
+              </div>
+              <p className="text-sm text-muted-foreground">Across all licenses</p>
+            </CardContent>
+          </Card>
+        </ScaleReveal>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid gap-4 md:grid-cols-4 animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="dashboard-text">Active EAs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="dashboard-title font-bold text-primary">2</div>
-            <p className="dashboard-text text-muted-foreground mt-1">Running now</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="dashboard-text">Total Accounts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="dashboard-title font-bold text-primary">3</div>
-            <p className="dashboard-text text-muted-foreground mt-1">2 Online</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="dashboard-text">Total Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="dashboard-title font-bold text-primary">$30,371.49</div>
-            <p className="dashboard-text text-muted-foreground mt-1">All accounts</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="dashboard-text">Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="dashboard-title font-bold text-green-500">+8.6%</div>
-            <p className="dashboard-text text-muted-foreground mt-1">This month</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="licenses" className="gap-2">
+            <Key className="h-4 w-4" />
+            Licenses ({filteredLicenses.length})
+          </TabsTrigger>
+          <TabsTrigger value="accounts" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Trading Accounts ({filteredAccounts.length})
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Licenses Tab */}
+        <TabsContent value="licenses" className="space-y-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search licenses by EA name or account..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredLicenses.length > 0 ? (
+            <StaggerContainer className="space-y-3">
+              {filteredLicenses.map((license, index) => (
+                <StaggerItem key={license.id} direction={index % 2 === 0 ? 'left' : 'right'}>
+                  <LicenseCard
+                    license={license}
+                    onConnectAccount={handleConnectAccount}
+                    onRemoveAccount={async (licenseId, account) => {
+                      setRemovingAccount({ licenseId, account })
+                    }}
+                    isLoading={isLoading}
+                  />
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          ) : (
+            <Card className="p-12 text-center">
+              <Key className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="font-semibold mb-2">No Licenses Found</h3>
+              <p className="text-sm text-muted-foreground">
+                {searchTerm 
+                  ? "No licenses match your search"
+                  : "Purchase an EA to get started with algorithmic trading"
+                }
+              </p>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Trading Accounts Tab */}
+        <TabsContent value="accounts" className="space-y-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search accounts by ID, name, or broker..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredAccounts.length > 0 ? (
+            <StaggerContainer className="space-y-3">
+              {filteredAccounts.map((account, index) => (
+                <StaggerItem key={`${account.license_id}-${account.account}`} direction={index % 2 === 0 ? 'left' : 'right'}>
+                  <Card className="hover:shadow-lg transition-all">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            {account.status === 'active' ? (
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <XCircle className="h-5 w-5 text-gray-400" />
+                            )}
+                            {account.account_name || `Account ${account.account}`}
+                          </CardTitle>
+                          <div className="flex items-center gap-3 mt-2">
+                            <Badge variant={account.status === 'active' ? 'default' : 'secondary'}>
+                              {account.status}
+                            </Badge>
+                            <Badge variant="outline" className="font-mono">
+                              {account.account}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                        <p className="text-xs text-muted-foreground mb-1">Connected to EA</p>
+                        <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4" />
+                          {account.license_name}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        {account.broker && (
+                          <div className="p-3 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">Broker</p>
+                            <p className="text-sm font-medium">{account.broker}</p>
+                          </div>
+                        )}
+                        {account.balance != null && (
+                          <div className="p-3 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">Balance</p>
+                            <p className="text-sm font-medium">${account.balance.toLocaleString()}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2 pt-2 border-t">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => setRemovingAccount({ licenseId: account.license_id, account: account.account })}
+                          disabled={isLoading}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Unlink Account
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          ) : (
+            <Card className="p-12 text-center">
+              <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="font-semibold mb-2">No Accounts Found</h3>
+              <p className="text-sm text-muted-foreground">
+                {searchTerm 
+                  ? "No accounts match your search"
+                  : "Connect trading accounts from the Licenses tab"
+                }
+              </p>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Remove Account Confirmation Dialog */}
+      <AlertDialog open={!!removingAccount} onOpenChange={(open) => !open && setRemovingAccount(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unlink Account</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to unlink MT5 account {removingAccount?.account}? 
+              This will disconnect it from the license but won't delete the account itself.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (removingAccount) {
+                  await handleRemoveAccount(removingAccount.licenseId, removingAccount.account)
+                }
+              }}
+              disabled={isLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Unlinking...
+                </>
+              ) : (
+                'Unlink Account'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -11,6 +11,7 @@ import { ArrowRight, Upload, FileText, CheckCircle, Clock, AlertCircle } from 'l
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/contexts/auth-context'
+import { ProjectInquiryAPI } from '@/lib/api'
 
 interface ProjectInquiry {
   id: string
@@ -56,14 +57,12 @@ export default function DashboardEADevelopmentPage() {
     if (!user) return
 
     try {
-      const { data, error } = await supabase
-        .from('project_inquiries')
-        .select('*')
-        .eq('email', user.email)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setProjectInquiries(data || [])
+      const result = await ProjectInquiryAPI.getInquiriesByEmail(user.email)
+      if (result.success && result.data) {
+        setProjectInquiries(result.data)
+      } else {
+        console.error('Error fetching project inquiries:', result.error)
+      }
     } catch (error) {
       console.error('Error fetching project inquiries:', error)
     }
@@ -87,7 +86,7 @@ export default function DashboardEADevelopmentPage() {
     setIsSubmitting(true)
     
     try {
-      const { error } = await supabase.from('project_inquiries').insert({
+      const result = await ProjectInquiryAPI.createInquiry({
         name: formData.name,
         email: formData.email,
         strategy: formData.strategy,
@@ -103,11 +102,11 @@ export default function DashboardEADevelopmentPage() {
         nda_agreed: formData.ndaAgreed
       })
 
-      if (error) {
-        console.error('Error submitting inquiry:', error)
+      if (!result.success) {
+        console.error('Error submitting inquiry:', result.error)
         toast({
           title: "Submission Failed",
-          description: "There was an error submitting your inquiry. Please try again.",
+          description: result.error || "There was an error submitting your inquiry. Please try again.",
           variant: "destructive"
         })
         return

@@ -8,8 +8,8 @@ All colors MUST be HSL format for proper theme switching
 
 @layer base {
   :root {
-    /* Modern light mode theme - Enhanced with darker colors */
-    --background: 0 0% 98%;
+    /* Modern light mode theme - Enhanced with better contrast */
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
@@ -18,23 +18,23 @@ All colors MUST be HSL format for proper theme switching
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    /* Modern blue primary - more vibrant */
+    /* Modern blue primary - more vibrant and accessible */
     --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 0 0% 100%;
     --primary-glow: 221.2 83.2% 60%;
 
-    /* Enhanced secondary with warmer, darker tones */
-    --secondary: 240 6% 88%;
-    --secondary-foreground: 240 8% 15%;
+    /* Enhanced secondary with better contrast */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 240 6% 90%;
-    --muted-foreground: 240 5% 40%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    /* Modern accent with subtle blue tint */
-    --accent: 240 6% 88%;
-    --accent-foreground: 240 8% 15%;
+    /* Modern accent with better visibility */
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    /* Enhanced financial colors */
+    /* Enhanced financial colors with better contrast */
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
     
@@ -45,8 +45,8 @@ All colors MUST be HSL format for proper theme switching
     --destructive-foreground: 0 0% 100%;
 
     /* Enhanced borders with better contrast */
-    --border: 240 8% 85%;
-    --input: 240 8% 85%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
@@ -60,6 +60,7 @@ All colors MUST be HSL format for proper theme switching
     --gradient-wave: linear-gradient(-45deg, hsl(221.2 83.2% 53.3%), hsl(221.2 83.2% 60%), hsl(221.2 83.2% 65%), hsl(221.2 83.2% 53.3%));
     --gradient-hero: linear-gradient(135deg, hsl(221.2 83.2% 53.3%), hsl(221.2 83.2% 60%), hsl(221.2 83.2% 65%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 6% 96%));
+    --gradient-cta: linear-gradient(135deg, hsl(221.2 83.2% 53.3%), hsl(221.2 83.2% 60%));
     
   /* Enhanced shadows for better depth */
   --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -2px hsl(0 0% 0% / 0.05);
@@ -67,6 +68,7 @@ All colors MUST be HSL format for proper theme switching
   --shadow-trading: 0 0 30px hsl(221.2 83.2% 53.3% / 0.1), 0 0 60px hsl(221.2 83.2% 53.3% / 0.05);
   --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.1), 0 1px 2px hsl(0 0% 0% / 0.06);
   --shadow-hover: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.06);
+  --shadow-cta: 0 4px 14px hsl(221.2 83.2% 53.3% / 0.25), 0 2px 4px hsl(221.2 83.2% 53.3% / 0.1);
 
     /* Modern light sidebar */
     --sidebar-background: 0 0% 100%;
@@ -125,6 +127,7 @@ All colors MUST be HSL format for proper theme switching
     --gradient-trading: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 65%), hsl(217.2 91.2% 70%));
     --gradient-wave: linear-gradient(-45deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 65%), hsl(217.2 91.2% 70%), hsl(217.2 91.2% 59.8%));
     --gradient-card: linear-gradient(135deg, hsl(222.2 84% 4.9%), hsl(217.2 32.6% 15%));
+    --gradient-cta: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 65%));
     
     /* Professional dark shadows */
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -2px hsl(0 0% 0% / 0.2);
@@ -222,8 +225,8 @@ All colors MUST be HSL format for proper theme switching
     background: var(--gradient-subtle);
   }
   
-  .gradient-success {
-    background: var(--gradient-success);
+  .gradient-cta {
+    background: var(--gradient-cta);
   }
   
   .gradient-trading {
@@ -799,8 +802,21 @@ All colors MUST be HSL format for proper theme switching
   }
 }
 
+@keyframes continuousScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .animate-slide-left {
   animation: slideLeft 20s linear infinite;
+}
+
+.animate-continuous-scroll {
+  animation: continuousScroll 30s linear infinite;
 }
 
 @keyframes meshMove {
@@ -1158,10 +1174,31 @@ All colors MUST be HSL format for proper theme switching
   box-shadow: var(--shadow-card);
 }
 
-.shadow-hover {
-  box-shadow: var(--shadow-hover);
+  .shadow-cta {
+    box-shadow: var(--shadow-cta);
 }
 
-.hover\:shadow-hover:hover {
-  box-shadow: var(--shadow-hover);
+/* Custom scrollbar styles for chatbot */
+.chatbot-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chatbot-scroll::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 4px;
+}
+
+.chatbot-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.4);
+  border-radius: 4px;
+}
+
+.chatbot-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.6);
+}
+
+/* Fallback for Firefox */
+.chatbot-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--muted) / 0.3);
 }

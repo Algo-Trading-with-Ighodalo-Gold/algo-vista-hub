@@ -42,6 +42,16 @@ import AboutUsPage from "./pages/about-us";
 import ContactUsPage from "./pages/contact-us";
 import PublicFAQPage from "./pages/faq";
 import RefundPolicyPage from "./pages/refund-policy";
+import TeamPage from "./pages/team";
+import WebinarsPage from "./pages/webinars";
+import BlogPage from "./pages/blog";
+import StoryPage from "./pages/story";
+import CareersPage from "./pages/careers";
+import PressPage from "./pages/press";
+import DocsPage from "./pages/docs";
+import StatusPage from "./pages/status";
+import GuidesPage from "./pages/guides";
+import RiskDisclosurePage from "./pages/risk-disclosure";
 
 const queryClient = new QueryClient();
 
@@ -52,7 +62,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ScrollToTop />
             <AuthProvider>
               <Routes>
@@ -77,6 +87,16 @@ function App() {
                 <Route path="/contact" element={<EnhancedLayout><ContactUsPage /></EnhancedLayout>} />
                 <Route path="/faq" element={<EnhancedLayout><PublicFAQPage /></EnhancedLayout>} />
                 <Route path="/refund" element={<EnhancedLayout><RefundPolicyPage /></EnhancedLayout>} />
+                <Route path="/team" element={<EnhancedLayout><TeamPage /></EnhancedLayout>} />
+                <Route path="/webinars" element={<EnhancedLayout><WebinarsPage /></EnhancedLayout>} />
+                <Route path="/blog" element={<EnhancedLayout><BlogPage /></EnhancedLayout>} />
+                <Route path="/story" element={<EnhancedLayout><StoryPage /></EnhancedLayout>} />
+                <Route path="/careers" element={<EnhancedLayout><CareersPage /></EnhancedLayout>} />
+                <Route path="/press" element={<EnhancedLayout><PressPage /></EnhancedLayout>} />
+                <Route path="/docs" element={<EnhancedLayout><DocsPage /></EnhancedLayout>} />
+                <Route path="/status" element={<EnhancedLayout><StatusPage /></EnhancedLayout>} />
+                <Route path="/guides" element={<EnhancedLayout><GuidesPage /></EnhancedLayout>} />
+                <Route path="/risk-disclosure" element={<EnhancedLayout><RiskDisclosurePage /></EnhancedLayout>} />
                 <Route path="/auth/login" element={<EnhancedLayout><LoginPage /></EnhancedLayout>} />
                 <Route path="/auth/register" element={<EnhancedLayout><RegisterPage /></EnhancedLayout>} />
                 <Route path="/auth/forgot-password" element={<EnhancedLayout><ForgotPasswordPage /></EnhancedLayout>} />

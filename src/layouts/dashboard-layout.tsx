@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
+import { useDashboardData } from "@/hooks/use-dashboard-data"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { FloatingBackground } from "@/components/ui/floating-background"
 import { AnimatedBackground } from "@/components/ui/animated-background"
@@ -33,6 +34,7 @@ const pageTitle: { [key: string]: string } = {
 export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { user, signOut } = useAuth()
+  const { profile } = useDashboardData()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -43,6 +45,11 @@ export function DashboardLayout() {
 
   const currentTitle = pageTitle[location.pathname] || 'Dashboard'
   const userInitials = user?.email ? user.email.slice(0, 2).toUpperCase() : 'U'
+  
+  // Get display name from profile or user metadata
+  const displayName = profile?.first_name && profile?.last_name 
+    ? `${profile.first_name} ${profile.last_name}`
+    : profile?.first_name || user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'
 
   const handleSignOut = async () => {
     await signOut()
@@ -84,9 +91,9 @@ export function DashboardLayout() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full hover-scale">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src="" alt={user?.email} />
+                    <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      {userInitials}
+                      {profile?.first_name ? profile.first_name.slice(0, 1).toUpperCase() : userInitials}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -95,7 +102,7 @@ export function DashboardLayout() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user?.email?.split('@')[0] || 'User'}
+                      {displayName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user?.email}

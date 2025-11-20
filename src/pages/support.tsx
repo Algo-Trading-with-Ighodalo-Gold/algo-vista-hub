@@ -474,7 +474,7 @@ export default function SupportPage() {
               <CardContent>
                 <Button 
                   className="w-full hover-scale" 
-                  onClick={() => window.open('https://t.me/+your-telegram-group', '_blank')}
+                  onClick={() => window.open('https://t.me/AlgotradingwithIghodalo', '_blank')}
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Join Telegram Community
@@ -655,10 +655,9 @@ export default function SupportPage() {
 
           <div className="max-w-4xl mx-auto animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
             {searchTerm ? (
-              // Show filtered results
-              <div className="space-y-4">
-                {filteredQuestions.length > 0 ? (
-                  filteredQuestions.map((item, index) => (
+              filteredQuestions.length > 0 ? (
+                <Accordion type="single" collapsible className="space-y-4">
+                  {filteredQuestions.map((item, index) => (
                     <Card key={index}>
                       <AccordionItem value={`search-${index}`} className="border-none">
                         <CardHeader className="pb-2">
@@ -678,18 +677,18 @@ export default function SupportPage() {
                         </AccordionContent>
                       </AccordionItem>
                     </Card>
-                  ))
-                ) : (
-                  <Card>
-                    <CardContent className="text-center py-12">
-                      <p className="text-muted-foreground">No FAQs found matching "{searchTerm}"</p>
-                      <Button variant="outline" className="mt-4" onClick={() => setSearchTerm("")}>
-                        Clear Search
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+                  ))}
+                </Accordion>
+              ) : (
+                <Card>
+                  <CardContent className="text-center py-12">
+                    <p className="text-muted-foreground">No FAQs found matching "{searchTerm}"</p>
+                    <Button variant="outline" className="mt-4" onClick={() => setSearchTerm("")}>
+                      Clear Search
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
             ) : (
               // Show categorized FAQs
               <Accordion type="single" collapsible className="space-y-6">

@@ -12,7 +12,7 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signUp: (email: string, password: string, firstName?: string, lastName?: string, country?: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: any }>
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string, country?: string) => {
+  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
     try {
       // Validate input data
       const validation = validateRegistrationForm({
@@ -54,8 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         lastName: lastName || '',
         email,
         password,
-        confirmPassword: password,
-        country: country || ''
+        confirmPassword: password
       })
 
       if (!validation.isValid) {
@@ -87,8 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           emailRedirectTo: redirectUrl,
           data: {
             first_name: firstName ? security.sanitizeInput(firstName) : undefined,
-            last_name: lastName ? security.sanitizeInput(lastName) : undefined,
-            country: country ? security.sanitizeInput(country) : undefined,
+            last_name: lastName ? security.sanitizeInput(lastName) : undefined
           }
         }
       })
@@ -103,14 +101,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Create user profile
         if (data.user) {
-          await UserAPI.createProfile(data.user.id, {
+          const profileResult = await UserAPI.createProfile(data.user.id, {
             first_name: firstName || '',
-            last_name: lastName || '',
-            country: country || ''
+            last_name: lastName || ''
           })
+          
+          if (!profileResult.success) {
+            log.error('Failed to create user profile', { userId: data.user.id, error: profileResult.error })
+          }
         }
 
-        log.userAction('User registered', data.user?.id, { email, country })
+        log.userAction('User registered', data.user?.id, { email })
         toast({
           title: "Check your email",
           description: "We've sent you a confirmation link to complete your registration.",

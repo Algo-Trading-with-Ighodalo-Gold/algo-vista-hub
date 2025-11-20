@@ -399,6 +399,7 @@ export type Database = {
           strategy: string
           timeframes: string | null
           timeline: string | null
+          trade_management: string | null
           updated_at: string
         }
         Insert: {
@@ -417,6 +418,7 @@ export type Database = {
           strategy: string
           timeframes?: string | null
           timeline?: string | null
+          trade_management?: string | null
           updated_at?: string
         }
         Update: {
@@ -435,6 +437,7 @@ export type Database = {
           strategy?: string
           timeframes?: string | null
           timeline?: string | null
+          trade_management?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -547,6 +550,51 @@ export type Database = {
           start_date?: string | null
           status?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      trading_accounts: {
+        Row: {
+          id: string
+          user_id: string
+          license_id: string
+          account_name: string
+          mt5_account_number: string
+          broker: string
+          status: string
+          balance: number
+          equity: number
+          last_sync_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          license_id: string
+          account_name: string
+          mt5_account_number: string
+          broker: string
+          status?: string
+          balance?: number
+          equity?: number
+          last_sync_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          license_id?: string
+          account_name?: string
+          mt5_account_number?: string
+          broker?: string
+          status?: string
+          balance?: number
+          equity?: number
+          last_sync_at?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }

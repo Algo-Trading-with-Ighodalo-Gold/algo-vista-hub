@@ -122,7 +122,6 @@ const paymentMethods = [
     description: "Visa, Mastercard, American Express"
   },
   {
-    id: "confirmo",
     name: "Cryptocurrency",
     icon: Bitcoin,
     description: "Bitcoin, Ethereum, USDT and 50+ other cryptocurrencies"

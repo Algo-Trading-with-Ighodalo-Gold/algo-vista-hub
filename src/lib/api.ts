@@ -56,7 +56,6 @@ export class UserAPI {
   static async createProfile(userId: string, profileData: {
     first_name: string
     last_name: string
-    country: string
   }): Promise<ApiResponse<UserProfile>> {
     try {
       const { data, error } = await supabase
@@ -65,7 +64,6 @@ export class UserAPI {
           id: userId,
           first_name: sanitizeString(profileData.first_name),
           last_name: sanitizeString(profileData.last_name),
-          country: sanitizeString(profileData.country),
           subscription_status: 'free',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -86,7 +84,7 @@ export class UserAPI {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .single()
 
       if (error) throw error
@@ -110,7 +108,7 @@ export class UserAPI {
       const { data, error } = await supabase
         .from('profiles')
         .update(sanitizedUpdates)
-        .eq('id', userId)
+        .eq('user_id', userId)
         .select()
         .single()
 
@@ -124,26 +122,26 @@ export class UserAPI {
 
   static async uploadAvatar(userId: string, file: File): Promise<ApiResponse<string>> {
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${userId}-${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
+      // Convert file to base64 for storage in database
+      const reader = new FileReader()
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file)
-
-      if (uploadError) throw uploadError
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath)
-
-      // Update profile with new avatar URL
-      await this.updateProfile(userId, { avatar_url: publicUrl })
-
-      return { success: true, data: publicUrl }
+      const base64Data = await base64Promise
+      
+      // Update profile with base64 avatar data
+      const result = await this.updateProfile(userId, { avatar_url: base64Data })
+      
+      if (result.success) {
+        return { success: true, data: base64Data }
+      } else {
+        return { success: false, error: result.error || 'Failed to update profile' }
+      }
     } catch (error: any) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message || 'Failed to upload avatar' }
     }
   }
 }
@@ -206,11 +204,17 @@ export class ProjectInquiryAPI {
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
 
       return { success: true, data }
     } catch (error: any) {
-      return { success: false, error: error.message }
+      console.error('Full error object:', error)
+      // Supabase errors can have different properties
+      const errorMessage = error.message || error.details || error.hint || error.code || JSON.stringify(error)
+      return { success: false, error: errorMessage }
     }
   }
 

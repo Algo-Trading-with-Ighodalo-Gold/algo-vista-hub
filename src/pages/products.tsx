@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Star, TrendingUp, Shield, Clock, ArrowRight, BarChart3, Target, DollarSign, Timer } from "lucide-react"
 import { CandlestickBackground } from "@/components/ui/candlestick-background"
+import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal } from "@/components/ui/scroll-reveal"
 
 // Import EA images
 import scalperProImage from "@/assets/scalper-pro-ea.jpg"
@@ -138,14 +139,19 @@ export default function ProductsPage() {
         <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
         <div className="container relative py-20 lg:py-32">
           <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-hero animate-fade-in-up">
+            <ScrollReveal direction="up" delay={0.1}>
+              <h1 className="text-hero">
               Expert Advisors
             </h1>
-            <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.2}>
+              <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto">
               Professional automated trading solutions designed for every trading style and market condition. 
               Choose from our collection of proven, backtested Expert Advisors to automate your trading strategy.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in-up [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.3}>
+              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6">
               <div className="flex flex-wrap items-center justify-center gap-6 text-body text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-success" />
@@ -161,6 +167,7 @@ export default function ProductsPage() {
                 </div>
               </div>
             </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -169,18 +176,19 @@ export default function ProductsPage() {
       <section className="py-20">
         <div className="container">
           <div className="mb-16 text-center">
-            <h2 className="text-title animate-fade-in-up">Choose Your Trading Strategy</h2>
-            <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+            <ScrollReveal direction="up" delay={0.1}>
+              <h2 className="text-title">Choose Your Trading Strategy</h2>
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.2}>
+              <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto">
               Each Expert Advisor is carefully crafted and backtested to deliver consistent performance across different market conditions.
             </p>
+            </ScrollReveal>
           </div>
-          <div className="responsive-grid-3 gap-8">
+          <StaggerContainer className="responsive-grid-3 gap-8">
             {expertAdvisors.map((ea, index) => (
-              <Card 
-                key={ea.id} 
-                className="group card-hover animate-stagger opacity-0 [animation-fill-mode:forwards]"
-                style={{ animationDelay: `${0.4 + index * 0.1}s` }}
-              >
+              <StaggerItem key={ea.id} direction={index % 3 === 0 ? 'left' : index % 3 === 1 ? 'up' : 'right'}>
+                <Card className="group card-hover">
                 <CardHeader className="pb-4">
                   <div className="aspect-video bg-gradient-subtle rounded-lg mb-4 overflow-hidden">
                     <img 
@@ -246,27 +254,34 @@ export default function ProductsPage() {
                   </div>
                 </CardContent>
               </Card>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-muted/30">
         <div className="container text-center">
-          <h2 className="text-title mb-4 animate-fade-in-up">Ready to Automate Your Trading?</h2>
-          <p className="text-body text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+          <ScrollReveal direction="up" delay={0.1}>
+            <h2 className="text-title mb-4">Ready to Automate Your Trading?</h2>
+          </ScrollReveal>
+          <ScrollReveal direction="up" delay={0.2}>
+            <p className="text-body text-muted-foreground mb-8 max-w-2xl mx-auto">
             Start your journey with professional algorithmic trading. Choose an Expert Advisor that matches your trading style and risk tolerance.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+          </ScrollReveal>
+          <ScrollReveal direction="up" delay={0.3}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="btn-hover" onClick={() => handleViewDetails(expertAdvisors[1])}>
               Start with Most Popular
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button variant="outline" size="lg" className="btn-hover" asChild>
-              <a href="/support">Get Expert Advice</a>
+              <a href="/support">Get Expert Advice              </a>
             </Button>
           </div>
+          </ScrollReveal>
         </div>
       </section>
     </div>
