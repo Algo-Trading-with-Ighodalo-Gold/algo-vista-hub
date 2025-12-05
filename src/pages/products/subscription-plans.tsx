@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft, Check, Crown, Shield, Users, Star, ArrowRight, Bitcoin, CreditCard } from "lucide-react"
+import { ArrowLeft, Check, Crown, Shield, Users, Star, ArrowRight, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -116,15 +116,10 @@ const plans = [
 
 const paymentMethods = [
   {
-    id: "stripe",
-    name: "Credit/Debit Card",
+    id: "paystack",
+    name: "Paystack",
     icon: CreditCard,
-    description: "Visa, Mastercard, American Express"
-  },
-  {
-    name: "Cryptocurrency",
-    icon: Bitcoin,
-    description: "Bitcoin, Ethereum, USDT and 50+ other cryptocurrencies"
+    description: "Secure payment via Paystack - Cards, Bank Transfer, USSD & More"
   }
 ]
 
@@ -134,7 +129,7 @@ export default function SubscriptionPlansPage() {
   const [ea, setEa] = useState<typeof expertAdvisors[0] | null>(null)
   const [billingPeriod, setBillingPeriod] = useState<'quaterly' | 'yearly'>('yearly')
   const [selectedPlan, setSelectedPlan] = useState('pro')
-  const [paymentMethod, setPaymentMethod] = useState('stripe')
+  const [paymentMethod, setPaymentMethod] = useState('paystack')
 
   useEffect(() => {
     const foundEa = expertAdvisors.find(advisor => advisor.id === eaId)

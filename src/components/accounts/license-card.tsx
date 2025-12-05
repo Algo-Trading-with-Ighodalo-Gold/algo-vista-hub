@@ -12,7 +12,8 @@ import {
   Copy,
   CheckCircle,
   XCircle,
-  Trash2
+  Trash2,
+  RefreshCw
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { EnrichedLicense } from '@/hooks/use-accounts-data'
@@ -27,6 +28,7 @@ interface LicenseCardProps {
   license: EnrichedLicense
   onConnectAccount: (licenseId: string, account: number, accountName?: string, broker?: string) => Promise<void>
   onRemoveAccount: (licenseId: string, account: number) => void | Promise<void>
+  onRenew?: (licenseId: string) => Promise<void>
   isLoading?: boolean
 }
 
@@ -34,6 +36,7 @@ export function LicenseCard({
   license, 
   onConnectAccount, 
   onRemoveAccount,
+  onRenew,
   isLoading = false 
 }: LicenseCardProps) {
   const { toast } = useToast()
@@ -44,6 +47,10 @@ export function LicenseCard({
   const statusVariant = getLicenseStatusVariant(license.status, active)
   const planName = formatPlanName(license.tier || null)
   const canConnect = active && (license.max_allowed === 0 || license.connected_count < license.max_allowed)
+  
+  // Check if license is expired
+  const isExpired = license.expires_at ? new Date(license.expires_at) < new Date() : false
+  const canRenew = !active && (isExpired || license.status === 'expired')
 
   const copyLicenseKey = () => {
     navigator.clipboard.writeText(license.license_key)
@@ -90,6 +97,18 @@ export function LicenseCard({
               </div>
             </div>
             <div className="flex gap-2">
+              {canRenew && onRenew && (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => onRenew(license.id)}
+                  disabled={isLoading}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Renew
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 size="sm" 

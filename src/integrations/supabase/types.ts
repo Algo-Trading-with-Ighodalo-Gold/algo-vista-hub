@@ -108,47 +108,89 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          avg_monthly_return: string | null
           id: string
+          image_key: string | null
           is_active: boolean | null
+          key_features: string[] | null
           max_concurrent_sessions: number | null
           max_mt5_accounts: number | null
+          max_drawdown: string | null
+          min_deposit: string | null
           name: string
+          performance: string | null
+          price_label: string | null
           price_cents: number | null
           product_code: string
           requires_hardware_binding: boolean | null
+          reviews: number | null
+          risk_level: string | null
+          short_description: string | null
+          strategy_type: string | null
+          timeframes: string | null
+          trading_pairs: string | null
           stripe_price_id: string | null
           updated_at: string
           version: string | null
+          rating: number | null
         }
         Insert: {
           created_at?: string
           description?: string | null
+          avg_monthly_return?: string | null
           id?: string
+          image_key?: string | null
           is_active?: boolean | null
+          key_features?: string[] | null
           max_concurrent_sessions?: number | null
           max_mt5_accounts?: number | null
+          max_drawdown?: string | null
+          min_deposit?: string | null
           name: string
+          performance?: string | null
+          price_label?: string | null
           price_cents?: number | null
           product_code: string
           requires_hardware_binding?: boolean | null
+          reviews?: number | null
+          risk_level?: string | null
+          short_description?: string | null
+          strategy_type?: string | null
+          timeframes?: string | null
+          trading_pairs?: string | null
           stripe_price_id?: string | null
           updated_at?: string
           version?: string | null
+          rating?: number | null
         }
         Update: {
           created_at?: string
           description?: string | null
+          avg_monthly_return?: string | null
           id?: string
+          image_key?: string | null
           is_active?: boolean | null
+          key_features?: string[] | null
           max_concurrent_sessions?: number | null
           max_mt5_accounts?: number | null
+          max_drawdown?: string | null
+          min_deposit?: string | null
           name?: string
+          performance?: string | null
+          price_label?: string | null
           price_cents?: number | null
           product_code?: string
           requires_hardware_binding?: boolean | null
+          reviews?: number | null
+          risk_level?: string | null
+          short_description?: string | null
+          strategy_type?: string | null
+          timeframes?: string | null
+          trading_pairs?: string | null
           stripe_price_id?: string | null
           updated_at?: string
           version?: string | null
+          rating?: number | null
         }
         Relationships: []
       }

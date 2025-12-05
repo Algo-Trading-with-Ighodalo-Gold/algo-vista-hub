@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,6 +30,7 @@ export default function AccountsPage() {
   const { user } = useAuth()
   const { licenses, loading, error, refetch } = useAccountsData()
   const { toast } = useToast()
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('licenses')
   const [isLoading, setIsLoading] = useState(false)
@@ -177,6 +179,55 @@ export default function AccountsPage() {
     }
   }
 
+  const handleRenew = async (licenseId: string) => {
+    setIsLoading(true)
+    try {
+      // Find the license to get its details
+      const license = licenses.find(l => l.id === licenseId)
+      if (!license) {
+        throw new Error('License not found')
+      }
+
+      // Map EA product names to route IDs
+      const eaRouteMap: Record<string, string> = {
+        'Scalper Pro EA': 'scalper-pro-ea',
+        'Swing Master EA': 'swing-master-ea',
+        'Grid Trader EA': 'grid-trader-ea',
+        'Trend Rider EA': 'trend-rider-ea',
+        'Gold Rush EA': 'gold-rush-ea',
+        'Night Owl EA': 'night-owl-ea',
+        'Crypto Pulse EA': 'crypto-pulse-ea',
+      }
+      
+      const eaRoute = license.ea_product_name 
+        ? eaRouteMap[license.ea_product_name] || 'scalper-pro-ea'
+        : 'scalper-pro-ea'
+      
+      // Navigate to subscription plans page
+      navigate(`/products/subscription-plans/${eaRoute}`, {
+        state: { 
+          renewing: true,
+          licenseId: licenseId,
+          previousPlan: license.tier?.name || 'Pro'
+        }
+      })
+      
+      toast({
+        title: "Redirecting to Renewal",
+        description: "You'll be redirected to select a renewal plan",
+      })
+    } catch (error: any) {
+      console.error('Error initiating renewal:', error)
+      toast({
+        title: "Renewal Failed",
+        description: error.message || "Failed to initiate renewal. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const activeLicenses = licenses.filter(l => isLicenseActive(l)).length
   const activeAccounts = allAccounts.filter(a => a.status === 'active').length
 
@@ -294,6 +345,7 @@ export default function AccountsPage() {
                     onRemoveAccount={async (licenseId, account) => {
                       setRemovingAccount({ licenseId, account })
                     }}
+                    onRenew={handleRenew}
                     isLoading={isLoading}
                   />
                 </StaggerItem>

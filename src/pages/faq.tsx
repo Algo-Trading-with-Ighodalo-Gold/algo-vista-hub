@@ -45,8 +45,8 @@ const faqCategories = [
         answer: "Yes, you can upgrade or downgrade your plan at any time. Upgrades take effect immediately, while downgrades take effect at your next billing cycle."
       },
       {
-        question: "Do you accept cryptocurrency payments?",
-        answer: "Yes! We accept cryptocurrency payments through Confirmo in addition to traditional payment methods via Stripe. Bitcoin, Ethereum, and other major cryptocurrencies are supported."
+        question: "What payment methods do you accept?",
+        answer: "We accept payments through Paystack, which supports credit/debit cards, bank transfers, USSD, and mobile money. All payments are processed securely."
       },
       {
         question: "Is there a refund policy?",

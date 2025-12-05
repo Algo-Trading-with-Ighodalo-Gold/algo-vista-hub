@@ -63,43 +63,34 @@ const eaShowcase = getFeaturedEAs()
 
 
 const testimonials = [
-
   {
-
-    name: "David Chen",
-
-    role: "Professional Trader",
-
-    content: "The EAs from AlgoTrading have transformed my trading. Consistent profits and excellent support.",
-
-    rating: 5
-
+    name: "Daniel Okafor",
+    role: "Forex Trader | Lagos, NG",
+    content:
+      "The EA built by Ighodalo’s team completely changed my trading performance. Smooth execution, stable logic, and zero emotional mistakes.",
+    rating: 5,
   },
-
   {
-
     name: "Sarah Williams",
-
-    role: "Hedge Fund Manager",
-
-    content: "Professional-grade algorithms with transparent backtesting. Exactly what we needed.",
-
-    rating: 5
-
+    role: "Portfolio Manager | Ibadan",
+    content:
+      "Their backtesting and optimization process is the most transparent I’ve seen. The EA performs exactly as advertised — consistent and reliable.",
+    rating: 5,
   },
-
   {
-
     name: "Michael Rodriguez",
-
-    role: "Retail Trader",
-
-    content: "Easy to use, well-documented, and profitable. The custom development service is outstanding.",
-
-    rating: 5
-
-  }
-
+    role: "Retail Trader | Lagos",
+    content:
+      "I love how the team explains everything clearly. The EA is easy to use, well-documented, and the support is always available.",
+    rating: 5,
+  },
+  {
+    name: "Kelvin Musa",
+    role: "Pro Trader | Abuja",
+    content:
+      "Great experience. My custom EA was delivered on time, tested, optimized, and performing better than expected. Highly recommended.",
+    rating: 5,
+  },
 ]
 
 

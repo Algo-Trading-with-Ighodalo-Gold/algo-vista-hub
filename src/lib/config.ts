@@ -23,12 +23,11 @@ export const config = {
     webhookSecret: import.meta.env.VITE_STRIPE_WEBHOOK_SECRET || '',
   },
 
-  // Confirmo Configuration
-  confirmo: {
-    apiKey: import.meta.env.VITE_CONFIRMO_API_KEY || '',
-    merchantId: import.meta.env.VITE_CONFIRMO_MERCHANT_ID || '',
-    baseUrl: import.meta.env.VITE_CONFIRMO_BASE_URL || 'https://api.confirmo.net',
-    webhookSecret: import.meta.env.VITE_CONFIRMO_WEBHOOK_SECRET || '',
+  // Paystack Configuration
+  paystack: {
+    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '',
+    secretKey: import.meta.env.VITE_PAYSTACK_SECRET_KEY || '',
+    webhookSecret: import.meta.env.VITE_PAYSTACK_WEBHOOK_SECRET || '',
   },
 
   // Email Configuration
@@ -71,10 +70,9 @@ export const config = {
 
   // Payment Configuration
   payments: {
-    defaultCurrency: 'USD',
-    supportedCurrencies: ['USD', 'EUR', 'GBP', 'CAD', 'AUD'],
-    stripeEnabled: !!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
-    confirmoEnabled: false,
+    defaultCurrency: 'NGN',
+    supportedCurrencies: ['NGN', 'USD', 'ZAR', 'GHS', 'KES'],
+    paystackEnabled: !!import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
   },
 
   // License Configuration
@@ -152,7 +150,7 @@ export const {
   app,
   supabase: supabaseConfig,
   stripe: stripeConfig,
-  confirmo: confirmoConfig,
+  paystack: paystackConfig,
   email: emailConfig,
   security: securityConfig,
   telegram: telegramConfig,

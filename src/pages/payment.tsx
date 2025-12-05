@@ -11,13 +11,14 @@ import { Separator } from "@/components/ui/separator"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/auth-context"
 
 const paymentMethods = [
   {
-    id: "stripe",
-    name: "Credit/Debit Card",
+    id: "paystack",
+    name: "Paystack",
     icon: CreditCard,
-    description: "Visa, Mastercard, American Express"
+    description: "Secure payment via Paystack - Cards, Bank Transfer, USSD & More"
   },
 ]
 
@@ -25,6 +26,7 @@ export default function PaymentPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { user } = useAuth()
   
   // Get plan data from navigation state with proper defaults
   const planData = {
@@ -32,13 +34,13 @@ export default function PaymentPage() {
     eaName: "Expert Advisor",
     planName: "Pro Plan",
     billingPeriod: "monthly", 
-    price: 30,
+    price: 0,
     features: [],
-    paymentMethod: "stripe",
+    paymentMethod: "paystack",
     ...location.state
   }
 
-  const [paymentMethod, setPaymentMethod] = useState(planData.paymentMethod || "stripe")
+  const [paymentMethod, setPaymentMethod] = useState(planData.paymentMethod || "paystack")
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -54,7 +56,20 @@ export default function PaymentPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [])
+    
+    // Redirect to login if not authenticated
+    if (!user) {
+      navigate('/auth/login', { 
+        state: { from: location },
+        replace: true 
+      })
+    }
+  }, [user, navigate, location])
+  
+  // Don't render if not authenticated
+  if (!user) {
+    return null
+  }
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -74,16 +89,47 @@ export default function PaymentPage() {
 
     setIsProcessing(true)
 
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      // Initialize Paystack payment
+      const { paymentAPI } = await import('@/lib/api/payments')
+      
+      // Use user email if available, otherwise form email
+      const email = user.email || formData.email
+      
+      if (!email) {
+        throw new Error('Email is required for payment')
+      }
+      
+      const payment = await paymentAPI.createPaystackPayment(
+        planData.price,
+        email,
+        'NGN', // Default currency
+        {
+          eaId: planData.eaId,
+          eaName: planData.eaName,
+          planName: planData.planName,
+          billingPeriod: planData.billingPeriod,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          country: formData.country,
+          userId: user.id
+        }
+      )
+
+      // Redirect to Paystack payment page
+      if (payment.authorization_url) {
+        window.location.href = payment.authorization_url
+      } else {
+        throw new Error('Payment initialization failed')
+      }
+    } catch (error: any) {
       setIsProcessing(false)
       toast({
-        title: "Subscription Activated!",
-        description: "Redirecting to your dashboard...",
+        title: "Payment Error",
+        description: error.message || "Failed to initialize payment. Please try again.",
+        variant: "destructive"
       })
-      // Redirect to dashboard after successful subscription
-      navigate('/dashboard')
-    }, 2000)
+    }
   }
 
   const formatCardNumber = (value: string) => {
@@ -201,10 +247,11 @@ export default function PaymentPage() {
                       <Input
                         id="email"
                         type="email"
-                        value={formData.email}
+                        value={formData.email || user?.email || ''}
                         onChange={(e) => handleInputChange('email', e.target.value)}
                         required
                         placeholder="your@email.com"
+                        disabled={!!user?.email}
                       />
                       <p className="text-xs text-muted-foreground">
                         Account access will be sent to this email
@@ -290,61 +337,13 @@ export default function PaymentPage() {
                     </RadioGroup>
                   </div>
 
-                  {/* Payment Details */}
-                  {paymentMethod === "stripe" && (
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Card Information</h3>
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="cardNumber">Card Number *</Label>
-                          <Input
-                            id="cardNumber"
-                            value={formData.cardNumber}
-                            onChange={handleCardNumberChange}
-                            required
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="expiryDate">Expiry Date *</Label>
-                            <Input
-                              id="expiryDate"
-                              value={formData.expiryDate}
-                              onChange={(e) => handleInputChange('expiryDate', e.target.value)}
-                              required
-                              placeholder="MM/YY"
-                              maxLength={5}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV *</Label>
-                            <Input
-                              id="cvv"
-                              value={formData.cvv}
-                              onChange={(e) => handleInputChange('cvv', e.target.value)}
-                              required
-                              placeholder="123"
-                              maxLength={4}
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="nameOnCard">Name on Card *</Label>
-                          <Input
-                            id="nameOnCard"
-                            value={formData.nameOnCard}
-                            onChange={(e) => handleInputChange('nameOnCard', e.target.value)}
-                            required
-                            placeholder="John Doe"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Payment will be processed via Paystack */}
+                  <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      You will be redirected to Paystack's secure payment page to complete your transaction. 
+                      Paystack supports multiple payment methods including cards, bank transfers, and mobile money.
+                    </p>
+                  </div>
 
                   <Separator />
 

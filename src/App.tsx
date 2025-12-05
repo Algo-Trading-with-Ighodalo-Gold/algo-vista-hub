@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { AdminRoute } from "@/components/auth/admin-route";
 import { Layout } from "@/components/layout/layout";
 import { EnhancedLayout } from "@/components/layout/enhanced-layout";
 import { DashboardLayout } from "@/layouts/dashboard-layout";
@@ -52,6 +53,11 @@ import DocsPage from "./pages/docs";
 import StatusPage from "./pages/status";
 import GuidesPage from "./pages/guides";
 import RiskDisclosurePage from "./pages/risk-disclosure";
+import AdminDashboardPage from "./pages/admin/dashboard";
+import EAManagementPage from "./pages/admin/ea-management";
+import UsersManagementPage from "./pages/admin/users";
+import AdminAccountsPage from "./pages/admin/accounts";
+import AdminAffiliatesPage from "./pages/admin/affiliates";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +121,20 @@ function App() {
                   <Route path="resources" element={<ResourcesPage />} />
                   <Route path="faq" element={<FAQPage />} />
                   <Route path="affiliate" element={<AffiliatePage />} />
+                </Route>
+
+                {/* Admin Routes with Dashboard Layout and Admin Protection */}
+                <Route path="/admin" element={
+                  <AdminRoute>
+                    <DashboardLayout />
+                  </AdminRoute>
+                }>
+                  <Route index element={<AdminDashboardPage />} />
+                  <Route path="dashboard" element={<AdminDashboardPage />} />
+                  <Route path="ea-management" element={<EAManagementPage />} />
+                  <Route path="users" element={<UsersManagementPage />} />
+                  <Route path="accounts" element={<AdminAccountsPage />} />
+                  <Route path="affiliates" element={<AdminAffiliatesPage />} />
                 </Route>
                 <Route path="*" element={<EnhancedLayout><NotFound /></EnhancedLayout>} />
               </Routes>

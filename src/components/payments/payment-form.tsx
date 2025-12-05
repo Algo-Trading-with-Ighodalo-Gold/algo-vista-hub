@@ -1,5 +1,5 @@
 // Payment Form Component
-// This component handles payment processing for both Stripe and Confirmo
+// This component handles payment processing via Paystack
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, CreditCard, Shield, CheckCircle } from 'lucide-react';
-import { stripeService } from '@/lib/payments/stripe';
 import { paymentAPI } from '@/lib/api/payments';
-import { config } from '@/lib/config';
 
 interface PaymentFormProps {
   productId: string;
@@ -30,7 +27,6 @@ export function PaymentForm({
   onSuccess,
   onError,
 }: PaymentFormProps) {
-  const [paymentMethod, setPaymentMethod] = useState<'stripe'>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     email: '',
@@ -60,72 +56,33 @@ export function PaymentForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleStripePayment = async () => {
+  const handlePaystackPayment = async () => {
     try {
       setIsProcessing(true);
       setErrors({});
 
-      // Create payment intent
-      const paymentIntent = await paymentAPI.createStripePaymentIntent(
+      // Create Paystack payment
+      const payment = await paymentAPI.createPaystackPayment(
         amount,
-        currency,
-        {
-          productId,
-          productName,
-          customerEmail: customerInfo.email,
-          customerName: customerInfo.name,
-        }
-      );
-
-      // In a real implementation, you would use Stripe Elements here
-      // For now, we'll simulate a successful payment
-      const result = await paymentAPI.processPaymentSuccess(
-        paymentIntent.id,
-        'user-id', // This should come from auth context
-        productId,
-        amount,
-        currency,
-        'stripe'
-      );
-
-      onSuccess?.(result);
-    } catch (error: any) {
-      onError?.(error.message || 'Payment failed');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleConfirmoPayment = async () => {
-    try {
-      setIsProcessing(true);
-      setErrors({});
-
-      // Create Confirmo payment
-      const payment = await confirmoService.createPayment(
-        amount,
-        currency,
-        `Purchase: ${productName}`,
         customerInfo.email,
-        customerInfo.name,
+        currency === 'USD' ? 'NGN' : currency, // Paystack primarily uses NGN
         {
           productId,
           productName,
+          customerName: customerInfo.name,
+          country: customerInfo.country,
         }
       );
 
-      // Redirect to Confirmo payment page
-      window.open(payment.paymentUrl, '_blank');
-      
-      // In a real implementation, you would handle the webhook response
-      // For now, we'll simulate success
-      setTimeout(() => {
-        onSuccess?.({ paymentId: payment.id, status: 'completed' });
-      }, 2000);
+      // Redirect to Paystack payment page
+      if (payment.authorization_url) {
+        window.location.href = payment.authorization_url;
+      } else {
+        throw new Error('Payment initialization failed');
+      }
     } catch (error: any) {
-      onError?.(error.message || 'Payment failed');
-    } finally {
       setIsProcessing(false);
+      onError?.(error.message || 'Payment failed');
     }
   };
 
@@ -136,11 +93,7 @@ export function PaymentForm({
       return;
     }
 
-    if (paymentMethod === 'stripe') {
-      await handleStripePayment();
-    } else {
-      await handleConfirmoPayment();
-    }
+    await handlePaystackPayment();
   };
 
   return (
@@ -231,22 +184,13 @@ export function PaymentForm({
             {errors.country && <p className="text-sm text-red-500">{errors.country}</p>}
           </div>
 
-          {/* Payment Method Selection */}
-          <div className="space-y-3">
+          {/* Payment Method Info */}
+          <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
             <Label>Payment Method</Label>
-            <RadioGroup
-              value={paymentMethod}
-              onValueChange={(value: 'stripe') => setPaymentMethod(value)}
-              className="space-y-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="stripe" id="stripe" />
-                <Label htmlFor="stripe" className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  Stripe (Credit/Debit Card)
-                </Label>
-              </div>
-            </RadioGroup>
+            <div className="flex items-center gap-2 text-sm">
+              <CreditCard className="h-4 w-4" />
+              <span>Paystack - Secure payment via cards, bank transfer, USSD & more</span>
+            </div>
           </div>
 
           {/* Payment Summary */}

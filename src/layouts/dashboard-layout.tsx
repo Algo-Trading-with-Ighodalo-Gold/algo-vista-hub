@@ -28,7 +28,13 @@ const pageTitle: { [key: string]: string } = {
   '/dashboard/trading-rules': 'Trading Rules',
   '/dashboard/resources': 'Resources',
   '/dashboard/faq': 'FAQ',
-  '/dashboard/affiliate': 'Affiliate Program'
+  '/dashboard/affiliate': 'Affiliate Program',
+  '/admin': 'Admin Dashboard',
+  '/admin/dashboard': 'Admin Dashboard',
+  '/admin/ea-management': 'EA Management',
+  '/admin/users': 'Users Management',
+  '/admin/accounts': 'Connected Accounts',
+  '/admin/affiliates': 'Affiliates'
 }
 
 export function DashboardLayout() {

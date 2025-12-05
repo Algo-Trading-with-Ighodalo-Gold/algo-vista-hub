@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
@@ -8,127 +8,56 @@ import { Separator } from "@/components/ui/separator"
 import { Star, TrendingUp, Shield, Clock, ArrowRight, BarChart3, Target, DollarSign, Timer } from "lucide-react"
 import { CandlestickBackground } from "@/components/ui/candlestick-background"
 import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal } from "@/components/ui/scroll-reveal"
+import { supabase } from "@/integrations/supabase/client"
+import type { Database } from "@/integrations/supabase/types"
 
-// Import EA images
-import scalperProImage from "@/assets/scalper-pro-ea.jpg"
-import swingMasterImage from "@/assets/swing-master-ea.jpg"
-import gridTraderImage from "@/assets/grid-trader-ea.jpg"
-import trendRiderImage from "@/assets/trend-rider-ea.jpg"
 import goldRushImage from "@/assets/gold-rush-ea.jpg"
-import nightOwlImage from "@/assets/night-owl-ea.jpg"
-import cryptoPulseImage from "@/assets/crypto-pulse-ea.jpg"
+import trendRiderImage from "@/assets/trend-rider-ea.jpg"
+import gridTraderImage from "@/assets/grid-trader-ea.jpg"
 
-const expertAdvisors = [
-  {
-    id: "scalper-pro-ea",
-    name: "Scalper Pro EA",
-    shortDescription: "High-frequency scalping strategy with advanced risk management",
-    image: scalperProImage,
-    rating: 4.8,
-    reviews: 127,
-    tradingPairs: "EURUSD, GBPUSD, USDJPY",
-    timeframes: "M1, M5",
-    strategyType: "Scalping",
-    minDeposit: "$500",
-    avgMonthlyReturn: "12-18%",
-    maxDrawdown: "8%"
-  },
-  {
-    id: "swing-master-ea",
-    name: "Swing Master EA",
-    shortDescription: "Medium-term swing trading with trend following algorithms",
-    image: swingMasterImage,
-    rating: 4.6,
-    reviews: 89,
-    tradingPairs: "EURUSD, GBPUSD, AUDUSD, NZDUSD",
-    timeframes: "H1, H4, D1",
-    strategyType: "Swing Trading",
-    minDeposit: "$1,000",
-    avgMonthlyReturn: "8-15%",
-    maxDrawdown: "12%"
-  },
-  {
-    id: "grid-trader-ea",
-    name: "Grid Trader EA",
-    shortDescription: "Grid trading system with intelligent position management",
-    image: gridTraderImage,
-    rating: 4.4,
-    reviews: 156,
-    tradingPairs: "EURUSD, GBPUSD",
-    timeframes: "M15, M30, H1",
-    strategyType: "Grid Trading",
-    minDeposit: "$2,000",
-    avgMonthlyReturn: "5-12%",
-    maxDrawdown: "15%"
-  },
-  {
-    id: "trend-rider-ea",
-    name: "Trend Rider EA",
-    shortDescription: "Long-term trend following with momentum indicators",
-    image: trendRiderImage,
-    rating: 4.7,
-    reviews: 203,
-    tradingPairs: "EURUSD, GBPUSD, USDJPY, AUDUSD",
-    timeframes: "H4, D1, W1",
-    strategyType: "Trend Following",
-    minDeposit: "$1,500",
-    avgMonthlyReturn: "10-20%",
-    maxDrawdown: "10%"
-  },
-  {
-    id: "gold-rush-ea",
-    name: "Gold Rush EA",
-    shortDescription: "Specialized gold trading with precious metals expertise",
-    image: goldRushImage,
-    rating: 4.5,
-    reviews: 94,
-    tradingPairs: "XAUUSD, XAGUSD, XPDUSD",
-    timeframes: "M15, H1, H4",
-    strategyType: "Precious Metals",
-    minDeposit: "$2,500",
-    avgMonthlyReturn: "15-25%",
-    maxDrawdown: "18%"
-  },
-  {
-    id: "night-owl-ea",
-    name: "Night Owl EA",
-    shortDescription: "Asian session specialist for overnight trading",
-    image: nightOwlImage,
-    rating: 4.3,
-    reviews: 67,
-    tradingPairs: "USDJPY, AUDJPY, NZDJPY",
-    timeframes: "M5, M15, M30",
-    strategyType: "Session Trading",
-    minDeposit: "$800",
-    avgMonthlyReturn: "6-12%",
-    maxDrawdown: "10%"
-  },
-  {
-    id: "crypto-pulse-ea",
-    name: "Crypto Pulse EA",
-    shortDescription: "Cryptocurrency trading with volatility-based algorithms",
-    image: cryptoPulseImage,
-    rating: 4.9,
-    reviews: 312,
-    tradingPairs: "BTCUSD, ETHUSD, ADAUSD",
-    timeframes: "M5, M15, H1",
-    strategyType: "Crypto Trading",
-    minDeposit: "$1,500",
-    avgMonthlyReturn: "20-35%",
-    maxDrawdown: "25%"
-  }
-]
+type EaProduct = Database["public"]["Tables"]["ea_products"]["Row"]
+
+const imageMap: Record<string, string> = {
+  "gold-milker": goldRushImage,
+  "belema-sfp": trendRiderImage,
+  "bb-martingale": gridTraderImage,
+}
 
 export default function ProductsPage() {
   const navigate = useNavigate()
+  const [products, setProducts] = useState<EaProduct[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
-  const handleViewDetails = (ea: typeof expertAdvisors[0]) => {
-    navigate(`/products/${ea.id}`)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from("ea_products")
+        .select("*")
+        .eq("is_active", true)
+        .order("name")
+
+      if (error) {
+        console.error("Failed to load EA products:", error)
+        setProducts([])
+      } else {
+        setProducts(data || [])
+      }
+      setLoading(false)
+    }
+
+    fetchProducts()
+  }, [])
+
+  const handleViewDetails = (ea: EaProduct) => {
+    navigate(`/products/${ea.product_code}`)
   }
+
+  const displayedProducts = loading ? [] : products
 
   return (
     <div className="min-h-screen relative">
@@ -185,14 +114,23 @@ export default function ProductsPage() {
             </p>
             </ScrollReveal>
           </div>
+          {loading ? (
+            <p className="text-center text-muted-foreground">Loading real-time products...</p>
+          ) : (
           <StaggerContainer className="responsive-grid-3 gap-8">
-            {expertAdvisors.map((ea, index) => (
+            {displayedProducts.map((ea, index) => {
+              const imageSrc = imageMap[ea.image_key || ""] || goldRushImage
+              const ratingValue = Number(ea.rating ?? 5)
+              const tradingPairsDisplay = ea.trading_pairs?.split(",")[0]?.trim() || "Various"
+              const timeframeDisplay = ea.timeframes?.split(",")[0]?.trim() || "Multiple"
+
+              return (
               <StaggerItem key={ea.id} direction={index % 3 === 0 ? 'left' : index % 3 === 1 ? 'up' : 'right'}>
                 <Card className="group card-hover">
                 <CardHeader className="pb-4">
                   <div className="aspect-video bg-gradient-subtle rounded-lg mb-4 overflow-hidden">
                     <img 
-                      src={ea.image} 
+                      src={imageSrc} 
                       alt={ea.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -200,7 +138,7 @@ export default function ProductsPage() {
                   <CardTitle className="text-heading group-hover:text-primary transition-colors">
                     {ea.name}
                   </CardTitle>
-                  <CardDescription className="text-body">{ea.shortDescription}</CardDescription>
+                  <CardDescription className="text-body">{ea.short_description}</CardDescription>
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
@@ -209,30 +147,30 @@ export default function ProductsPage() {
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`h-3 w-3 ${i < Math.floor(ea.rating) ? 'fill-warning text-warning' : 'text-muted-foreground'}`} 
+                          className={`h-3 w-3 ${i < Math.floor(ratingValue) ? 'fill-warning text-warning' : 'text-muted-foreground'}`} 
                         />
                       ))}
                     </div>
-                    <span className="text-sm font-medium">{ea.rating}</span>
-                    <span className="text-xs text-muted-foreground">({ea.reviews} reviews)</span>
+                    <span className="text-sm font-medium">{ratingValue.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">({ea.reviews ?? 0} reviews)</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="flex items-center gap-1">
                       <BarChart3 className="h-3 w-3 text-primary" />
-                      <span className="text-muted-foreground">Pairs: {ea.tradingPairs?.split(',')[0] || 'Various'}</span>
+                      <span className="text-muted-foreground">Pairs: {tradingPairsDisplay}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Timer className="h-3 w-3 text-primary" />
-                      <span className="text-muted-foreground">TF: {ea.timeframes?.split(',')[0] || 'Multiple'}</span>
+                      <span className="text-muted-foreground">TF: {timeframeDisplay}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Target className="h-3 w-3 text-primary" />
-                      <span className="text-muted-foreground">{ea.strategyType || 'Trading'}</span>
+                      <span className="text-muted-foreground">{ea.strategy_type || 'Trading'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <DollarSign className="h-3 w-3 text-success" />
-                      <span className="text-success font-medium">{ea.avgMonthlyReturn || 'N/A'}</span>
+                      <span className="text-success font-medium">{ea.avg_monthly_return || 'N/A'}</span>
                     </div>
                   </div>
 
@@ -248,15 +186,16 @@ export default function ProductsPage() {
                     </Button>
                     <div className="text-center">
                       <span className="text-xs text-muted-foreground">
-                        Min. Deposit: {ea.minDeposit || 'Contact us'}
+                        Min. Deposit: {ea.min_deposit || 'Contact us'}
                       </span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               </StaggerItem>
-            ))}
+            )})}
           </StaggerContainer>
+          )}
         </div>
       </section>
 
@@ -273,7 +212,12 @@ export default function ProductsPage() {
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.3}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-hover" onClick={() => handleViewDetails(expertAdvisors[1])}>
+            <Button 
+              size="lg" 
+              className="btn-hover" 
+              disabled={!displayedProducts.length}
+              onClick={() => displayedProducts[0] && handleViewDetails(displayedProducts[0])}
+            >
               Start with Most Popular
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
