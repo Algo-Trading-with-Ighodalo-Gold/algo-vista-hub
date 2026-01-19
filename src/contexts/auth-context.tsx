@@ -12,10 +12,11 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, firstName?: string, lastName?: string, referralCode?: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: any }>
+  updatePassword: (newPassword: string) => Promise<{ error: any }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -46,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const signUp = async (email: string, password: string, firstName?: string, lastName?: string, referralCode?: string) => {
     try {
       // Validate input data
       const validation = validateRegistrationForm({
@@ -99,11 +100,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           variant: "destructive",
         })
       } else {
-        // Create user profile
+        // Create user profile with referral code if provided
         if (data.user) {
           const profileResult = await UserAPI.createProfile(data.user.id, {
             first_name: firstName || '',
-            last_name: lastName || ''
+            last_name: lastName || '',
+            referral_code: referralCode
           })
           
           if (!profileResult.success) {
@@ -111,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        log.userAction('User registered', data.user?.id, { email })
+        log.userAction('User registered', data.user?.id, { email, referralCode })
         toast({
           title: "Check your email",
           description: "We've sent you a confirmation link to complete your registration.",
@@ -229,6 +231,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           variant: "destructive",
         })
       } else {
+        // Track password reset request
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            await supabase.from('password_reset_tracking').insert({
+              user_id: user.id,
+              email: email,
+              success: false
+            })
+          }
+        } catch (trackingError) {
+          console.error('Failed to track password reset:', trackingError)
+        }
+
         toast({
           title: "Check your email",
           description: "We've sent you a password reset link.",
@@ -246,6 +262,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (error) {
+        toast({
+          title: "Update Failed",
+          description: error.message,
+          variant: "destructive",
+        })
+      } else {
+        // Track successful password reset
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            await supabase.from('password_reset_tracking').insert({
+              user_id: user.id,
+              email: user.email || '',
+              success: true,
+              reset_completed_at: new Date().toISOString()
+            })
+          }
+        } catch (trackingError) {
+          console.error('Failed to track password reset completion:', trackingError)
+        }
+
+        toast({
+          title: "Password Updated",
+          description: "Your password has been successfully updated.",
+        })
+      }
+
+      return { error }
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message,
+        variant: "destructive",
+      })
+      return { error }
+    }
+  }
+
   const value = {
     user,
     session,
@@ -254,6 +315,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signOut,
     resetPassword,
+    updatePassword,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

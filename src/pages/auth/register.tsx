@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from "@/contexts/auth-context"
+import { getReferralCodeForSignup, initializeReferralTracking } from "@/lib/referral-tracking"
 
 const passwordRequirements = [
   { text: "At least 8 characters", regex: /.{8,}/ },
@@ -43,6 +44,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     country: "",
+    referralCode: "",
     agreeToTerms: false,
     agreeMarketing: false
   })
@@ -51,6 +53,15 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const { signUp, user } = useAuth()
   const navigate = useNavigate()
+
+  // Initialize referral tracking and capture referral code
+  useEffect(() => {
+    initializeReferralTracking()
+    const storedCode = getReferralCodeForSignup()
+    if (storedCode) {
+      setFormData(prev => ({ ...prev, referralCode: storedCode }))
+    }
+  }, [])
 
   // Redirect if already logged in
   useEffect(() => {
@@ -95,12 +106,13 @@ export default function RegisterPage() {
     setIsLoading(true)
     
     try {
+      const referralCode = formData.referralCode || getReferralCodeForSignup()
       const { error } = await signUp(
         formData.email, 
         formData.password, 
         formData.firstName, 
         formData.lastName,
-        formData.country
+        referralCode || undefined
       )
       
       if (!error) {
@@ -198,6 +210,20 @@ export default function RegisterPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+                <Input
+                  id="referralCode"
+                  type="text"
+                  value={formData.referralCode}
+                  onChange={(e) => handleInputChange('referralCode', e.target.value)}
+                  placeholder="Enter referral code if you have one"
+                />
+                <p className="text-xs text-muted-foreground">
+                  If you were referred by someone, enter their referral code here
+                </p>
               </div>
 
               <div className="space-y-2">

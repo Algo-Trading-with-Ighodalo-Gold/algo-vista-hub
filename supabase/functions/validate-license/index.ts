@@ -95,10 +95,17 @@ serve(async (req) => {
     const hardware_fingerprint = generateHardwareFingerprint(hardware_info);
 
     // Get license details
+    // Try to get product from products table first, then fallback to ea_products
     const { data: license, error: licenseError } = await supabase
       .from('licenses')
       .select(`
         *,
+        products:ea_product_id (
+          product_code,
+          name,
+          max_concurrent_sessions,
+          requires_hardware_binding
+        ),
         ea_products:ea_product_id (
           product_code,
           name,
@@ -194,9 +201,11 @@ serve(async (req) => {
     }
 
     // Check EA product authorization
+    // Support both products table (new) and ea_products table (legacy)
     let authorized = false;
     if (license.license_type === 'individual_ea') {
-      authorized = license.ea_products?.product_code === ea_product_code;
+      const product = license.products || license.ea_products;
+      authorized = product?.product_code === ea_product_code || product?.id === ea_product_code;
     } else {
       // Check tier-based access
       const tierEAs = license.subscription_tiers?.included_eas || [];
@@ -266,8 +275,10 @@ serve(async (req) => {
       .eq('license_id', license.id)
       .eq('is_active', true);
 
+    // Support both products table (new) and ea_products table (legacy)
+    const product = license.products || license.ea_products;
     const maxSessions = license.license_type === 'individual_ea' 
-      ? license.ea_products?.max_concurrent_sessions || 1
+      ? product?.max_concurrent_sessions || 1
       : license.subscription_tiers?.max_concurrent_sessions || 1;
 
     if (activeSessions >= maxSessions) {

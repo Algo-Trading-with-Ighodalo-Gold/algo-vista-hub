@@ -56,8 +56,22 @@ export class UserAPI {
   static async createProfile(userId: string, profileData: {
     first_name: string
     last_name: string
+    referral_code?: string
   }): Promise<ApiResponse<UserProfile>> {
     try {
+      // If referral code provided, link it via RPC function
+      if (profileData.referral_code) {
+        const { error: referralError } = await supabase.rpc('link_referral_on_signup', {
+          new_user_id: userId,
+          referral_code_param: profileData.referral_code
+        })
+        
+        if (referralError) {
+          console.error('Failed to link referral:', referralError)
+          // Continue with profile creation even if referral linking fails
+        }
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .insert({

@@ -58,28 +58,33 @@ class PaystackService {
     reference?: string
   ): Promise<PaystackTransaction> {
     try {
-      const response = await fetch('/api/payments/paystack/initialize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: Math.round(amount * 100), // Convert to kobo (smallest currency unit)
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
+      const { data, error } = await supabase.functions.invoke('paystack-initialize', {
+        body: {
+          amount,
           email,
           currency,
           metadata,
           reference: reference || `PAYSTACK_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to initialize transaction');
+      if (error) {
+        throw new Error(error.message || 'Failed to initialize transaction');
       }
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      if (!data) {
+        throw new Error('Empty response from server');
+      }
+
+      return data as PaystackTransaction;
+    } catch (error: any) {
       console.error('Error initializing Paystack transaction:', error);
       throw error;
     }
@@ -88,21 +93,22 @@ class PaystackService {
   // Verify transaction
   async verifyTransaction(reference: string): Promise<PaystackTransaction> {
     try {
-      const response = await fetch(`/api/payments/paystack/verify/${reference}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const { supabase } = await import('@/integrations/supabase/client');
+
+      const { data, error } = await supabase.functions.invoke('paystack-verify', {
+        body: { reference },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to verify transaction');
+      if (error) {
+        throw new Error(error.message || 'Failed to verify transaction');
       }
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      if (!data) {
+        throw new Error('Empty response from server');
+      }
+
+      return data as PaystackTransaction;
+    } catch (error: any) {
       console.error('Error verifying Paystack transaction:', error);
       throw error;
     }

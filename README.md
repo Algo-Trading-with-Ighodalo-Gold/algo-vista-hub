@@ -1,274 +1,331 @@
-# Welcome to your Lovable project
+# Algo Trading with Ighodalo
 
-## Project info
+> Professional Algorithmic Trading Solutions Platform
 
-**URL**: https://lovable.dev/projects/fcb50a22-f7e3-423e-9b34-ce2bb16f2ca8
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg)](https://vitejs.dev/)
 
-## How can I edit this code?
+A comprehensive web platform for managing and distributing Expert Advisors (EAs) for MetaTrader 5. This platform provides a complete solution for selling, licensing, and managing algorithmic trading software with integrated payment processing, user management, and license validation.
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+### Core Functionality
+- **Expert Advisor Marketplace**: Browse and purchase professional trading EAs
+- **License Management**: Secure license generation, validation, and tracking
+- **Account Linking**: Connect MT5 trading accounts to licenses with limit enforcement
+- **Payment Processing**: Integrated Stripe and Paystack payment gateways
+- **User Dashboard**: Comprehensive user portal for managing licenses, accounts, and transactions
+- **Admin Dashboard**: Full administrative control panel for managing users, products, and licenses
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fcb50a22-f7e3-423e-9b34-ce2bb16f2ca8) and start prompting.
+### Technical Features
+- **Modern Stack**: React 18 + TypeScript + Vite for blazing-fast development
+- **UI Components**: shadcn/ui with Tailwind CSS for beautiful, accessible interfaces
+- **Database**: Supabase (PostgreSQL) with Row Level Security (RLS)
+- **Authentication**: Secure user authentication and authorization
+- **Real-time Updates**: Live data synchronization with Supabase
+- **Responsive Design**: Mobile-first, fully responsive UI
+- **Theme Support**: Light/dark mode with system preference detection
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📋 Table of Contents
 
-**Use your preferred IDE**
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Technology Stack](#technology-stack)
+- [Environment Variables](#environment-variables)
+- [Database Setup](#database-setup)
+- [Payment Integration](#payment-integration)
+- [License System](#license-system)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🏁 Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- **Node.js** 18+ and npm
+- **Supabase Account** - [Sign up here](https://supabase.com)
+- **Stripe Account** (for payments) - [Sign up here](https://stripe.com)
+- **Paystack Account** (optional, for African markets) - [Sign up here](https://paystack.com)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/fcb50a22-f7e3-423e-9b34-ce2bb16f2ca8) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-
----
-
-## 📋 Accounts & Licensing System
-
-### Overview
-
-The Accounts page (`/dashboard/accounts`) provides a comprehensive interface for managing EA licenses and connected MT5 trading accounts. The system integrates with Supabase backend and Cloudflare Worker for license verification.
-
-### Environment Variables
-
-Add the following to your `.env` file:
-
-```bash
-# Cloudflare Worker License Verification
-VITE_VERIFY_URL=https://your-worker.your-subdomain.workers.dev/verify
-```
-
-### Database Setup
-
-#### Running Migrations
-
-1. **Using Supabase CLI** (recommended):
+1. **Clone the repository**
    ```bash
-   supabase db reset
-   # or apply specific migration
-   supabase migration up
+   git clone <repository-url>
+   cd algo-vista-hub
    ```
 
-2. **Manual SQL execution**:
-   - Go to Supabase Dashboard > SQL Editor
-   - Copy and paste the contents of `supabase/migrations/20250115000000_add_license_accounts_and_rpcs.sql`
-   - Click "Run"
-
-#### Required Tables
-
-The migration creates/updates:
-- `license_accounts` - Links MT5 accounts to licenses
-- `license_logs` - Audit trail for license actions
-- Updates `licenses` table with `plan_id`, `is_active`, `licensed_to` columns
-
-#### RPC Functions
-
-- `link_account_to_license(p_license_id UUID, p_account BIGINT)` - Links an account with limit enforcement
-- `unlink_account_from_license(p_license_id UUID, p_account BIGINT)` - Unlinks an account
-
-### Local Development
-
-1. **Install dependencies**:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Set up environment variables**:
+3. **Set up environment variables**
    ```bash
    cp env.example .env
-   # Edit .env with your Supabase and Cloudflare Worker URLs
    ```
+   Edit `.env` with your configuration (see [Environment Variables](#environment-variables))
 
-3. **Run migrations** (see Database Setup above)
+4. **Run database migrations**
+   - Open Supabase Dashboard → SQL Editor
+   - Run migrations from `supabase/migrations/` in order
+   - Or use Supabase CLI: `supabase db reset`
 
-4. **Start development server**:
+5. **Start development server**
    ```bash
    npm run dev
    ```
 
-5. **Access the Accounts page**:
-   - Navigate to `/dashboard/accounts` after logging in
+6. **Open your browser**
+   Navigate to `http://localhost:5173`
 
-### Testing with Sample Data
+## 📁 Project Structure
 
-#### Seed a Test License
-
-Run this SQL in Supabase SQL Editor (replace `YOUR_USER_ID` with your actual user ID):
-
-```sql
--- Insert a test product
-INSERT INTO public.ea_products (name, product_code, is_active, max_mt5_accounts)
-VALUES ('Test EA', 'TEST-EA-001', true, 3)
-ON CONFLICT DO NOTHING;
-
--- Get the product ID
-WITH product AS (
-  SELECT id FROM public.ea_products WHERE product_code = 'TEST-EA-001' LIMIT 1
-)
--- Insert a test license
-INSERT INTO public.licenses (
-  user_id,
-  license_key,
-  license_type,
-  status,
-  is_active,
-  ea_product_id,
-  max_concurrent_sessions,
-  expires_at
-)
-SELECT 
-  'YOUR_USER_ID'::UUID,
-  'TEST-LICENSE-' || gen_random_uuid()::TEXT,
-  'individual_ea',
-  'active',
-  true,
-  product.id,
-  3,
-  NOW() + INTERVAL '1 year'
-FROM product;
+```
+algo-vista-hub/
+├── public/                 # Static assets
+│   ├── docs/              # PDF documentation
+│   └── favicon_io/        # Favicon files
+├── src/
+│   ├── components/        # React components
+│   │   ├── accounts/      # Account management components
+│   │   ├── auth/          # Authentication components
+│   │   ├── dashboard/     # Dashboard components
+│   │   ├── layout/        # Layout components
+│   │   ├── payments/      # Payment components
+│   │   └── ui/            # shadcn/ui components
+│   ├── contexts/          # React contexts
+│   ├── data/              # Static data (EAs, etc.)
+│   ├── hooks/             # Custom React hooks
+│   ├── integrations/      # Third-party integrations
+│   │   └── supabase/      # Supabase client & types
+│   ├── lib/               # Utility functions
+│   │   ├── api/           # API services
+│   │   ├── payments/      # Payment processing
+│   │   └── security.ts    # Security utilities
+│   ├── layouts/           # Page layouts
+│   ├── pages/             # Page components
+│   │   ├── admin/         # Admin pages
+│   │   ├── auth/          # Authentication pages
+│   │   ├── dashboard/     # User dashboard pages
+│   │   ├── legal/         # Legal pages
+│   │   └── products/      # Product pages
+│   └── App.tsx            # Main app component
+├── supabase/
+│   ├── functions/         # Edge functions
+│   │   ├── create-license/
+│   │   ├── validate-license/
+│   │   └── heartbeat-license/
+│   └── migrations/        # Database migrations
+├── resources/             # Documentation resources
+└── package.json
 ```
 
-#### Verify Cloudflare Worker Response
+## 🛠 Technology Stack
 
-The Cloudflare Worker `/verify` endpoint should return:
+### Frontend
+- **React 18.3** - UI library
+- **TypeScript 5.8** - Type safety
+- **Vite 5.4** - Build tool and dev server
+- **React Router 6** - Client-side routing
+- **TanStack Query** - Data fetching and caching
+- **shadcn/ui** - UI component library
+- **Tailwind CSS** - Utility-first CSS
+- **Framer Motion** - Animation library
 
-```json
-{
-  "ok": true,
-  "product_id": "uuid",
-  "licensed_to": "user@example.com",
-  "expires_at": "2025-12-31 23:59:59",
-  "allowed_accounts": ["123456789", "987654321"],
-  "timestamp": "2025-01-15T12:00:00Z",
-  "nonce": "random-nonce",
-  "signature": "hmac-signature"
-}
+### Backend & Database
+- **Supabase** - Backend-as-a-Service
+  - PostgreSQL database
+  - Row Level Security (RLS)
+  - Authentication
+  - Edge Functions
+  - Real-time subscriptions
+
+### Payment Processing
+- **Stripe** - Global payment processing
+- **Paystack** - African payment gateway
+
+### Additional Tools
+- **Zod** - Schema validation
+- **React Hook Form** - Form management
+- **date-fns** - Date utilities
+- **Recharts** - Data visualization
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Stripe Configuration
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+VITE_STRIPE_SECRET_KEY=sk_test_...
+VITE_STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Paystack Configuration (Optional)
+VITE_PAYSTACK_PUBLIC_KEY=pk_test_...
+VITE_PAYSTACK_SECRET_KEY=sk_test_...
+VITE_PAYSTACK_WEBHOOK_SECRET=...
+
+# Email Configuration (SMTP)
+VITE_SMTP_HOST=smtp.gmail.com
+VITE_SMTP_PORT=587
+VITE_SMTP_USER=your_email@gmail.com
+VITE_SMTP_PASSWORD=your_app_password
+VITE_FROM_EMAIL=noreply@algotradingwithighodalo.com
+VITE_FROM_NAME=Algo Trading with Ighodalo
+
+# Security
+VITE_JWT_SECRET=your_jwt_secret
+VITE_ENCRYPTION_KEY=your_encryption_key
+
+# App Configuration
+VITE_APP_URL=http://localhost:5173
+VITE_APP_NAME=Algo Trading with Ighodalo
+
+# Cloudflare Worker (License Verification)
+VITE_VERIFY_URL=https://your-worker.workers.dev/verify
+
+# Feature Flags
+VITE_ENABLE_ANALYTICS=true
+VITE_ENABLE_DEBUG_LOGGING=false
+VITE_ENABLE_EMAIL_NOTIFICATIONS=true
 ```
 
-**HMAC Payload Format**: `"product_id|account|expires_at|timestamp|nonce|1"`
+## 🗄 Database Setup
 
-**Note**: HMAC secret (`LICENSE_HMAC_SECRET`) is stored server-side only, never exposed to the frontend.
+### Core Tables
+
+- **profiles** - User profiles and settings
+- **ea_products** - Expert Advisor product catalog
+- **licenses** - License management and tracking
+- **license_accounts** - MT5 account to license linking
+- **subscriptions** - User subscription management
+- **subscription_tiers** - Available subscription plans
+- **transactions** - Payment transaction records
+- **affiliates** - Affiliate program data
+- **support_tickets** - Customer support system
+
+### Running Migrations
+
+1. **Using Supabase Dashboard**:
+   - Go to SQL Editor
+   - Copy migration files from `supabase/migrations/`
+   - Run them in chronological order
+
+2. **Using Supabase CLI**:
+   ```bash
+   supabase db reset
+   # or
+   supabase migration up
+   ```
+
+See `DATABASE_SETUP.md` for detailed database documentation.
+
+## 💳 Payment Integration
+
+### Stripe Setup
+1. Create a Stripe account
+2. Get API keys from Dashboard → Developers → API keys
+3. Set up webhook endpoint: `https://your-domain.com/api/webhooks/stripe`
+4. Add webhook secret to `.env`
+
+### Paystack Setup
+1. Create a Paystack account
+2. Get API keys from Settings → API Keys & Webhooks
+3. Configure webhook URL
+4. Add keys to `.env`
+
+See `STRIPE_SETUP.md` and `PAYSTACK_SETUP_GUIDE.md` for detailed setup instructions.
+
+## 🔑 License System
+
+The platform includes a comprehensive license management system:
 
 ### Features
+- **License Generation**: Automatic license key generation on purchase
+- **Account Linking**: Link MT5 accounts to licenses with limit enforcement
+- **Validation**: Real-time license validation via Cloudflare Worker
+- **Expiration Tracking**: Automatic expiration and renewal management
+- **Audit Trail**: Complete logging of all license actions
 
-- ✅ **License Management**: View all licenses grouped by EA product
-- ✅ **Account Linking**: Connect MT5 accounts to specific licenses
-- ✅ **Limit Enforcement**: Automatic enforcement of plan limits via RPC functions
-- ✅ **Status Tracking**: Real-time license and account status
-- ✅ **Search & Filter**: Search by EA name, account ID, or broker
-- ✅ **Responsive UI**: Clean, modern interface with Tailwind/shadcn components
-- ✅ **Error Handling**: Friendly error messages and validation
-- ✅ **Audit Trail**: All actions logged in `license_logs` table
+### License Types
+- **Individual EA License**: Single EA product license
+- **Subscription License**: Recurring subscription-based access
+- **Trial License**: Time-limited trial access
 
-### Code Organization
+See `HOW_ACCOUNTS_WORK.md` for detailed license system documentation.
 
-```
-src/
-├── components/
-│   └── accounts/
-│       ├── license-card.tsx          # Individual license card component
-│       └── connect-account-dialog.tsx # Dialog for adding accounts
-├── hooks/
-│   └── use-accounts-data.ts          # Data fetching hook
-├── lib/
-│   └── accounts-utils.ts            # Utility functions
-└── pages/
-    └── dashboard/
-        └── accounts.tsx              # Main accounts page
+## 🚀 Deployment
+
+### Build for Production
+
+```bash
+npm run build
 ```
 
-### Utility Functions
+The build output will be in the `dist/` directory.
 
-Located in `src/lib/accounts-utils.ts`:
+### Deployment Options
 
-- `isLicenseActive(license)` - Checks if license is active and not expired
-- `effectiveLimit(license, tierMap)` - Calculates account limit (0 = unlimited)
-- `connectedCount(licenseId, accountsMap)` - Gets connected account count
-- `canConnectAccount(license, connectedCount, tierMap)` - Validates if account can be added
-- `formatPlanName(tier)` - Formats tier name for display
+1. **Vercel** (Recommended)
+   - Connect your GitHub repository
+   - Add environment variables
+   - Deploy automatically on push
 
-### RLS Policies
+2. **Netlify**
+   - Connect repository
+   - Build command: `npm run build`
+   - Publish directory: `dist`
 
-Row Level Security (RLS) is enabled on all tables:
+3. **Supabase Hosting**
+   - Use Supabase's built-in hosting
+   - Configure in Supabase Dashboard
 
-- **licenses**: Users can only see their own licenses
-- **license_accounts**: Users can only manage accounts for their licenses
-- **license_logs**: Users can only view logs for their licenses
+4. **Traditional Hosting**
+   - Upload `dist/` folder to your web server
+   - Configure server for SPA routing
 
-RPC functions use `SECURITY DEFINER` with ownership checks inside the functions.
+## 📚 Documentation
 
-### Troubleshooting
+- [Quick Start Guide](QUICK_START.md)
+- [Database Setup](DATABASE_SETUP.md)
+- [Backend Setup](BACKEND_SETUP.md)
+- [Stripe Setup](STRIPE_SETUP.md)
+- [Paystack Setup](PAYSTACK_SETUP_GUIDE.md)
+- [Accounts & Licensing](HOW_ACCOUNTS_WORK.md)
+- [Admin Setup](ADMIN_SETUP.md)
 
-**Issue**: "License not found or access denied"
-- **Solution**: Ensure the user owns the license and RLS policies are correctly set
+## 🤝 Contributing
 
-**Issue**: "Account limit reached"
-- **Solution**: Check plan limits in `subscription_tiers` table or license `max_concurrent_sessions`
+Contributions are welcome! Please follow these steps:
 
-**Issue**: "This account is already linked to another license"
-- **Solution**: Each MT5 account can only be linked to one license at a time
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-**Issue**: Migration fails
-- **Solution**: Ensure you have proper permissions and that required tables (`licenses`, `subscription_tiers`) exist
+## 📝 License
 
-### Files Modified/Created
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- ✅ `supabase/migrations/20250115000000_add_license_accounts_and_rpcs.sql` - Database migration
-- ✅ `src/pages/dashboard/accounts.tsx` - Main accounts page (rewritten)
-- ✅ `src/hooks/use-accounts-data.ts` - Data fetching hook
-- ✅ `src/lib/accounts-utils.ts` - Utility functions
-- ✅ `src/components/accounts/license-card.tsx` - License card component
-- ✅ `src/components/accounts/connect-account-dialog.tsx` - Connect dialog
-- ✅ `env.example` - Added `VITE_VERIFY_URL`
-- ✅ `README.md` - This documentation section
+## 👥 Support
+
+For support, email algotradingwithighodalo@gmail.com or join our Telegram channel: [@AlgotradingwithIghodalo](https://t.me/algotradingwithighodalo)
+
+## 🙏 Acknowledgments
+
+- [shadcn/ui](https://ui.shadcn.com/) for the amazing component library
+- [Supabase](https://supabase.com) for the backend infrastructure
+- [Vite](https://vitejs.dev/) for the excellent build tooling
+
+---
+
+**Built with ❤️ for the algorithmic trading community**

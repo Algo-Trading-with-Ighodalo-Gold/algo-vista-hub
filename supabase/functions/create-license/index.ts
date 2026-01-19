@@ -86,12 +86,30 @@ serve(async (req) => {
     };
 
     if (license_type === 'individual_ea') {
-      // Get EA product details
-      const { data: eaProduct } = await serviceSupabase
-        .from('ea_products')
+      // Get EA product details from products table (linked to Cloudflare)
+      // Try products table first, fallback to ea_products for backward compatibility
+      let eaProduct = null;
+      
+      const { data: productFromProducts } = await serviceSupabase
+        .from('products')
         .select('*')
-        .eq('product_code', ea_product_code)
+        .or(`product_code.eq.${ea_product_code},id.eq.${ea_product_code}`)
         .single();
+
+      if (productFromProducts) {
+        eaProduct = productFromProducts;
+      } else {
+        // Fallback to ea_products for backward compatibility
+        const { data: productFromEaProducts } = await serviceSupabase
+          .from('ea_products')
+          .select('*')
+          .eq('product_code', ea_product_code)
+          .single();
+        
+        if (productFromEaProducts) {
+          eaProduct = productFromEaProducts;
+        }
+      }
 
       if (!eaProduct) {
         return new Response(JSON.stringify({ error: 'EA product not found' }), {
@@ -102,7 +120,7 @@ serve(async (req) => {
 
       licenseData.ea_product_id = eaProduct.id;
       licenseData.ea_product_name = eaProduct.name;
-      licenseData.max_concurrent_sessions = eaProduct.max_concurrent_sessions;
+      licenseData.max_concurrent_sessions = eaProduct.max_concurrent_sessions || 1;
     } else {
       // Get tier details
       const { data: tier } = await serviceSupabase

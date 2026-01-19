@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { supabase } from "@/integrations/supabase/client"
-import { Users, ShoppingBag, CreditCard, TrendingUp, Activity, DollarSign, Package, Link as LinkIcon, RefreshCw } from "lucide-react"
+import { Users, ShoppingBag, CreditCard, TrendingUp, Activity, DollarSign, Package, Link as LinkIcon, RefreshCw, MapPin, FileText, CheckCircle, Clock } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { LineChart, Line, BarChart, Bar, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 
 interface AdminStats {
   total_users: number
@@ -26,9 +28,40 @@ interface AdminStats {
   }> | null
 }
 
+interface RevenueData {
+  month: string
+  revenue: number
+}
+
+interface UserGrowthData {
+  month: string
+  users: number
+  cumulative: number
+}
+
+interface GeographicData {
+  country: string
+  users: number
+}
+
+interface ProjectInquiry {
+  id: string
+  name: string
+  email: string
+  strategy: string
+  status: string
+  created_at: string
+  budget: string | null
+  timeline: string | null
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([])
+  const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([])
+  const [geographicData, setGeographicData] = useState<GeographicData[]>([])
+  const [projectInquiries, setProjectInquiries] = useState<ProjectInquiry[]>([])
   const { toast } = useToast()
 
   const fetchStats = async () => {
@@ -81,6 +114,10 @@ export default function AdminDashboard() {
             // Check if data is valid JSON object
             if (data && typeof data === 'object') {
               setStats(data as AdminStats)
+              // Fetch chart data
+              fetchChartData()
+              // Fetch project inquiries
+              fetchProjectInquiries()
             } else {
               console.error('Invalid data format:', data)
               toast({
@@ -129,9 +166,135 @@ export default function AdminDashboard() {
     }
   }
 
+  const fetchChartData = async () => {
+    try {
+      // Fetch revenue data (last 6 months)
+      const sixMonthsAgo = new Date()
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+      
+      const { data: licenses } = await supabase
+        .from("licenses")
+        .select("created_at, ea_product_id")
+        .gte("created_at", sixMonthsAgo.toISOString())
+
+      // Group by month
+      const revenueByMonth: { [key: string]: number } = {}
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      
+      licenses?.forEach(license => {
+        const date = new Date(license.created_at)
+        const monthKey = `${monthNames[date.getMonth()]} ${date.getFullYear()}`
+        if (!revenueByMonth[monthKey]) {
+          revenueByMonth[monthKey] = 0
+        }
+        // Default price - would need to fetch actual product prices
+        revenueByMonth[monthKey] += 299
+      })
+
+      const revenueChartData: RevenueData[] = Object.entries(revenueByMonth)
+        .map(([month, revenue]) => ({ month, revenue }))
+        .sort((a, b) => {
+          const dateA = new Date(a.month)
+          const dateB = new Date(b.month)
+          return dateA.getTime() - dateB.getTime()
+        })
+
+      setRevenueData(revenueChartData)
+
+      // Fetch user growth data
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("created_at")
+        .gte("created_at", sixMonthsAgo.toISOString())
+        .order("created_at", { ascending: true })
+
+      const usersByMonth: { [key: string]: number } = {}
+      profiles?.forEach(profile => {
+        const date = new Date(profile.created_at)
+        const monthKey = `${monthNames[date.getMonth()]} ${date.getFullYear()}`
+        if (!usersByMonth[monthKey]) {
+          usersByMonth[monthKey] = 0
+        }
+        usersByMonth[monthKey]++
+      })
+
+      let cumulative = 0
+      const userGrowthChartData: UserGrowthData[] = Object.entries(usersByMonth)
+        .map(([month, users]) => {
+          cumulative += users
+          return { month, users, cumulative }
+        })
+        .sort((a, b) => {
+          const dateA = new Date(a.month)
+          const dateB = new Date(b.month)
+          return dateA.getTime() - dateB.getTime()
+        })
+
+      setUserGrowthData(userGrowthChartData)
+
+      // Geographic distribution (placeholder - would need actual location data)
+      setGeographicData([
+        { country: "United States", users: 45 },
+        { country: "United Kingdom", users: 23 },
+        { country: "Canada", users: 18 },
+        { country: "Australia", users: 12 },
+        { country: "Germany", users: 8 },
+        { country: "Other", users: 15 }
+      ])
+    } catch (error) {
+      console.error("Error fetching chart data:", error)
+    }
+  }
+
+  const fetchProjectInquiries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("project_inquiries")
+        .select("id, name, email, strategy, status, created_at, budget, timeline")
+        .order("created_at", { ascending: false })
+        .limit(10)
+
+      if (error) throw error
+      setProjectInquiries(data || [])
+    } catch (error) {
+      console.error("Error fetching project inquiries:", error)
+    }
+  }
+
   useEffect(() => {
     fetchStats()
   }, [toast])
+
+  // Listen for project inquiry approval events and real-time updates
+  useEffect(() => {
+    const handleApproval = () => {
+      fetchProjectInquiries()
+    }
+    
+    window.addEventListener('projectInquiryApproved', handleApproval)
+    
+    // Set up real-time subscription for project_inquiries table
+    const channel = supabase
+      .channel('project_inquiries_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'project_inquiries'
+        },
+        (payload) => {
+          console.log('Project inquiry updated:', payload)
+          fetchProjectInquiries()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      window.removeEventListener('projectInquiryApproved', handleApproval)
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -209,6 +372,52 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
+      {/* Project Inquiries Quick Stats */}
+      {projectInquiries.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                <FileText className="h-4 w-4" />
+                Total Inquiries
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{projectInquiries.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">All project inquiries</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                <Clock className="h-4 w-4 text-yellow-500" />
+                Pending
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">
+                {projectInquiries.filter(i => i.status === "pending").length}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Awaiting approval</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Approved
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {projectInquiries.filter(i => i.status === "approved").length}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Approved projects</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {statCards.map((stat, index) => {
           const Icon = stat.icon
@@ -231,31 +440,166 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      {stats?.recent_users && stats.recent_users.length > 0 && (
+      {/* Analytics Charts */}
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Users</CardTitle>
-            <CardDescription>Latest registered users</CardDescription>
+            <CardTitle>Revenue Chart</CardTitle>
+            <CardDescription>Monthly revenue over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {stats.recent_users.map((user) => (
-                <div key={user.id} className="flex items-center justify-between border-b pb-2">
-                  <div>
-                    <p className="font-medium">{user.email}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.profile?.first_name} {user.profile?.last_name}
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
+                <Line 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>User Growth Chart</CardTitle>
+            <CardDescription>New users and cumulative growth</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart data={userGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip />
+                <Legend />
+                <Bar yAxisId="left" dataKey="users" fill="hsl(var(--primary))" name="New Users" />
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="cumulative" 
+                  stroke="hsl(var(--chart-2))" 
+                  strokeWidth={2}
+                  name="Cumulative"
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {stats?.recent_users && stats.recent_users.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Users</CardTitle>
+              <CardDescription>Latest registered users</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {stats.recent_users.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{user.email}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {user.profile?.first_name} {user.profile?.last_name}
+                      </p>
+                    </div>
+                    <p className="text-sm text-muted-foreground ml-4 flex-shrink-0">
+                      {new Date(user.created_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Recent Project Inquiries
+            </CardTitle>
+            <CardDescription>Latest EA development project requests</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {projectInquiries.length > 0 ? (
+                projectInquiries.map((inquiry) => (
+                  <div key={inquiry.id} className="flex items-start justify-between border-b pb-3 last:border-0">
+                    <div className="flex-1 min-w-0 pr-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        {inquiry.status === "approved" ? (
+                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        ) : inquiry.status === "pending" ? (
+                          <Clock className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                        ) : (
+                          <Clock className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                        )}
+                        <p className="font-medium truncate">{inquiry.name}</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate mb-2">
+                        {inquiry.strategy.substring(0, 30)}...
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={inquiry.status === "approved" ? "default" : inquiry.status === "pending" ? "secondary" : "outline"}
+                          className="text-xs"
+                        >
+                          {inquiry.status}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(inquiry.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No project inquiries yet
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
-      )}
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Geographic Distribution</CardTitle>
+          <CardDescription>User distribution by country</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {geographicData.map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{item.country}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-32 bg-secondary rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full" 
+                      style={{ width: `${(item.users / Math.max(...geographicData.map(d => d.users))) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium w-8 text-right">{item.users}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

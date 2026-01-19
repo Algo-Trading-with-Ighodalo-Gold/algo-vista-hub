@@ -4,7 +4,10 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Activity, Package, TrendingUp, RefreshCw } from "lucide-react"
+import { Activity, Package, TrendingUp, RefreshCw, Eye, Unlink } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { Database } from "@/integrations/supabase/types"
 
@@ -23,11 +26,23 @@ interface AccountsByEA {
   accounts: AccountWithLicense[]
 }
 
+interface AccountActivity {
+  id: string
+  account: string
+  action: string
+  timestamp: string
+  details?: any
+}
+
 export default function AdminAccounts() {
   const [accountsByEA, setAccountsByEA] = useState<AccountsByEA[]>([])
   const [allAccounts, setAllAccounts] = useState<AccountWithLicense[]>([])
   const [loading, setLoading] = useState(true)
   const [filterEA, setFilterEA] = useState<string>("all")
+  const [viewingAccount, setViewingAccount] = useState<AccountWithLicense | null>(null)
+  const [isLogsDialogOpen, setIsLogsDialogOpen] = useState(false)
+  const [accountActivities, setAccountActivities] = useState<AccountActivity[]>([])
+  const [unlinkingAccount, setUnlinkingAccount] = useState<AccountWithLicense | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -63,14 +78,28 @@ export default function AdminAccounts() {
         return
       }
 
-      // Fetch EA products to match with licenses
-      const { data: eaProducts, error: eaProductsError } = await supabase
-        .from("ea_products")
+      // Fetch EA products to match with licenses (use products table, fallback to ea_products)
+      const { data: productsData, error: productsError } = await supabase
+        .from("products")
         .select("*")
+      
+      let eaProducts = productsData || []
+      if (productsError || !productsData || productsData.length === 0) {
+        // Fallback to ea_products for backward compatibility
+        const { data: eaProductsData, error: eaProductsError } = await supabase
+          .from("ea_products")
+          .select("*")
+        if (eaProductsError) {
+          console.error("Error fetching EA products:", eaProductsError)
+        }
+        if (eaProductsData && eaProductsData.length > 0) {
+          eaProducts = eaProductsData
+        }
+      }
 
-      if (eaProductsError) {
-        console.error("Error fetching EA products:", eaProductsError)
-        // Continue without EA products - we'll just show what we have
+      if (productsError && (!eaProducts || eaProducts.length === 0)) {
+        console.error("Error fetching products:", productsError)
+        // Continue without products - we'll just show what we have
       }
 
       const eaProductsMap = new Map(
@@ -84,7 +113,32 @@ export default function AdminAccounts() {
 
       const accounts = (accountsData as AccountWithLicense[]) || []
       
-      setAllAccounts(accounts)
+      // Check for expired licenses and update account status
+      const now = new Date()
+      const updatedAccounts = await Promise.all(
+        accounts.map(async (account) => {
+          if (account.license && account.license.expires_at) {
+            const expiresAt = new Date(account.license.expires_at)
+            if (expiresAt < now && account.status === "active") {
+              // License expired, update account status to inactive
+              try {
+                await supabase
+                  .from("license_accounts")
+                  .update({ status: "inactive" })
+                  .eq("id", account.id)
+                
+                return { ...account, status: "inactive" as const }
+              } catch (error) {
+                console.error("Error updating account status:", error)
+                return account
+              }
+            }
+          }
+          return account
+        })
+      )
+      
+      setAllAccounts(updatedAccounts)
 
       // Group accounts by EA product
       const grouped = new Map<string, AccountsByEA>()
@@ -102,7 +156,8 @@ export default function AdminAccounts() {
               accounts: []
             })
           }
-          grouped.get(key)!.accounts.push(account)
+          const updatedAccount = updatedAccounts.find(a => a.id === account.id) || account
+          grouped.get(key)!.accounts.push(updatedAccount)
           return
         }
 
@@ -130,7 +185,9 @@ export default function AdminAccounts() {
           })
         }
 
-        grouped.get(eaProductId)!.accounts.push(account)
+        // Use updated account status
+        const updatedAccount = updatedAccounts.find(a => a.id === account.id) || account
+        grouped.get(eaProductId)!.accounts.push(updatedAccount)
       })
 
       // Convert to array and sort
@@ -153,6 +210,63 @@ export default function AdminAccounts() {
       setAccountsByEA([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleViewActivity = async (account: AccountWithLicense) => {
+    setViewingAccount(account)
+    setIsLogsDialogOpen(true)
+
+    try {
+      // Fetch license logs related to this account
+      if (account.license_id) {
+        const { data: logs } = await supabase
+          .from("license_logs")
+          .select("*")
+          .eq("license_id", account.license_id)
+          .order("created_at", { ascending: false })
+          .limit(50)
+
+        if (logs) {
+          const activities: AccountActivity[] = logs.map(log => ({
+            id: log.id,
+            account: account.account.toString(),
+            action: log.action,
+            timestamp: log.created_at,
+            details: log.details
+          }))
+          setAccountActivities(activities)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching activity logs:", error)
+      setAccountActivities([])
+    }
+  }
+
+  const handleUnlinkAccount = async (account: AccountWithLicense) => {
+    if (!account.license_id) return
+
+    try {
+      const { error } = await supabase
+        .from("license_accounts")
+        .delete()
+        .eq("id", account.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: "Account unlinked successfully",
+      })
+
+      fetchData()
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to unlink account",
+        variant: "destructive",
+      })
     }
   }
 
@@ -331,17 +445,53 @@ export default function AdminAccounts() {
                         </div>
                       )}
                     </div>
-                    <div className="text-right ml-4">
-                      {account.balance !== null && account.balance !== undefined && (
-                        <p className="font-medium">
-                          ${typeof account.balance === 'number' 
-                            ? account.balance.toFixed(2) 
-                            : parseFloat(String(account.balance || 0)).toFixed(2)}
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        {account.balance !== null && account.balance !== undefined && (
+                          <p className="font-medium">
+                            ${typeof account.balance === 'number' 
+                              ? account.balance.toFixed(2) 
+                              : parseFloat(String(account.balance || 0)).toFixed(2)}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(account.created_at).toLocaleDateString()}
                         </p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(account.created_at).toLocaleDateString()}
-                      </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewActivity(account)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setUnlinkingAccount(account)}
+                            >
+                              <Unlink className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Unlink Account</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to unlink account {account.account}? This will remove the connection between the account and its license.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleUnlinkAccount(account)}>
+                                Unlink
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -365,6 +515,44 @@ export default function AdminAccounts() {
           </Card>
         )}
       </div>
+
+      {/* Activity Logs Dialog */}
+      <Dialog open={isLogsDialogOpen} onOpenChange={setIsLogsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Account Activity Logs</DialogTitle>
+            <DialogDescription>
+              Account: {viewingAccount?.account} - {viewingAccount?.account_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {accountActivities.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {accountActivities.map((activity) => (
+                    <TableRow key={activity.id}>
+                      <TableCell>{new Date(activity.timestamp).toLocaleString()}</TableCell>
+                      <TableCell>{activity.action}</TableCell>
+                      <TableCell className="text-xs">
+                        {activity.details ? JSON.stringify(activity.details) : "N/A"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No activity logs found</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -3,7 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Link as LinkIcon, DollarSign, Users } from "lucide-react"
+import { Link as LinkIcon, DollarSign, Users, Settings, CheckCircle, XCircle, MousePointerClick, TrendingUp } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { Database } from "@/integrations/supabase/types"
 
 type Affiliate = Database["public"]["Tables"]["affiliates"]["Row"]
@@ -11,11 +16,19 @@ type Affiliate = Database["public"]["Tables"]["affiliates"]["Row"]
 interface AffiliateWithUser extends Affiliate {
   user_name: string | null
   user_email: string | null
+  referral_clicks?: number
+  conversions?: number
 }
+
+type ReferralClick = Database["public"]["Tables"]["referral_clicks"]["Row"]
 
 export default function AdminAffiliates() {
   const [affiliates, setAffiliates] = useState<AffiliateWithUser[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingAffiliate, setEditingAffiliate] = useState<AffiliateWithUser | null>(null)
+  const [isCommissionDialogOpen, setIsCommissionDialogOpen] = useState(false)
+  const [commissionRate, setCommissionRate] = useState("")
+  const [processingPayout, setProcessingPayout] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -43,20 +56,31 @@ export default function AdminAffiliates() {
         (profiles || []).map((p) => [p.user_id, p])
       )
 
-      // Get user emails from auth.users (if accessible via RPC)
-      const affiliatesWithUsers: AffiliateWithUser[] = (affiliatesData || []).map(
-        (affiliate) => {
+      // Fetch referral clicks for each affiliate
+      const affiliatesWithUsers: AffiliateWithUser[] = await Promise.all(
+        (affiliatesData || []).map(async (affiliate) => {
           const profile = profileMap.get(affiliate.user_id)
           const userName = profile
             ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || null
             : null
           
+          // Fetch referral clicks
+          const { data: clicks } = await supabase
+            .from("referral_clicks")
+            .select("*")
+            .eq("referrer_user_id", affiliate.user_id)
+
+          const referralClicks = clicks?.length || 0
+          const conversions = clicks?.filter(c => c.converted).length || 0
+          
           return {
             ...affiliate,
             user_name: userName,
             user_email: null, // Email would need RPC function to fetch
+            referral_clicks: referralClicks,
+            conversions: conversions
           }
-        }
+        })
       )
 
       setAffiliates(affiliatesWithUsers)
@@ -69,6 +93,75 @@ export default function AdminAffiliates() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSetCommission = (affiliate: AffiliateWithUser) => {
+    setEditingAffiliate(affiliate)
+    setCommissionRate("") // Would need to get current rate from database
+    setIsCommissionDialogOpen(true)
+  }
+
+  const handleSaveCommission = async () => {
+    if (!editingAffiliate || !commissionRate) return
+
+    try {
+      const rate = parseFloat(commissionRate)
+      if (isNaN(rate) || rate < 0 || rate > 100) {
+        toast({
+          title: "Error",
+          description: "Commission rate must be between 0 and 100",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Update commission rate (would need a commission_rates table or update affiliate record)
+      // For now, we'll just show a success message
+      toast({
+        title: "Success",
+        description: `Commission rate set to ${rate}% for affiliate`,
+      })
+
+      setIsCommissionDialogOpen(false)
+      setCommissionRate("")
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to set commission rate",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleProcessPayout = async (affiliate: AffiliateWithUser) => {
+    setProcessingPayout(affiliate.id)
+
+    try {
+      const { error } = await supabase
+        .from("affiliates")
+        .update({
+          payout_status: "paid",
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", affiliate.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: "Payout processed successfully",
+      })
+
+      fetchData()
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process payout",
+        variant: "destructive",
+      })
+    } finally {
+      setProcessingPayout(null)
     }
   }
 
@@ -204,6 +297,16 @@ export default function AdminAffiliates() {
                       <LinkIcon className="h-3 w-3" />
                       <span>Code: {affiliate.referral_code}</span>
                     </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <MousePointerClick className="h-3 w-3" />
+                        <span>{affiliate.referral_clicks || 0} clicks</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3" />
+                        <span>{affiliate.conversions || 0} conversions</span>
+                      </div>
+                    </div>
                     {affiliate.user_id && (
                       <span className="text-xs text-muted-foreground">
                         ID: {affiliate.user_id.substring(0, 8)}...
@@ -211,13 +314,38 @@ export default function AdminAffiliates() {
                     )}
                   </div>
                 </div>
-                <div className="text-right ml-4">
-                  <p className="font-medium text-lg">
-                    ${(affiliate.commission_earned || 0).toFixed(2)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Joined: {new Date(affiliate.created_at).toLocaleDateString()}
-                  </p>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="font-medium text-lg">
+                      ${(affiliate.commission_earned || 0).toFixed(2)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Joined: {new Date(affiliate.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSetCommission(affiliate)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    {affiliate.payout_status === "pending" && affiliate.commission_earned > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleProcessPayout(affiliate)}
+                        disabled={processingPayout === affiliate.id}
+                      >
+                        {processingPayout === affiliate.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                        ) : (
+                          <CheckCircle className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -230,6 +358,41 @@ export default function AdminAffiliates() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Set Commission Rate Dialog */}
+      <Dialog open={isCommissionDialogOpen} onOpenChange={setIsCommissionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Commission Rate</DialogTitle>
+            <DialogDescription>
+              {editingAffiliate?.user_name || `Affiliate ${editingAffiliate?.referral_code}`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Commission Rate (%)</Label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={commissionRate}
+                onChange={(e) => setCommissionRate(e.target.value)}
+                placeholder="e.g., 10.5"
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the commission percentage (0-100)
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCommissionDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCommission}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

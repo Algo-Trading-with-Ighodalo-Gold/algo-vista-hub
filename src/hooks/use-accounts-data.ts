@@ -49,11 +49,16 @@ export function useAccountsData(): AccountsData {
       // Try with relationship first, fallback to simple query if relationship fails
       let licensesData: any[] | null = null
       
+      // Try products table first, fallback to ea_products
       const { data: licensesWithProducts, error: licensesWithProductsError } = await supabase
         .from('licenses')
         .select(`
           *,
-          ea_products (
+          products:ea_product_id (
+            id,
+            name
+          ),
+          ea_products:ea_product_id (
             id,
             name
           )
@@ -79,10 +84,13 @@ export function useAccountsData(): AccountsData {
         licensesData = licensesWithProducts
       }
 
-      const licensesList = (licensesData || []).map(license => ({
-        ...license,
-        ea_product_name: (license as any).ea_products?.name || license.ea_product_name
-      })) as LicenseRow[]
+      const licensesList = (licensesData || []).map(license => {
+        const product = (license as any).products || (license as any).ea_products
+        return {
+          ...license,
+          ea_product_name: product?.name || license.ea_product_name
+        }
+      }) as LicenseRow[]
 
       setLicenses(licensesList)
 

@@ -271,7 +271,7 @@ BEGIN
     VALUES (
       p_license_id,
       'account_linked',
-      json_build_object('account', p_account::TEXT),
+telegra      json_build_object('account', p_account::TEXT),
       auth.uid()
     );
   EXCEPTION WHEN OTHERS THEN

@@ -15,7 +15,30 @@ import goldRushImage from "@/assets/gold-rush-ea.jpg"
 import trendRiderImage from "@/assets/trend-rider-ea.jpg"
 import gridTraderImage from "@/assets/grid-trader-ea.jpg"
 
-type EaProduct = Database["public"]["Tables"]["ea_products"]["Row"]
+// Use products table (linked to Cloudflare)
+type EaProduct = {
+  id: string
+  name: string
+  product_code: string
+  description?: string | null
+  short_description?: string | null
+  price_cents?: number | null
+  version?: string | null
+  is_active?: boolean | null
+  key_features?: string[] | null
+  trading_pairs?: string | null
+  timeframes?: string | null
+  strategy_type?: string | null
+  min_deposit?: string | null
+  avg_monthly_return?: string | null
+  max_drawdown?: string | null
+  performance?: string | null
+  image_key?: string | null
+  rating?: number | null
+  reviews?: number | null
+  created_at?: string | null
+  updated_at?: string | null
+}
 
 const imageMap: Record<string, string> = {
   "gold-milker": goldRushImage,
@@ -35,8 +58,9 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true)
+      // Fetch from products table (linked to Cloudflare)
       const { data, error } = await supabase
-        .from("ea_products")
+        .from("products")
         .select("*")
         .eq("is_active", true)
         .order("name")

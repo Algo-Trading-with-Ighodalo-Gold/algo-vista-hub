@@ -117,7 +117,8 @@ export default function DashboardEADevelopmentPage() {
         description: "We'll review your requirements and get back to you within 24 hours.",
       })
       
-      setShowCalendly(true)
+      // Don't show Calendly immediately - allow multiple submissions
+      // setShowCalendly(true)
       
       setFormData({
         name: "",
@@ -175,7 +176,39 @@ export default function DashboardEADevelopmentPage() {
   }
 
   useEffect(() => {
+    if (!user) return
+    
     fetchProjectInquiries()
+    
+    // Listen for status updates via custom event
+    const handleStatusUpdate = () => {
+      fetchProjectInquiries()
+    }
+    
+    window.addEventListener('projectInquiryApproved', handleStatusUpdate)
+    
+    // Set up real-time subscription for project_inquiries table
+    const channel = supabase
+      .channel('user_project_inquiries_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'project_inquiries',
+          filter: `email=eq.${user.email}`
+        },
+        (payload) => {
+          console.log('User project inquiry updated:', payload)
+          fetchProjectInquiries()
+        }
+      )
+      .subscribe()
+    
+    return () => {
+      window.removeEventListener('projectInquiryApproved', handleStatusUpdate)
+      supabase.removeChannel(channel)
+    }
   }, [user])
 
   useEffect(() => {
@@ -248,6 +281,53 @@ export default function DashboardEADevelopmentPage() {
 
       {!showCalendly ? (
         <>
+          {/* Show inquiries ABOVE the form */}
+          {projectInquiries.length > 0 && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Your Project Inquiries
+                </CardTitle>
+                <CardDescription>
+                  Track the progress of your EA development requests
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {projectInquiries.map((inquiry) => (
+                    <div key={inquiry.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(inquiry.status)}
+                          <h4 className="font-medium">{inquiry.strategy.substring(0, 50)}...</h4>
+                        </div>
+                        <Badge variant={getStatusVariant(inquiry.status)}>
+                          {inquiry.status.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                        <div>
+                          <strong>Submitted:</strong> {new Date(inquiry.created_at).toLocaleDateString()}
+                        </div>
+                        <div>
+                          <strong>Budget:</strong> {inquiry.budget || 'Not specified'}
+                        </div>
+                        <div>
+                          <strong>Timeline:</strong> {inquiry.timeline || 'Flexible'}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">View Details</Button>
+                        <Button size="sm" variant="outline">Message Team</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="text-center space-y-4 mb-8">
             <h2 className="dashboard-title font-bold tracking-tight">
               Ready to Build Your EA?
@@ -439,51 +519,6 @@ export default function DashboardEADevelopmentPage() {
             </CardContent>
           </Card>
 
-          {projectInquiries.length > 0 && (
-            <Card className="mt-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Your Project Inquiries
-                </CardTitle>
-                <CardDescription>
-                  Track the progress of your EA development requests
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {projectInquiries.map((inquiry) => (
-                    <div key={inquiry.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(inquiry.status)}
-                          <h4 className="font-medium">{inquiry.strategy.substring(0, 50)}...</h4>
-                        </div>
-                        <Badge variant={getStatusVariant(inquiry.status)}>
-                          {inquiry.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                        <div>
-                          <strong>Submitted:</strong> {new Date(inquiry.created_at).toLocaleDateString()}
-                        </div>
-                        <div>
-                          <strong>Budget:</strong> {inquiry.budget || 'Not specified'}
-                        </div>
-                        <div>
-                          <strong>Timeline:</strong> {inquiry.timeline || 'Flexible'}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">View Details</Button>
-                        <Button size="sm" variant="outline">Message Team</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </>
       ) : (
         <div className="text-center space-y-8 animate-fade-in">

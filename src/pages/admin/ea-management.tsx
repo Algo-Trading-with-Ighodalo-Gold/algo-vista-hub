@@ -10,18 +10,50 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Plus, Edit, Trash2, Package } from "lucide-react"
+import { Plus, Edit, Trash2, Package, TrendingUp, BarChart3 } from "lucide-react"
 import type { Database } from "@/integrations/supabase/types"
 
-type EaProduct = Database["public"]["Tables"]["ea_products"]["Row"]
-type EaProductInsert = Database["public"]["Tables"]["ea_products"]["Insert"]
-type EaProductUpdate = Database["public"]["Tables"]["ea_products"]["Update"]
+// Use products table instead of ea_products
+type EaProduct = {
+  id: string
+  name: string
+  product_code: string
+  description?: string | null
+  price_cents?: number | null
+  version?: string | null
+  max_concurrent_sessions?: number | null
+  max_mt5_accounts?: number | null
+  requires_hardware_binding?: boolean | null
+  is_active?: boolean | null
+  key_features?: string[] | null
+  trading_pairs?: string | null
+  timeframes?: string | null
+  strategy_type?: string | null
+  min_deposit?: string | null
+  avg_monthly_return?: string | null
+  max_drawdown?: string | null
+  performance?: string | null
+  stripe_price_id?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+type EaProductInsert = Partial<EaProduct>
+type EaProductUpdate = Partial<EaProduct>
+
+interface ProductStats {
+  total_sales: number
+  total_revenue: number
+  active_licenses: number
+}
 
 export default function EAManagement() {
   const [products, setProducts] = useState<EaProduct[]>([])
+  const [productStats, setProductStats] = useState<Map<string, ProductStats>>(new Map())
   const [loading, setLoading] = useState(true)
   const [editingProduct, setEditingProduct] = useState<EaProduct | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [viewingStatsProduct, setViewingStatsProduct] = useState<EaProduct | null>(null)
+  const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
 
@@ -53,13 +85,35 @@ export default function EAManagement() {
 
   const fetchProducts = async () => {
     try {
+      // Fetch from products table (linked to Cloudflare)
       const { data, error } = await supabase
-        .from("ea_products")
+        .from("products")
         .select("*")
         .order("created_at", { ascending: false })
 
       if (error) throw error
       setProducts(data || [])
+      
+      // Fetch sales stats for each product
+      const statsMap = new Map<string, ProductStats>()
+      for (const product of data || []) {
+        // Look up licenses by product_code (which matches id in products table)
+        const { data: licenses } = await supabase
+          .from("licenses")
+          .select("*")
+          .or(`ea_product_id.eq.${product.id},ea_product_id.eq.${product.product_code},ea_product_name.eq.${product.name}`)
+        
+        const totalSales = licenses?.length || 0
+        const activeLicenses = licenses?.filter(l => l.status === 'active').length || 0
+        const totalRevenue = (product.price_cents || 0) * totalSales
+        
+        statsMap.set(product.id, {
+          total_sales: totalSales,
+          total_revenue: totalRevenue,
+          active_licenses: activeLicenses
+        })
+      }
+      setProductStats(statsMap)
     } catch (error: any) {
       console.error("Error fetching products:", error)
       toast({
@@ -70,6 +124,11 @@ export default function EAManagement() {
     } finally {
       setLoading(false)
     }
+  }
+  
+  const handleViewStats = (product: EaProduct) => {
+    setViewingStatsProduct(product)
+    setIsStatsDialogOpen(true)
   }
 
   const handleCreate = () => {
@@ -143,7 +202,7 @@ export default function EAManagement() {
 
     try {
       const { error } = await supabase
-        .from("ea_products")
+        .from("products")
         .delete()
         .eq("id", id)
 
@@ -206,9 +265,9 @@ export default function EAManagement() {
       }
 
       if (editingProduct) {
-        // Update existing product
+        // Update existing product in products table
         const { error } = await supabase
-          .from("ea_products")
+          .from("products")
           .update(cleanedData)
           .eq("id", editingProduct.id)
 
@@ -218,7 +277,7 @@ export default function EAManagement() {
           if (error.message && error.message.includes("schema cache")) {
             toast({
               title: "Database Schema Error",
-              description: "Missing database columns. Please run the migration: supabase/migrations/20250201130000_add_ea_product_columns.sql in Supabase SQL Editor",
+              description: "Missing database columns. Please run the migration: supabase/migrations/20250202000000_link_products_to_licensing.sql in Supabase SQL Editor",
               variant: "destructive",
             })
           } else {
@@ -232,7 +291,7 @@ export default function EAManagement() {
           description: "EA product updated successfully",
         })
       } else {
-        // Create new product
+        // Create new product in products table
         if (!cleanedData.product_code || !cleanedData.name) {
           toast({
             title: "Error",
@@ -242,9 +301,15 @@ export default function EAManagement() {
           return
         }
 
+        // Ensure id matches product_code for consistency with Cloudflare
+        const productData = {
+          ...cleanedData,
+          id: cleanedData.product_code, // Use product_code as id
+        }
+
         const { error } = await supabase
-          .from("ea_products")
-          .insert([cleanedData])
+          .from("products")
+          .insert([productData])
 
         if (error) {
           console.error("Insert error:", error)
@@ -252,7 +317,7 @@ export default function EAManagement() {
           if (error.message && error.message.includes("schema cache")) {
             toast({
               title: "Database Schema Error",
-              description: "Missing database columns. Please run the migration: supabase/migrations/20250201130000_add_ea_product_columns.sql in Supabase SQL Editor",
+              description: "Missing database columns. Please run the migration: supabase/migrations/20250202000000_link_products_to_licensing.sql in Supabase SQL Editor",
               variant: "destructive",
             })
           } else {
@@ -330,7 +395,31 @@ export default function EAManagement() {
                   <span>{product.version}</span>
                 </div>
               </div>
+              <div className="space-y-2 text-sm border-t pt-2 mt-2">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total Sales:</span>
+                  <span className="font-medium">{productStats.get(product.id)?.total_sales || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Revenue:</span>
+                  <span className="font-medium">
+                    ${((productStats.get(product.id)?.total_revenue || 0) / 100).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Active Licenses:</span>
+                  <span className="font-medium">{productStats.get(product.id)?.active_licenses || 0}</span>
+                </div>
+              </div>
               <div className="flex gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewStats(product)}
+                >
+                  <BarChart3 className="h-4 w-4 mr-1" />
+                  Stats
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -651,6 +740,54 @@ export default function EAManagement() {
               {editingProduct ? "Update" : "Create"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sales Stats Dialog */}
+      <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Product Sales Statistics</DialogTitle>
+            <DialogDescription>
+              {viewingStatsProduct?.name} - {viewingStatsProduct?.product_code}
+            </DialogDescription>
+          </DialogHeader>
+          {viewingStatsProduct && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Total Sales</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {productStats.get(viewingStatsProduct.id)?.total_sales || 0}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Total Revenue</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      ${((productStats.get(viewingStatsProduct.id)?.total_revenue || 0) / 100).toFixed(2)}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Active Licenses</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {productStats.get(viewingStatsProduct.id)?.active_licenses || 0}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

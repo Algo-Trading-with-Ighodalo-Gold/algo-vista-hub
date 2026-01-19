@@ -24,7 +24,10 @@ import {
   Activity,
   Shield,
   Package,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Key,
+  CreditCard,
+  Code
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -78,14 +81,19 @@ const adminNavigationItems = [
     icon: Shield
   },
   {
+    title: "Users",
+    href: "/admin/users",
+    icon: Users
+  },
+  {
     title: "EA Management",
     href: "/admin/ea-management",
     icon: Package
   },
   {
-    title: "Users",
-    href: "/admin/users",
-    icon: Users
+    title: "Licenses",
+    href: "/admin/licenses",
+    icon: Key
   },
   {
     title: "Accounts",
@@ -93,9 +101,24 @@ const adminNavigationItems = [
     icon: Activity
   },
   {
+    title: "Transactions",
+    href: "/admin/transactions",
+    icon: Wallet
+  },
+  {
+    title: "Subscriptions",
+    href: "/admin/subscriptions",
+    icon: CreditCard
+  },
+  {
     title: "Affiliates",
     href: "/admin/affiliates",
     icon: LinkIcon
+  },
+  {
+    title: "EA Development Projects",
+    href: "/admin/ea-development-projects",
+    icon: Code
   }
 ]
 
