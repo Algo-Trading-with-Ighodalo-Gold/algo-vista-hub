@@ -496,31 +496,31 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {stats?.recent_users && stats.recent_users.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Users</CardTitle>
-              <CardDescription>Latest registered users</CardDescription>
-            </CardHeader>
-            <CardContent>
+      {stats?.recent_users && stats.recent_users.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Users</CardTitle>
+            <CardDescription>Latest registered users</CardDescription>
+          </CardHeader>
+          <CardContent>
               <div className="space-y-3">
-                {stats.recent_users.map((user) => (
+              {stats.recent_users.map((user) => (
                   <div key={user.id} className="flex items-center justify-between border-b pb-3 last:border-0">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{user.email}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {user.profile?.first_name} {user.profile?.last_name}
-                      </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground ml-4 flex-shrink-0">
-                      {new Date(user.created_at).toLocaleDateString()}
+                    <p className="text-sm text-muted-foreground">
+                      {user.profile?.first_name} {user.profile?.last_name}
                     </p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                    <p className="text-sm text-muted-foreground ml-4 flex-shrink-0">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
         <Card>
           <CardHeader>

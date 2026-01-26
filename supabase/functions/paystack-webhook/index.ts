@@ -135,7 +135,7 @@ serve(async (req) => {
             expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
             // Create license
-            await serviceSupabase.from('licenses').insert({
+            const { data: createdLicense } = await serviceSupabase.from('licenses').insert({
               user_id: userId,
               license_key: licenseKey,
               license_type: 'individual_ea',
@@ -145,9 +145,37 @@ serve(async (req) => {
               max_concurrent_sessions: product.max_concurrent_sessions || 1,
               expires_at: expiresAt.toISOString(),
               issued_at: new Date().toISOString(),
-            });
+            }).select().single();
 
             console.log(`License created for user ${userId}, product ${product.name}`);
+
+            // Sync license to Cloudflare
+            if (createdLicense && product.product_code) {
+              try {
+                const CLOUDFLARE_WORKER_URL = Deno.env.get('CLOUDFLARE_WORKER_URL');
+                if (CLOUDFLARE_WORKER_URL) {
+                  // Calculate days from expiration
+                  const days = Math.ceil((expiresAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                  
+                  await fetch(CLOUDFLARE_WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      product_id: product.product_code,
+                      days: days,
+                      max_accounts: product.max_mt5_accounts || product.max_concurrent_sessions || 1,
+                    }),
+                  });
+                  
+                  console.log(`License synced to Cloudflare for product ${product.product_code}`);
+                }
+              } catch (cloudflareError: any) {
+                console.error('Error syncing license to Cloudflare:', cloudflareError);
+                // Don't fail the webhook if Cloudflare sync fails
+              }
+            }
           }
         } catch (licenseError: any) {
           console.error('Error creating license:', licenseError);

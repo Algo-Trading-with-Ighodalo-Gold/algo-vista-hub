@@ -108,17 +108,17 @@ export default function ProductDetailPage() {
       });
     } else {
       navigate("/auth/login", {
-        state: { 
+      state: {
           from: `/products/${ea.product_code}`,
           redirectTo: "/dashboard/checkout",
           productData: {
             productId: ea.id,
             productCode: ea.product_code,
             productName: ea.name,
-            price: Number(price),
-            features,
+        price: Number(price),
+        features,
           }
-        },
+      },
       });
     }
   }

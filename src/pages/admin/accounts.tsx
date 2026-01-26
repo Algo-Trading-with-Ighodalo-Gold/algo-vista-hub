@@ -87,10 +87,10 @@ export default function AdminAccounts() {
       if (productsError || !productsData || productsData.length === 0) {
         // Fallback to ea_products for backward compatibility
         const { data: eaProductsData, error: eaProductsError } = await supabase
-          .from("ea_products")
-          .select("*")
-        if (eaProductsError) {
-          console.error("Error fetching EA products:", eaProductsError)
+        .from("ea_products")
+        .select("*")
+      if (eaProductsError) {
+        console.error("Error fetching EA products:", eaProductsError)
         }
         if (eaProductsData && eaProductsData.length > 0) {
           eaProducts = eaProductsData
@@ -447,16 +447,16 @@ export default function AdminAccounts() {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        {account.balance !== null && account.balance !== undefined && (
-                          <p className="font-medium">
-                            ${typeof account.balance === 'number' 
-                              ? account.balance.toFixed(2) 
-                              : parseFloat(String(account.balance || 0)).toFixed(2)}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(account.created_at).toLocaleDateString()}
+                      {account.balance !== null && account.balance !== undefined && (
+                        <p className="font-medium">
+                          ${typeof account.balance === 'number' 
+                            ? account.balance.toFixed(2) 
+                            : parseFloat(String(account.balance || 0)).toFixed(2)}
                         </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(account.created_at).toLocaleDateString()}
+                      </p>
                       </div>
                       <div className="flex gap-2">
                         <Button

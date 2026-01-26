@@ -103,10 +103,10 @@ export default function UsersManagement() {
           }))
 
           return {
-            id: profile.user_id,
+        id: profile.user_id,
             email: email || `user-${profile.user_id.substring(0, 8)}`,
-            created_at: profile.created_at,
-            profile: profile as Profile,
+        created_at: profile.created_at,
+        profile: profile as Profile,
             licenses: licenses || [],
             transactions
           }
@@ -224,7 +224,7 @@ export default function UsersManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
+            {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">
                       {user.profile?.first_name} {user.profile?.last_name}
@@ -235,22 +235,22 @@ export default function UsersManagement() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <span>{user.email}</span>
-                      </div>
+                          <span>{user.email}</span>
+                    </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.profile?.role === "admin" || user.profile?.role === "worker" ? "default" : "secondary"}>
-                        {user.profile?.role || "user"}
-                      </Badge>
+                    <Badge variant={user.profile?.role === "admin" || user.profile?.role === "worker" ? "default" : "secondary"}>
+                      {user.profile?.role || "user"}
+                    </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{user.licenses?.length || 0}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </div>
+                      <Calendar className="h-3 w-3" />
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -277,17 +277,17 @@ export default function UsersManagement() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                      </div>
+                  </div>
                     </TableCell>
                   </TableRow>
-                ))}
-                {filteredUsers.length === 0 && (
+            ))}
+            {filteredUsers.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      No users found
+                No users found
                     </TableCell>
                   </TableRow>
-                )}
+            )}
               </TableBody>
             </Table>
           </div>

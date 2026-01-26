@@ -16,6 +16,8 @@ import { FloatingDots } from "@/components/ui/floating-background"
 
 import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal, FadeIn } from "@/components/ui/scroll-reveal"
 
+import { SplineScene } from "@/components/ui/spline-scene"
+
 import { getFeaturedEAs } from "@/data/expert-advisors"
 
 
@@ -169,7 +171,15 @@ export default function HomePage() {
 
         <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
 
-        <div className="container relative py-16 lg:py-24">
+        {/* Spline 3D Background - Interactive */}
+        <div className="absolute inset-0 w-full h-full z-0 cursor-move">
+          <SplineScene 
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="w-full h-full"
+          />
+        </div>
+
+        <div className="container relative py-16 lg:py-24 z-10">
 
           <div className="mx-auto max-w-4xl text-center">
 

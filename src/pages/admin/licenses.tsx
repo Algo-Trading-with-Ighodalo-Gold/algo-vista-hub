@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Key, Search, Calendar, Eye, Clock, RefreshCw, Plus } from "lucide-react"
+import { Key, Search, Calendar, Eye, Clock, RefreshCw, Plus, Cloud } from "lucide-react"
 import type { Database } from "@/integrations/supabase/types"
+import { syncLicenseToCloudflare } from "@/lib/cloudflare-sync"
 
 type License = Database["public"]["Tables"]["licenses"]["Row"]
 type LicenseValidation = Database["public"]["Tables"]["license_validations"]["Row"]
@@ -38,6 +39,7 @@ export default function LicenseManagement() {
   const [newExpirationDate, setNewExpirationDate] = useState("")
   const [licenseLogs, setLicenseLogs] = useState<LicenseLog[]>([])
   const [licenseValidations, setLicenseValidations] = useState<LicenseValidation[]>([])
+  const [syncingLicense, setSyncingLicense] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -159,6 +161,30 @@ export default function LicenseManagement() {
 
       if (error) throw error
 
+      // Sync to Cloudflare after extending
+      if (extendingLicense.ea_product_id) {
+        try {
+          // Get product code from product
+          const { data: product } = await supabase
+            .from("products")
+            .select("product_code, max_mt5_accounts")
+            .eq("id", extendingLicense.ea_product_id)
+            .single()
+
+          if (product?.product_code) {
+            const days = Math.ceil((new Date(newExpirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+            await syncLicenseToCloudflare({
+              product_id: product.product_code,
+              days: days,
+              max_accounts: product.max_mt5_accounts || 1,
+            })
+          }
+        } catch (syncError: any) {
+          console.error('Error syncing to Cloudflare:', syncError)
+          // Don't fail the extension if sync fails
+        }
+      }
+
       toast({
         title: "Success",
         description: "License expiration extended successfully",
@@ -172,6 +198,87 @@ export default function LicenseManagement() {
         description: error.message || "Failed to extend license",
         variant: "destructive",
       })
+    }
+  }
+
+  const handleSyncToCloudflare = async (license: LicenseWithUser) => {
+    if (!license.ea_product_id) {
+      toast({
+        title: "Error",
+        description: "License does not have a product ID",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setSyncingLicense(license.id)
+
+    try {
+      // Get product details
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .select("product_code, max_mt5_accounts")
+        .eq("id", license.ea_product_id)
+        .single()
+
+      if (productError || !product) {
+        // Try ea_products as fallback
+        const { data: eaProduct } = await supabase
+          .from("ea_products")
+          .select("product_code, max_mt5_accounts")
+          .eq("id", license.ea_product_id)
+          .single()
+
+        if (!eaProduct || !eaProduct.product_code) {
+          throw new Error("Product not found or missing product code")
+        }
+
+        const days = license.expires_at 
+          ? Math.ceil((new Date(license.expires_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+          : 365
+
+        const result = await syncLicenseToCloudflare({
+          product_id: eaProduct.product_code,
+          days: days,
+          max_accounts: eaProduct.max_mt5_accounts || 1,
+        })
+
+        if (result.success) {
+          toast({
+            title: "Success",
+            description: "License synced to Cloudflare successfully",
+          })
+        } else {
+          throw new Error(result.error || "Failed to sync license")
+        }
+      } else {
+        const days = license.expires_at 
+          ? Math.ceil((new Date(license.expires_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+          : 365
+
+        const result = await syncLicenseToCloudflare({
+          product_id: product.product_code,
+          days: days,
+          max_accounts: product.max_mt5_accounts || 1,
+        })
+
+        if (result.success) {
+          toast({
+            title: "Success",
+            description: "License synced to Cloudflare successfully",
+          })
+        } else {
+          throw new Error(result.error || "Failed to sync license")
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sync license to Cloudflare",
+        variant: "destructive",
+      })
+    } finally {
+      setSyncingLicense(null)
     }
   }
 
@@ -276,6 +383,15 @@ export default function LicenseManagement() {
                         >
                           <Clock className="h-4 w-4 mr-1" />
                           Extend
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSyncToCloudflare(license)}
+                          disabled={syncingLicense === license.id}
+                        >
+                          <Cloud className={`h-4 w-4 mr-1 ${syncingLicense === license.id ? 'animate-spin' : ''}`} />
+                          Sync
                         </Button>
                       </div>
                     </TableCell>

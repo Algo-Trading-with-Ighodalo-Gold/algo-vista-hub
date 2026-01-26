@@ -87,7 +87,7 @@ export function useAccountsData(): AccountsData {
       const licensesList = (licensesData || []).map(license => {
         const product = (license as any).products || (license as any).ea_products
         return {
-          ...license,
+        ...license,
           ea_product_name: product?.name || license.ea_product_name
         }
       }) as LicenseRow[]

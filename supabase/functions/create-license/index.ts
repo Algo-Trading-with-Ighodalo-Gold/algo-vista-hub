@@ -85,10 +85,12 @@ serve(async (req) => {
       issued_at: new Date().toISOString()
     };
 
+    // Declare eaProduct outside the if block for Cloudflare sync
+    let eaProduct: any = null;
+
     if (license_type === 'individual_ea') {
       // Get EA product details from products table (linked to Cloudflare)
       // Try products table first, fallback to ea_products for backward compatibility
-      let eaProduct = null;
       
       const { data: productFromProducts } = await serviceSupabase
         .from('products')
@@ -152,6 +154,41 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       });
+    }
+
+    // Sync license to Cloudflare if product code is available
+    if (ea_product_code && license.expires_at) {
+      try {
+        const CLOUDFLARE_WORKER_URL = Deno.env.get('CLOUDFLARE_WORKER_URL');
+        if (CLOUDFLARE_WORKER_URL) {
+          // Calculate days from expiration
+          const expiresAt = new Date(license.expires_at);
+          const days = Math.ceil((expiresAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+          
+          // Get max accounts from product
+          let maxAccounts = 1;
+          if (eaProduct) {
+            maxAccounts = eaProduct.max_mt5_accounts || eaProduct.max_concurrent_sessions || 1;
+          }
+          
+          await fetch(CLOUDFLARE_WORKER_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              product_id: ea_product_code,
+              days: days,
+              max_accounts: maxAccounts,
+            }),
+          });
+          
+          console.log(`License synced to Cloudflare for product ${ea_product_code}`);
+        }
+      } catch (cloudflareError: any) {
+        console.error('Error syncing license to Cloudflare:', cloudflareError);
+        // Don't fail the license creation if Cloudflare sync fails
+      }
     }
 
     return new Response(JSON.stringify({ 
