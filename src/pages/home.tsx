@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 
-import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle, Code, Zap, Trophy, Target, Sparkles } from "lucide-react"
+import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle, Code, Zap, Trophy, Target, Sparkles, Tag } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -19,6 +19,7 @@ import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal, FadeIn } from
 import { SplineScene } from "@/components/ui/spline-scene"
 
 import { getFeaturedEAs } from "@/data/expert-advisors"
+import { useActiveCampaigns } from "@/hooks/use-active-campaigns"
 
 
 
@@ -160,6 +161,8 @@ const stats = [
 
 
 export default function HomePage() {
+  const { campaigns: activeCampaigns } = useActiveCampaigns()
+  const hasOffers = activeCampaigns.length > 0
 
   return (
 
@@ -178,6 +181,9 @@ export default function HomePage() {
             className="w-full h-full"
           />
         </div>
+
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 w-full h-full z-[1] bg-black/40 dark:bg-black/60" />
 
         <div className="container relative py-16 lg:py-24 z-10">
 
@@ -229,6 +235,23 @@ export default function HomePage() {
                   </Button>
 
                 </MagneticButton>
+
+                {hasOffers && (
+                  <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-center text-sm">
+                    <span className="font-medium flex items-center justify-center gap-2">
+                      <Tag className="h-4 w-4" />
+                      Current offers:
+                    </span>
+                    <p className="mt-1 text-muted-foreground">
+                      {activeCampaigns.filter((c) => c.promo_code).slice(0, 3).map((c) => (
+                        <span key={c.id} className="inline-block mr-2">
+                          Use <code className="font-mono bg-muted px-1 rounded">{c.promo_code}</code>
+                          {c.discount_type === 'percentage' ? ` ${c.discount_value}% off` : ` ₦${Number(c.discount_value).toFixed(2)} off`}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                )}
 
                 <MagneticButton>
 

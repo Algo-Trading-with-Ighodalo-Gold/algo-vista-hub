@@ -68,10 +68,10 @@ export const config = {
     timeout: 30000, // 30 seconds
   },
 
-  // Payment Configuration
+  // Payment Configuration (Paystack NGN only)
   payments: {
     defaultCurrency: 'NGN',
-    supportedCurrencies: ['NGN', 'USD', 'ZAR', 'GHS', 'KES'],
+    supportedCurrencies: ['USD', 'NGN', 'ZAR', 'GHS', 'KES'],
     paystackEnabled: !!import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
   },
 
@@ -130,8 +130,8 @@ export function validateConfig(): { isValid: boolean; missingKeys: string[] } {
   }
 
   // Check payment configuration
-  if (!config.stripe.publishableKey && !config.confirmo.apiKey) {
-    missingKeys.push('VITE_STRIPE_PUBLISHABLE_KEY or VITE_CONFIRMO_API_KEY');
+  if (!config.stripe.publishableKey && !config.paystack.publicKey) {
+    missingKeys.push('VITE_STRIPE_PUBLISHABLE_KEY or VITE_PAYSTACK_PUBLIC_KEY');
   }
 
   // Check email configuration

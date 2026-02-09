@@ -307,6 +307,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_license RECORD;
+  v_rows_deleted INTEGER;
 BEGIN
   -- Verify license ownership
   SELECT * INTO v_license
@@ -325,8 +326,12 @@ BEGIN
   DELETE FROM public.license_accounts
   WHERE license_id = p_license_id
     AND account = p_account;
+  
+  -- Get the number of rows actually deleted
+  GET DIAGNOSTICS v_rows_deleted = ROW_COUNT;
 
-  IF NOT FOUND THEN
+  -- Check if any rows were deleted
+  IF v_rows_deleted = 0 THEN
     RETURN json_build_object(
       'success', false,
       'error', 'Account not found or not linked to this license'

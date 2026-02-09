@@ -22,35 +22,17 @@ import {
   Star
 } from 'lucide-react'
 
-const commissionTiers = [
-  {
-    sales: "1-10",
-    commission: "20%",
-    description: "Great starting rate for new affiliates"
-  },
-  {
-    sales: "11-25", 
-    commission: "25%",
-    description: "Increased rate for consistent performers"
-  },
-  {
-    sales: "26-50",
-    commission: "30%",
-    description: "Premium rate for top affiliates"
-  },
-  {
-    sales: "50+",
-    commission: "35%",
-    description: "Maximum rate for super affiliates"
-  }
-]
+const commissionInfo = {
+  rate: "10%",
+  description: "Flat commission rate for all affiliates"
+}
 
 const benefits = [
   {
     icon: DollarSign,
-    title: "High Commissions",
-    description: "Earn 20-35% commission on all referred sales with performance-based increases",
-    highlight: "Up to 35%"
+    title: "Competitive Commissions",
+    description: "Earn 10% commission on all referred sales - simple and straightforward",
+    highlight: "10%"
   },
   {
     icon: Calendar,
@@ -75,7 +57,7 @@ const benefits = [
 const faqs = [
   {
     question: "How much can I earn as an affiliate?",
-    answer: "Affiliates earn 20-35% commission on all sales. Top affiliates with 50+ monthly sales earn 35% commission, which can result in $3,000+ monthly earnings depending on sales volume and product mix."
+    answer: "All affiliates earn a flat 10% commission on every sale made by users they refer. With our competitive pricing and growing customer base, affiliates can earn substantial monthly income based on their referral volume."
   },
   {
     question: "When do I get paid?",
@@ -87,7 +69,7 @@ const faqs = [
   },
   {
     question: "What promotional materials do you provide?",
-    answer: "We provide banners, email templates, product images, video reviews, landing pages, and social media content. All materials are professionally designed and optimized for conversion."
+    answer: "We provide banners, email templates, product images, landing pages, and social media content. All materials are professionally designed and optimized for conversion."
   },
   {
     question: "Can I promote on social media and paid ads?",
@@ -102,9 +84,9 @@ const faqs = [
 const testimonials = [
   {
     name: "James Mitchell",
-    role: "YouTube Content Creator",
-    earnings: "$4,200",
-    content: "The conversion rates are incredible! My trading audience loves these EAs and the 35% commission rate makes it very worthwhile. Best affiliate program in the trading space.",
+    role: "Content Creator",
+    earnings: "$2,100",
+    content: "The conversion rates are incredible! My trading audience loves these EAs and the 10% commission rate is fair and consistent. Best affiliate program in the trading space.",
     period: "Last Month"
   },
   {
@@ -279,27 +261,16 @@ export default function AffiliatePage() {
                 Commission Structure
               </CardTitle>
               <CardDescription>
-                Performance-based commission tiers that reward consistent sales and growth
+                Simple, flat-rate commission structure for all affiliates
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {commissionTiers.map((tier, index) => (
-                  <Card key={index} className={`text-center hover-scale relative ${index === 3 ? 'border-primary shadow-lg' : ''}`}>
-                    {index === 3 && (
-                      <Badge className="absolute top-2 right-2 bg-primary text-xs">
-                        Best Rate
-                      </Badge>
-                    )}
-                    <CardHeader className="pb-2">
-                      <div className="text-2xl font-bold text-primary mb-2">{tier.commission}</div>
-                      <CardTitle className="text-sm">{tier.sales} Sales/Month</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-xs">{tier.description}</CardDescription>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="text-center mb-8">
+                <div className="inline-block p-8 bg-gradient-primary/10 rounded-lg border-2 border-primary">
+                  <div className="text-5xl font-bold text-primary mb-2">{commissionInfo.rate}</div>
+                  <CardTitle className="text-xl mb-2">Flat Commission Rate</CardTitle>
+                  <CardDescription className="text-base">{commissionInfo.description}</CardDescription>
+                </div>
               </div>
               
               <div className="grid md:grid-cols-3 gap-6">
@@ -307,22 +278,22 @@ export default function AffiliatePage() {
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                     <Calendar className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold">60 Days</h3>
-                  <p className="text-sm text-muted-foreground">Cookie Duration</p>
+                  <h3 className="font-semibold">Same Day</h3>
+                  <p className="text-sm text-muted-foreground">Payout Schedule</p>
                 </div>
                 <div className="text-center space-y-2">
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                     <Gift className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold">Monthly</h3>
-                  <p className="text-sm text-muted-foreground">Payout Schedule</p>
+                  <h3 className="font-semibold">10% Maximum</h3>
+                  <p className="text-sm text-muted-foreground">Commission Rate</p>
                 </div>
                 <div className="text-center space-y-2">
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                     <BarChart3 className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold">$100</h3>
-                  <p className="text-sm text-muted-foreground">Minimum Payout</p>
+                  <h3 className="font-semibold">No Minimum</h3>
+                  <p className="text-sm text-muted-foreground">Payout Threshold</p>
                 </div>
               </div>
             </CardContent>

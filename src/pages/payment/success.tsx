@@ -111,7 +111,10 @@ export default function PaymentSuccessPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Amount:</span>
-                  <span className="font-medium">₦{(paymentData.amount / 100).toLocaleString()}</span>
+                  <span className="font-medium">
+                    {paymentData.currency === 'USD' ? '$' : '₦'}
+                    {(paymentData.amount / 100).toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Status:</span>

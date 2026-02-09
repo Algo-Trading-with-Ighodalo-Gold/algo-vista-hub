@@ -5,7 +5,6 @@ import {
   BookOpen,
   Download,
   FileText,
-  Video,
   ExternalLink,
   Bookmark,
   Star,
@@ -41,37 +40,6 @@ const resourceCategories = [
         downloads: '867',
         rating: 4.7,
         description: 'Guide to setting up Virtual Private Server for trading'
-      }
-    ]
-  },
-  {
-    title: 'Video Tutorials',
-    icon: Video,
-    color: 'text-red-500',
-    resources: [
-      {
-        name: 'EA Configuration Masterclass',
-        type: 'Video',
-        duration: '45 min',
-        views: '5,234',
-        rating: 4.9,
-        description: 'Advanced EA configuration and optimization techniques'
-      },
-      {
-        name: 'Risk Management Strategies',
-        type: 'Video',
-        duration: '32 min', 
-        views: '3,891',
-        rating: 4.8,
-        description: 'Professional risk management for algorithmic trading'
-      },
-      {
-        name: 'Platform Navigation Guide',
-        type: 'Video',
-        duration: '28 min',
-        views: '2,567',
-        rating: 4.6,
-        description: 'Complete walkthrough of the trading platform interface'
       }
     ]
   },
@@ -112,8 +80,6 @@ const getResourceIcon = (type: string) => {
   switch (type) {
     case 'PDF':
       return <FileText className="h-4 w-4" />
-    case 'Video':
-      return <Video className="h-4 w-4" />
     case 'Web':
       return <ExternalLink className="h-4 w-4" />
     default:
@@ -161,16 +127,6 @@ export default function ResourcesPage() {
           <CardContent>
             <div className="text-xl font-bold text-primary">12.4k</div>
             <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-shadow hover-scale">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Video Views</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-primary">11.7k</div>
-            <p className="text-xs text-muted-foreground">Total views</p>
           </CardContent>
         </Card>
         
@@ -250,7 +206,7 @@ export default function ResourcesPage() {
                       </Button>
                       <Button size="sm" className="hover-scale">
                         <Download className="h-4 w-4 mr-2" />
-                        {resource.type === 'Video' ? 'Watch' : resource.type === 'Web' ? 'View' : 'Download'}
+                        {resource.type === 'Web' ? 'View' : 'Download'}
                       </Button>
                     </div>
                   </div>

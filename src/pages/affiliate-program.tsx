@@ -19,7 +19,7 @@ export default function AffiliateProgramPage() {
               <span className="text-gradient">Traders</span>
             </h1>
             <p className="mt-6 text-body leading-7 text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
-              Join our exclusive affiliate program and earn up to 35% commission promoting premium Expert Advisors 
+              Join our exclusive affiliate program and earn 10% commission promoting premium Expert Advisors 
               to the algorithmic trading community. High converting products with proven results.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
@@ -38,7 +38,7 @@ export default function AffiliateProgramPage() {
             <div className="mt-8 flex items-center justify-center gap-8 text-sm text-muted-foreground animate-fade-in [animation-delay:0.8s] opacity-0 [animation-fill-mode:forwards]">
               <div className="flex items-center gap-1">
                 <CheckCircle className="h-4 w-4 text-success" />
-                Up to 35% Commission
+                10% Commission Rate
               </div>
               <div className="flex items-center gap-1">
                 <CheckCircle className="h-4 w-4 text-success" />

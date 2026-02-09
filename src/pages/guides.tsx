@@ -1,4 +1,4 @@
-import { BookOpen, Download, Video, FileText, PlayCircle } from "lucide-react"
+import { BookOpen, Download, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,12 +14,12 @@ const guides = [
     downloads: "2.5k"
   },
   {
-    icon: Video,
+    icon: FileText,
     title: "EA Installation Tutorial",
-    description: "Step-by-step video guide",
-    returns: "Video",
-    duration: "12 min",
-    views: "5.1k"
+    description: "Step-by-step installation guide",
+    type: "PDF",
+    pages: "12 pages",
+    downloads: "5.1k"
   },
   {
     icon: FileText,
@@ -30,12 +30,12 @@ const guides = [
     downloads: "3.2k"
   },
   {
-    icon: PlayCircle,
+    icon: FileText,
     title: "Strategy Optimization",
     description: "How to optimize your trading strategy",
-    type: "Video",
-    duration: "28 min",
-    views: "8.7k"
+    type: "PDF",
+    pages: "28 pages",
+    downloads: "8.7k"
   }
 ]
 
@@ -75,21 +75,12 @@ export default function GuidesPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex justify-between items-center mb-4">
-                      {guide.type === 'PDF' ? (
-                        <>
-                          <Badge variant="outline">{guide.pages}</Badge>
-                          <span className="text-sm text-muted-foreground">{guide.downloads} downloads</span>
-                        </>
-                      ) : (
-                        <>
-                          <Badge variant="outline">{guide.duration}</Badge>
-                          <span className="text-sm text-muted-foreground">{guide.views} views</span>
-                        </>
-                      )}
+                      <Badge variant="outline">{guide.pages}</Badge>
+                      <span className="text-sm text-muted-foreground">{guide.downloads} downloads</span>
                     </div>
-                    <Button className="w-full" variant={guide.type === 'PDF' ? 'default' : 'outline'}>
-                      {guide.type === 'PDF' ? <Download className="h-4 w-4 mr-2" /> : <PlayCircle className="h-4 w-4 mr-2" />}
-                      {guide.type === 'PDF' ? 'Download' : 'Watch'}
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
                     </Button>
                   </CardContent>
                 </Card>

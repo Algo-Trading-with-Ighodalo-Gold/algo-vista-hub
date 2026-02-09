@@ -34,7 +34,12 @@ const pageTitle: { [key: string]: string } = {
   '/admin/ea-management': 'EA Management',
   '/admin/users': 'Users Management',
   '/admin/accounts': 'Connected Accounts',
-  '/admin/affiliates': 'Affiliates'
+  '/admin/affiliates': 'Affiliates',
+  '/admin/discounts': 'Discount Campaigns',
+  '/admin/licenses': 'Licenses',
+  '/admin/transactions': 'Transactions',
+  '/admin/subscriptions': 'Subscriptions',
+  '/admin/ea-development-projects': 'EA Development Projects'
 }
 
 export function DashboardLayout() {
@@ -63,7 +68,7 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex relative overflow-hidden">
+    <div className="h-screen max-h-screen bg-gradient-subtle flex relative overflow-hidden">
       {/* Dashboard-specific animated background */}
       <AnimatedBackground variant="geometric" className="opacity-30" />
       <FloatingBackground elementCount={8} variant="particles" className="opacity-40" />
@@ -74,9 +79,9 @@ export function DashboardLayout() {
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
       
-      <main className="flex-1 overflow-auto relative z-10 flex flex-col">
+      <main className="flex-1 min-h-0 flex flex-col relative z-10">
         {/* Top Bar */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-16 items-center justify-between px-6">
             <div className="flex items-center gap-4">
               <Button
@@ -134,8 +139,8 @@ export function DashboardLayout() {
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 p-6 w-full max-w-7xl mx-auto">
+        {/* Content Area - scrollable when content overflows */}
+        <div className="flex-1 min-h-0 overflow-auto p-6 w-full max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>

@@ -69,6 +69,7 @@ import LicenseManagementPage from "./pages/admin/licenses";
 import TransactionManagementPage from "./pages/admin/transactions";
 import SubscriptionManagementPage from "./pages/admin/subscriptions";
 import EADevelopmentProjectsPage from "./pages/admin/ea-development-projects";
+import AdminDiscountsPage from "./pages/admin/discounts";
 
 const queryClient = new QueryClient();
 
@@ -160,6 +161,7 @@ function App() {
                   <Route path="subscriptions" element={<SubscriptionManagementPage />} />
                   <Route path="affiliates" element={<AdminAffiliatesPage />} />
                   <Route path="ea-development-projects" element={<EADevelopmentProjectsPage />} />
+                  <Route path="discounts" element={<AdminDiscountsPage />} />
                 </Route>
                 <Route path="*" element={<EnhancedLayout><NotFound /></EnhancedLayout>} />
               </Routes>

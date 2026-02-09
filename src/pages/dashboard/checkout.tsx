@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
-import { ArrowLeft, Shield, Lock, Check, CreditCard } from "lucide-react"
+import { ArrowLeft, Shield, Lock, Check, CreditCard, Tag, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -33,6 +33,16 @@ export default function CheckoutPage() {
     country: "",
     agreeTerms: false
   })
+  const [promoCodeInput, setPromoCodeInput] = useState("")
+  const [promoLoading, setPromoLoading] = useState(false)
+  const [promoError, setPromoError] = useState("")
+  const [appliedCampaign, setAppliedCampaign] = useState<{
+    id: string
+    name: string
+    discount_type: "percentage" | "fixed_amount"
+    discount_value: number
+    promo_code: string | null
+  } | null>(null)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -112,12 +122,74 @@ export default function CheckoutPage() {
     return null
   }
 
-  const price = ((product.price_cents || 0) / 100).toFixed(2)
+  const priceNum = (product.price_cents || 0) / 100
+  const price = priceNum.toFixed(2)
   const features = product.key_features || []
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
+
+  const applyPromo = async () => {
+    const code = promoCodeInput.trim().toUpperCase()
+    if (!code) {
+      setPromoError("Enter a promo code")
+      return
+    }
+    setPromoError("")
+    setPromoLoading(true)
+    try {
+      const { data: campaigns, error } = await supabase
+        .from("discount_campaigns")
+        .select("id, name, discount_type, discount_value, promo_code, product_ids")
+        .eq("promo_code", code)
+        .limit(1)
+
+      if (error) throw error
+      const campaign = campaigns?.[0] as { id: string; name: string; discount_type: string; discount_value: number; promo_code: string | null; product_ids: string[] | null } | undefined
+      if (!campaign) {
+        setPromoError("Invalid or expired promo code")
+        setAppliedCampaign(null)
+        return
+      }
+      const productIds = campaign.product_ids
+      const productId = product?.id ?? product?.product_code
+      if (Array.isArray(productIds) && productIds.length > 0 && productId != null) {
+        const allowed = productIds.some((id: string) => String(id) === String(productId))
+        if (!allowed) {
+          setPromoError("This code doesn't apply to this product")
+          setAppliedCampaign(null)
+          return
+        }
+      }
+      setAppliedCampaign({
+        id: campaign.id,
+        name: campaign.name,
+        discount_type: campaign.discount_type as "percentage" | "fixed_amount",
+        discount_value: Number(campaign.discount_value),
+        promo_code: campaign.promo_code,
+      })
+    } catch (e: any) {
+      setPromoError(e.message || "Could not validate promo code")
+      setAppliedCampaign(null)
+    } finally {
+      setPromoLoading(false)
+    }
+  }
+
+  const removePromo = () => {
+    setAppliedCampaign(null)
+    setPromoCodeInput("")
+    setPromoError("")
+  }
+
+  const discountAmount = appliedCampaign
+    ? appliedCampaign.discount_type === "percentage"
+      ? priceNum * (appliedCampaign.discount_value / 100)
+      : Math.min(priceNum, appliedCampaign.discount_value)
+    : 0
+  const finalPrice = Math.max(0, priceNum - discountAmount)
+  const finalPriceStr = finalPrice.toFixed(2)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -141,7 +213,7 @@ export default function CheckoutPage() {
       }
 
       const payment = await paymentAPI.createPaystackPayment(
-        Number(price),
+        finalPrice,
         email,
         'NGN',
         {
@@ -152,20 +224,25 @@ export default function CheckoutPage() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           country: formData.country,
+          ...(appliedCampaign && {
+            discount_campaign_id: appliedCampaign.id,
+            promo_code: appliedCampaign.promo_code ?? undefined,
+          }),
         }
       )
 
-      // Redirect to Paystack payment page
-      if (payment.authorization_url) {
-        window.location.href = payment.authorization_url
-      } else {
-        throw new Error('Payment initialization failed')
+      // Redirect to payment page (force navigation so Paystack opens)
+      if (payment?.authorization_url) {
+        window.location.assign(payment.authorization_url)
+        return
       }
+      throw new Error('Payment link was not received. Please try again.')
     } catch (error: any) {
       setIsProcessing(false)
+      const message = error?.message || "Failed to initialize payment. Please try again."
       toast({
-        title: "Payment Error",
-        description: error.message || "Failed to initialize payment. Please try again.",
+        title: "Payment failed",
+        description: message,
         variant: "destructive"
       })
     }
@@ -222,10 +299,49 @@ export default function CheckoutPage() {
 
                 <Separator />
 
+                {/* Promo code */}
                 <div className="space-y-2">
+                  <Label className="text-sm">Promo code</Label>
+                  {appliedCampaign ? (
+                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-success/10 text-success text-sm">
+                      <span className="font-medium">{appliedCampaign.promo_code} applied</span>
+                      <Button type="button" variant="ghost" size="sm" onClick={removePromo} className="h-8 w-8 p-0">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g. LAUNCH20"
+                        value={promoCodeInput}
+                        onChange={(e) => { setPromoCodeInput(e.target.value); setPromoError("") }}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyPromo())}
+                        className="uppercase"
+                      />
+                      <Button type="button" variant="outline" onClick={applyPromo} disabled={promoLoading}>
+                        {promoLoading ? "..." : "Apply"}
+                      </Button>
+                    </div>
+                  )}
+                  {promoError && <p className="text-xs text-destructive">{promoError}</p>}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal</span>
+                    <span>₦{Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  {appliedCampaign && (
+                    <div className="flex justify-between text-sm text-success">
+                      <span>Discount ({appliedCampaign.promo_code})</span>
+                      <span>-₦{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-medium text-lg">
                     <span>Total</span>
-                    <span>₦{Number(price).toLocaleString()}</span>
+                    <span>₦{Number(finalPriceStr).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     One-time payment • No recurring charges
@@ -235,7 +351,7 @@ export default function CheckoutPage() {
                 <div className="mt-6 p-3 bg-success/10 rounded-lg">
                   <div className="flex items-center gap-2 text-success text-sm font-medium">
                     <Shield className="h-4 w-4" />
-                    Secure Payment via Paystack
+                    Secure Payment
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
                     Supports cards, bank transfer, USSD & mobile money
@@ -254,7 +370,7 @@ export default function CheckoutPage() {
                   Secure Checkout
                 </CardTitle>
                 <CardDescription>
-                  Complete your purchase with Paystack
+                  Complete your purchase
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -333,10 +449,10 @@ export default function CheckoutPage() {
                     <div className="flex items-center gap-3">
                       <CreditCard className="h-5 w-5 text-primary" />
                       <div>
-                        <div className="font-medium">Paystack Payment</div>
+                        <div className="font-medium">Secure Payment</div>
                         <div className="text-sm text-muted-foreground">
-                          You will be redirected to Paystack's secure payment page to complete your transaction.
-                          Paystack supports multiple payment methods including cards, bank transfers, USSD, and mobile money.
+                          You will be redirected to our secure payment page to complete your transaction.
+                          We accept cards, bank transfers, USSD, and mobile money.
                         </div>
                       </div>
                     </div>
@@ -380,7 +496,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <Lock className="h-4 w-4 mr-2" />
-                        Pay ₦{Number(price).toLocaleString()} with Paystack
+                        Pay ₦{Number(finalPriceStr).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </>
                     )}
                   </Button>

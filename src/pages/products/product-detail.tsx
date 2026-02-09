@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { ArrowRight, Star, Shield, TrendingUp, BarChart3, Target, DollarSign, Timer } from "lucide-react"
+import { ArrowRight, Star, Shield, TrendingUp, BarChart3, Target, DollarSign, Timer, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CandlestickBackground } from "@/components/ui/candlestick-background"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
+import { useActiveCampaigns } from "@/hooks/use-active-campaigns"
 import type { Database } from "@/integrations/supabase/types"
 
 import goldRushImage from "@/assets/gold-rush-ea.jpg"
@@ -50,6 +51,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth()
   const [ea, setEa] = useState<EaProduct | null>(null)
   const [loading, setLoading] = useState(true)
+  const { campaigns: activeCampaigns } = useActiveCampaigns()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -94,6 +96,13 @@ export default function ProductDetailPage() {
   const rating = Number(ea.rating ?? 5)
   const features = ea.key_features ?? []
   const price = ((ea.price_cents ?? 0) / 100).toFixed(2)
+  const productId = ea.id ?? ea.product_code
+  const campaignsForProduct = activeCampaigns.filter((c) => {
+    if (!c.promo_code) return false
+    const ids = c.product_ids
+    if (!ids || !Array.isArray(ids) || ids.length === 0) return true
+    return ids.some((id: string) => String(id) === String(productId))
+  })
 
   const handleSubscribe = () => {
     if (user) {
@@ -173,12 +182,29 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
+              {campaignsForProduct.length > 0 && (
+                <div className="rounded-lg border bg-primary/5 border-primary/20 p-3 space-y-2">
+                  <p className="text-sm font-medium flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-primary" />
+                    Current offers
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {campaignsForProduct.map((c) => (
+                      <li key={c.id}>
+                        Use code <code className="font-mono font-medium text-foreground bg-muted px-1.5 py-0.5 rounded">{c.promo_code}</code>
+                        {c.discount_type === 'percentage' ? ` for ${c.discount_value}% off` : ` for ₦${Number(c.discount_value).toFixed(2)} off`}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <Button 
                 size="lg" 
                 className="w-full lg:w-auto hover-scale" 
                 onClick={handleSubscribe}
               >
-                Subscribe & Pay with Paystack
+                Subscribe & Pay
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -294,10 +320,10 @@ export default function ProductDetailPage() {
         <div className="container text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Licenses start at {ea.price_label || `$${price}`} — automate your trading with {ea.name}.
+            Licenses start at ₦{price} — automate your trading with {ea.name}.
           </p>
           <Button size="lg" className="hover-scale" onClick={handleSubscribe}>
-            Subscribe & Pay with Paystack
+            Subscribe & Pay
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

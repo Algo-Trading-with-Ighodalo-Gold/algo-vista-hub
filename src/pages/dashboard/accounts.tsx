@@ -140,16 +140,24 @@ export default function AccountsPage() {
         p_account: account
       }) as { data: any; error: any }
 
-      if (rpcError) throw rpcError
+      if (rpcError) {
+        console.error('RPC Error:', rpcError)
+        throw rpcError
+      }
 
       const result = data as { success: boolean; error?: string; message?: string }
-      if (!result || !result.success) {
-        throw new Error(result?.error || 'Failed to remove account')
+      
+      if (!result) {
+        throw new Error('No response from server')
+      }
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to remove account')
       }
 
       toast({
         title: "Account Removed",
-        description: `MT5 account ${account} has been unlinked`,
+        description: `MT5 account ${account} has been unlinked successfully`,
       })
 
       await refetch()
@@ -157,7 +165,7 @@ export default function AccountsPage() {
       console.error('Error removing account:', error)
       toast({
         title: "Removal Failed",
-        description: error.message || "Failed to remove account. Please try again.",
+        description: error.message || error.error || "Failed to remove account. Please try again.",
         variant: "destructive"
       })
     } finally {

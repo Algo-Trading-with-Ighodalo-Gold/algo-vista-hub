@@ -27,7 +27,8 @@ import {
   Link as LinkIcon,
   Key,
   CreditCard,
-  Code
+  Code,
+  Tag
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -119,6 +120,11 @@ const adminNavigationItems = [
     title: "EA Development Projects",
     href: "/admin/ea-development-projects",
     icon: Code
+  },
+  {
+    title: "Discounts",
+    href: "/admin/discounts",
+    icon: Tag
   }
 ]
 

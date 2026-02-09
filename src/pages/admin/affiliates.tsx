@@ -316,12 +316,12 @@ export default function AdminAffiliates() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="font-medium text-lg">
-                      ${(affiliate.commission_earned || 0).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Joined: {new Date(affiliate.created_at).toLocaleDateString()}
-                    </p>
+                  <p className="font-medium text-lg">
+                    ${(affiliate.commission_earned || 0).toFixed(2)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Joined: {new Date(affiliate.created_at).toLocaleDateString()}
+                  </p>
                   </div>
                   <div className="flex gap-2">
                     <Button

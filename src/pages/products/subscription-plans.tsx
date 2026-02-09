@@ -117,9 +117,9 @@ const plans = [
 const paymentMethods = [
   {
     id: "paystack",
-    name: "Paystack",
+    name: "Card / Bank Transfer",
     icon: CreditCard,
-    description: "Secure payment via Paystack - Cards, Bank Transfer, USSD & More"
+    description: "Secure payment - Cards, Bank Transfer, USSD & More"
   }
 ]
 
@@ -292,7 +292,7 @@ export default function SubscriptionPlansPage() {
                 <div className="px-6 pb-6">
                   <div className="text-center mb-6">
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold">${getPrice(plan)}</span>
+                      <span className="text-4xl font-bold">₦{getPrice(plan)}</span>
                       <span className="text-muted-foreground">
                         {billingPeriod === 'yearly' ? '/year' : '/month'}
                       </span>

@@ -5,9 +5,6 @@ const footerLinks = {
   company: [
     { name: "About Us", href: "/about" },
     { name: "Our Story", href: "/story" },
-    { name: "Team", href: "/team" },
-    { name: "Careers", href: "/careers" },
-    { name: "Press Kit", href: "/press" },
   ],
   product: [
     { name: "Expert Advisors", href: "/products" },
@@ -22,11 +19,6 @@ const footerLinks = {
     { name: "Community Forum", href: "https://t.me/AlgotradingwithIghodalo", external: true },
   ],
   resources: [
-    { name: "Trading Guides", href: "/guides" },
-    { name: "Market Analysis", href: "/analysis" },
-    { name: "Educational Videos", href: "/videos" },
-    { name: "Webinars", href: "/webinars" },
-    { name: "Blog", href: "/blog" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy" },
@@ -59,7 +51,7 @@ export function Footer() {
       
       <div className="container relative py-20">
         {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           
           {/* Brand section */}
           <div className="col-span-1 md:col-span-2 lg:col-span-2">
@@ -161,22 +153,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources Links */}
-          <div className="col-span-1">
-            <h3 className="font-semibold text-sm mb-6 text-foreground">Resources</h3>
-            <ul className="space-y-4">
-              {footerLinks.resources.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 hover:underline"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         {/* Legal links */}

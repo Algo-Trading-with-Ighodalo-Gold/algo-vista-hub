@@ -36,7 +36,17 @@ serve(async (req) => {
       );
     }
 
-    const { amount, email, currency = 'NGN', metadata, reference } = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    const { amount, email, currency = 'NGN', metadata, reference } = requestBody;
 
     if (!amount || !email) {
       return new Response(
@@ -57,6 +67,14 @@ serve(async (req) => {
     const paymentReference = reference || `PAYSTACK_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     // Initialize Paystack transaction
+    // Amount from client is in major units (e.g. Naira); Paystack expects minor units (kobo for NGN)
+    const amountInMinorUnits = Math.round(amount * 100);
+    if (amountInMinorUnits < 100) {
+      return new Response(
+        JSON.stringify({ error: 'Minimum payment amount is ₦1.00 (100 kobo).' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
     const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
       headers: {
@@ -64,7 +82,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: Math.round(amount * 100), // Convert to kobo
+        amount: amountInMinorUnits,
         email,
         currency,
         reference: paymentReference,
@@ -145,8 +163,13 @@ serve(async (req) => {
     );
   } catch (error: any) {
     console.error('Error initializing Paystack payment:', error);
+    const errorMessage = error?.message || error?.toString() || 'Internal server error';
+    console.error('Full error details:', JSON.stringify(error, null, 2));
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ 
+        error: errorMessage,
+        details: error?.stack || 'No additional details available'
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }

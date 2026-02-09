@@ -49,20 +49,22 @@ class PaystackService {
     this.config = config;
   }
 
-  // Initialize Paystack payment
+  // Initialize Paystack payment (uses Supabase Edge Function)
   async initializeTransaction(
     amount: number,
     email: string,
-    currency: string = 'NGN',
+    currency: string = 'USD',
     metadata: Record<string, any> = {},
     reference?: string
   ): Promise<PaystackTransaction> {
     try {
       const { supabase } = await import('@/integrations/supabase/client');
+      const { config } = await import('@/lib/config');
+      const { FunctionsHttpError } = await import('@supabase/supabase-js');
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error('Authentication required');
+
+      if (!session?.access_token) {
+        throw new Error('Please log in to continue with payment.');
       }
 
       const { data, error } = await supabase.functions.invoke('paystack-initialize', {
@@ -73,14 +75,49 @@ class PaystackService {
           metadata,
           reference: reference || `PAYSTACK_${Date.now()}_${Math.random().toString(36).substring(7)}`,
         },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: config.supabase.anonKey,
+        },
       });
 
       if (error) {
-        throw new Error(error.message || 'Failed to initialize transaction');
+        let msg = error.message || 'Payment could not be started.';
+        const isHttpError = error.name === 'FunctionsHttpError' || error instanceof FunctionsHttpError;
+        if (isHttpError && error.context && typeof (error.context as Response).json === 'function') {
+          try {
+            const body = await (error.context as Response).json();
+            if (body && typeof body === 'object' && typeof body.error === 'string') {
+              msg = body.error;
+            }
+          } catch (_) {
+            /* use default msg */
+          }
+        } else if (data && typeof data === 'object' && data !== null && 'error' in data) {
+          const bodyError = (data as { error?: string }).error;
+          if (typeof bodyError === 'string') msg = bodyError;
+        }
+        if (/currency not supported|not supported by merchant/i.test(msg)) {
+          msg = 'USD payments are not enabled on this account yet. The merchant needs to enable USD in Paystack Dashboard (Settings → Payout Accounts). Please try again later or contact support.';
+        }
+        throw new Error(msg);
       }
 
-      if (!data) {
-        throw new Error('Empty response from server');
+      if (!data || typeof data !== 'object') {
+        throw new Error('Payment could not be started. Please try again.');
+      }
+      const serverError = (data as { error?: string }).error;
+      if (serverError) {
+        let errMsg = typeof serverError === 'string' ? serverError : 'Payment could not be started.';
+        if (/currency not supported|not supported by merchant/i.test(errMsg)) {
+          errMsg = 'USD payments are not enabled on this account yet. The merchant needs to enable USD in Paystack Dashboard (Settings → Payout Accounts). Please try again later or contact support.';
+        }
+        throw new Error(errMsg);
+      }
+
+      const url = (data as PaystackTransaction).authorization_url;
+      if (!url || typeof url !== 'string' || !/^https:\/\/[^/]*paystack\.com\//i.test(url)) {
+        throw new Error('Payment link was invalid. Please try again.');
       }
 
       return data as PaystackTransaction;
@@ -94,9 +131,15 @@ class PaystackService {
   async verifyTransaction(reference: string): Promise<PaystackTransaction> {
     try {
       const { supabase } = await import('@/integrations/supabase/client');
+      const { config } = await import('@/lib/config');
+      const { data: { session } } = await supabase.auth.getSession();
 
       const { data, error } = await supabase.functions.invoke('paystack-verify', {
         body: { reference },
+        headers: {
+          ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+          apikey: config.supabase.anonKey,
+        },
       });
 
       if (error) {

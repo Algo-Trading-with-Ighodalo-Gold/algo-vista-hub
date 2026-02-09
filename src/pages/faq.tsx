@@ -60,7 +60,7 @@ const faqCategories = [
     faqs: [
       {
         question: "How do I install an EA on MT4/MT5?",
-        answer: "1. Download the EA file from your dashboard 2. Copy it to your MetaTrader's 'Experts' folder 3. Restart MT4/MT5 4. Drag the EA onto your chart 5. Configure settings and enable live trading. Detailed video guides are available in your account."
+        answer: "1. Download the EA file from your dashboard 2. Copy it to your MetaTrader's 'Experts' folder 3. Restart MT4/MT5 4. Drag the EA onto your chart 5. Configure settings and enable live trading. Detailed installation guides are available in your account."
       },
       {
         question: "Why is my EA not placing trades?",

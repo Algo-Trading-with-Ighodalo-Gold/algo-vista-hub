@@ -143,7 +143,10 @@ export default function ProductsPage() {
           ) : (
           <StaggerContainer className="responsive-grid-3 gap-8">
             {displayedProducts.map((ea, index) => {
-              const imageSrc = imageMap[ea.image_key || ""] || goldRushImage
+              // Use uploaded image from Supabase storage if available, otherwise fallback to imageMap
+              const imageSrc = ea.image_key 
+                ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/${ea.image_key}`
+                : (imageMap[ea.product_code?.toLowerCase() || ""] || imageMap[ea.image_key || ""] || goldRushImage)
               const ratingValue = Number(ea.rating ?? 5)
               const tradingPairsDisplay = ea.trading_pairs?.split(",")[0]?.trim() || "Various"
               const timeframeDisplay = ea.timeframes?.split(",")[0]?.trim() || "Multiple"

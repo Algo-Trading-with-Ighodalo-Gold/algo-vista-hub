@@ -15,29 +15,45 @@
    - **Test Mode**: Use test keys during development
    - **Live Mode**: Use live keys for production
 
-### 2. Add Keys to Environment Variables
+### 2. Configure Paystack Keys
 
-Add these to your `.env.local` file:
+#### For Supabase Edge Functions (Backend)
+
+Set the secret key as a Supabase secret:
+
+```bash
+supabase secrets set PAYSTACK_SECRET_KEY="sk_live_your_secret_key_here"
+```
+
+**✅ Already Configured**: The live secret key has been set in Supabase secrets.
+
+#### For Frontend (Optional)
+
+If you need the public key in the frontend, add to `.env.local`:
 
 ```env
-# Paystack Configuration
-VITE_PAYSTACK_PUBLIC_KEY=pk_test_your_public_key_here
-VITE_PAYSTACK_SECRET_KEY=sk_test_your_secret_key_here
-VITE_PAYSTACK_WEBHOOK_SECRET=your_webhook_secret_here
+# Paystack Configuration (Optional - not required for current setup)
+VITE_PAYSTACK_PUBLIC_KEY=pk_live_8c21a0d274802594a8e6693c47fd93522e1365c9
 ```
+
+> **Note**: The current implementation processes payments through Supabase Edge Functions, so the public key is not required in the frontend.
 
 ### 3. Set Up Webhooks (Important!)
 
 1. **In Paystack Dashboard**
    - Go to **Settings** → **Webhooks**
-   - Click **Add Webhook**
-   - Webhook URL: `https://yourdomain.com/api/payments/paystack/webhook`
+   - Click **Add Webhook** or edit existing
+   - **Webhook URL**: `https://vvgtmfmvisxhivmldrhd.supabase.co/functions/v1/paystack-webhook`
    - Select events:
-     - `charge.success`
-     - `subscription.create`
-     - `subscription.disable`
-     - `subscription.enable`
-   - Copy the **Webhook Secret** and add to `.env.local`
+     - ✅ `charge.success` (Required - for license creation)
+     - `charge.failed` (Optional - for failed payment tracking)
+     - `subscription.create` (If using subscriptions)
+     - `subscription.disable` (If using subscriptions)
+   - Save the webhook
+   - Copy the **Webhook Secret** (if provided) and set it:
+     ```bash
+     supabase secrets set PAYSTACK_WEBHOOK_SECRET="your_webhook_secret_here"
+     ```
 
 ### 4. Test Your Integration
 

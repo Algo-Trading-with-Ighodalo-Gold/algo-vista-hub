@@ -2,7 +2,6 @@
 // This service provides high-level payment operations for the platform
 
 import { stripeService } from '@/lib/payments/stripe';
-import { confirmoService } from '@/lib/payments/confirmo';
 import { paystackService } from '@/lib/payments/paystack';
 
 export interface PaymentIntent {
@@ -23,7 +22,7 @@ export interface ProcessedPayment {
   amount: number;
   currency: string;
   status: 'success' | 'failed' | 'pending';
-  paymentMethod: 'stripe' | 'confirmo' | 'paystack';
+  paymentMethod: 'stripe' | 'paystack';
   transactionId: string;
   licenseKey?: string;
   timestamp: string;
@@ -44,35 +43,12 @@ export class PaymentAPI {
     }
   }
 
-  // Create Confirmo payment
-  async createConfirmoPayment(
-    amount: number,
-    currency: string = 'USD',
-    description: string,
-    customerEmail: string,
-    customerName: string,
-    metadata: Record<string, string> = {}
-  ) {
-    try {
-      return await confirmoService.createPayment(
-        amount,
-        currency,
-        description,
-        customerEmail,
-        customerName,
-        metadata
-      );
-    } catch (error) {
-      console.error('Error creating Confirmo payment:', error);
-      throw error;
-    }
-  }
 
   // Create Paystack payment
   async createPaystackPayment(
     amount: number,
     email: string,
-    currency: string = 'NGN',
+    currency: string = 'USD',
     metadata: Record<string, any> = {},
     reference?: string
   ) {
@@ -101,7 +77,7 @@ export class PaymentAPI {
     productId: string,
     amount: number,
     currency: string,
-    paymentMethod: 'stripe' | 'confirmo' | 'paystack'
+    paymentMethod: 'stripe' | 'paystack'
   ): Promise<ProcessedPayment> {
     try {
       // Validate payment
@@ -110,8 +86,6 @@ export class PaymentAPI {
         payment = await stripeService.getPaymentIntentStatus(paymentIntentId);
       } else if (paymentMethod === 'paystack') {
         payment = await paystackService.verifyTransaction(paymentIntentId);
-      } else {
-        payment = await confirmoService.getPaymentStatus(paymentIntentId);
       }
 
       if (paymentMethod === 'paystack') {
@@ -155,7 +129,7 @@ export class PaymentAPI {
     productId: string,
     priceId: string,
     billingCycle: 'monthly' | 'yearly' = 'monthly',
-    paymentMethod: 'stripe' | 'confirmo' | 'paystack' = 'paystack',
+    paymentMethod: 'stripe' | 'paystack' = 'paystack',
     metadata: Record<string, any> = {}
   ) {
     try {
@@ -172,17 +146,6 @@ export class PaymentAPI {
         const plan = await paystackService.createPlan(planName, amount, interval, 'NGN');
         
         return await paystackService.createSubscription(customerId, plan.id, undefined, metadata);
-      } else {
-        // For Confirmo, we need to calculate the amount
-        const amount = this.getSubscriptionAmount(productId, billingCycle);
-        return await confirmoService.createSubscription(
-          customerId,
-          productId,
-          amount,
-          'USD',
-          billingCycle,
-          metadata
-        );
       }
     } catch (error) {
       console.error('Error creating subscription:', error);
@@ -193,7 +156,7 @@ export class PaymentAPI {
   // Cancel subscription
   async cancelSubscription(
     subscriptionId: string,
-    paymentMethod: 'stripe' | 'confirmo' | 'paystack',
+    paymentMethod: 'stripe' | 'paystack',
     immediately: boolean = false
   ) {
     try {
@@ -201,8 +164,6 @@ export class PaymentAPI {
         return await stripeService.cancelSubscription(subscriptionId, immediately);
       } else if (paymentMethod === 'paystack') {
         return await paystackService.cancelSubscription(subscriptionId);
-      } else {
-        return await confirmoService.cancelSubscription(subscriptionId, immediately);
       }
     } catch (error) {
       console.error('Error canceling subscription:', error);
@@ -211,14 +172,12 @@ export class PaymentAPI {
   }
 
   // Get subscription details
-  async getSubscription(subscriptionId: string, paymentMethod: 'stripe' | 'confirmo' | 'paystack') {
+  async getSubscription(subscriptionId: string, paymentMethod: 'stripe' | 'paystack') {
     try {
       if (paymentMethod === 'stripe') {
         return await stripeService.getSubscription(subscriptionId);
       } else if (paymentMethod === 'paystack') {
         return await paystackService.getSubscription(subscriptionId);
-      } else {
-        return await confirmoService.getSubscription(subscriptionId);
       }
     } catch (error) {
       console.error('Error getting subscription:', error);
@@ -230,7 +189,7 @@ export class PaymentAPI {
   async getOrCreateCustomer(
     email: string,
     name: string,
-    paymentMethod: 'stripe' | 'confirmo' | 'paystack' = 'paystack',
+    paymentMethod: 'stripe' | 'paystack' = 'paystack',
     metadata: Record<string, any> = {},
     phone?: string
   ) {
@@ -242,16 +201,6 @@ export class PaymentAPI {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
         return await paystackService.getOrCreateCustomer(email, firstName, lastName, phone, metadata);
-      } else {
-        // First try to get existing customer
-        let customer = await confirmoService.getCustomer(email);
-        
-        // If not found, create a new one
-        if (!customer) {
-          customer = await confirmoService.createCustomer(email, name, metadata);
-        }
-        
-        return customer;
       }
     } catch (error) {
       console.error('Error getting or creating customer:', error);

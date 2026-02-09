@@ -16,9 +16,9 @@ import { useAuth } from "@/contexts/auth-context"
 const paymentMethods = [
   {
     id: "paystack",
-    name: "Paystack",
+    name: "Card / Bank Transfer",
     icon: CreditCard,
-    description: "Secure payment via Paystack - Cards, Bank Transfer, USSD & More"
+    description: "Secure payment - Cards, Bank Transfer, USSD & More"
   },
 ]
 
@@ -103,7 +103,7 @@ export default function PaymentPage() {
       const payment = await paymentAPI.createPaystackPayment(
         planData.price,
         email,
-        'NGN', // Default currency
+        'NGN',
         {
           eaId: planData.eaId,
           eaName: planData.eaName,
@@ -117,16 +117,18 @@ export default function PaymentPage() {
       )
 
       // Redirect to Paystack payment page
-      if (payment.authorization_url) {
-        window.location.href = payment.authorization_url
-      } else {
+      if (payment?.authorization_url) {
+        window.location.assign(payment.authorization_url)
+        return
+      }
+      if (!payment?.authorization_url) {
         throw new Error('Payment initialization failed')
       }
     } catch (error: any) {
       setIsProcessing(false)
       toast({
-        title: "Payment Error",
-        description: error.message || "Failed to initialize payment. Please try again.",
+        title: "Payment failed",
+        description: error?.message || "Failed to initialize payment. Please try again.",
         variant: "destructive"
       })
     }
@@ -205,7 +207,7 @@ export default function PaymentPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between font-medium text-lg">
                     <span>{planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription</span>
-                    <span>${planData.price}</span>
+                    <span>₦{planData.price}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Recurring {planData.billingPeriod} • Cancel anytime
@@ -337,11 +339,10 @@ export default function PaymentPage() {
                     </RadioGroup>
                   </div>
 
-                  {/* Payment will be processed via Paystack */}
                   <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">
-                      You will be redirected to Paystack's secure payment page to complete your transaction. 
-                      Paystack supports multiple payment methods including cards, bank transfers, and mobile money.
+                      You will be redirected to our secure payment page to complete your transaction.
+                      We accept cards, bank transfers, and mobile money.
                     </p>
                   </div>
 
@@ -384,7 +385,7 @@ export default function PaymentPage() {
                     ) : (
                       <>
                         <Lock className="h-4 w-4 mr-2" />
-                        Start Subscription - ${planData.price}/{planData.billingPeriod === 'yearly' ? 'year' : 'month'}
+                        Start Subscription - ₦{planData.price}/{planData.billingPeriod === 'yearly' ? 'year' : 'month'}
                       </>
                     )}
                   </Button>

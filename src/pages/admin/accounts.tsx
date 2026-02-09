@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Activity, Package, TrendingUp, RefreshCw, Eye, Unlink } from "lucide-react"
+import { Activity, Package, TrendingUp, RefreshCw, Eye, Unlink, CalendarPlus } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { Database } from "@/integrations/supabase/types"
@@ -43,6 +45,8 @@ export default function AdminAccounts() {
   const [isLogsDialogOpen, setIsLogsDialogOpen] = useState(false)
   const [accountActivities, setAccountActivities] = useState<AccountActivity[]>([])
   const [unlinkingAccount, setUnlinkingAccount] = useState<AccountWithLicense | null>(null)
+  const [extendingLicense, setExtendingLicense] = useState<{ licenseId: string; account: AccountWithLicense } | null>(null)
+  const [newExpiryDate, setNewExpiryDate] = useState<string>("")
   const { toast } = useToast()
 
   useEffect(() => {
@@ -270,6 +274,48 @@ export default function AdminAccounts() {
     }
   }
 
+  const handleExtendLicense = async () => {
+    if (!extendingLicense) return
+
+    try {
+      const { data, error: rpcError } = await supabase.rpc('extend_license_expiry' as any, {
+        p_license_id: extendingLicense.licenseId,
+        p_new_expiry_date: new Date(newExpiryDate).toISOString()
+      }) as { data: any; error: any }
+
+      if (rpcError) {
+        console.error('RPC Error:', rpcError)
+        throw rpcError
+      }
+
+      const result = data as { success: boolean; error?: string; message?: string }
+      
+      if (!result) {
+        throw new Error('No response from server')
+      }
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to extend license')
+      }
+
+      toast({
+        title: "License Extended!",
+        description: `License expiry date has been updated to ${new Date(newExpiryDate).toLocaleDateString()}`,
+      })
+
+      setExtendingLicense(null)
+      setNewExpiryDate("")
+      fetchData()
+    } catch (error: any) {
+      console.error('Error extending license:', error)
+      toast({
+        title: "Extension Failed",
+        description: error.message || error.error || "Failed to extend license. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -442,6 +488,11 @@ export default function AdminAccounts() {
                           <p className="text-xs text-muted-foreground">
                             User: {account.license.user_id?.substring(0, 8)}...
                           </p>
+                          {account.license.expires_at && (
+                            <p className="text-xs text-muted-foreground">
+                              Expires: {new Date(account.license.expires_at).toLocaleDateString()}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -459,6 +510,29 @@ export default function AdminAccounts() {
                       </p>
                       </div>
                       <div className="flex gap-2">
+                        {account.license && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (account.license_id) {
+                                const defaultDate = account.license.expires_at 
+                                  ? new Date(account.license.expires_at)
+                                  : new Date()
+                                if (defaultDate <= new Date()) {
+                                  defaultDate.setFullYear(defaultDate.getFullYear() + 1)
+                                } else {
+                                  defaultDate.setFullYear(defaultDate.getFullYear() + 1)
+                                }
+                                setNewExpiryDate(defaultDate.toISOString().split('T')[0])
+                                setExtendingLicense({ licenseId: account.license_id, account })
+                              }
+                            }}
+                            title="Extend License"
+                          >
+                            <CalendarPlus className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -551,6 +625,59 @@ export default function AdminAccounts() {
               <p className="text-center text-muted-foreground py-8">No activity logs found</p>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Extend License Dialog */}
+      <Dialog open={!!extendingLicense} onOpenChange={(open) => !open && setExtendingLicense(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Extend License</DialogTitle>
+            <DialogDescription>
+              Set a new expiration date for the license associated with account {extendingLicense?.account.account}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {extendingLicense?.account.license?.expires_at && (
+              <div className="p-3 bg-muted rounded-lg">
+                <Label className="text-xs text-muted-foreground">Current Expiration</Label>
+                <p className="text-sm font-medium">
+                  {new Date(extendingLicense.account.license.expires_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="expiry-date">New Expiration Date</Label>
+              <Input
+                id="expiry-date"
+                type="date"
+                value={newExpiryDate}
+                onChange={(e) => setNewExpiryDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+              <p className="text-xs text-muted-foreground">
+                Select a date in the future. The license will expire on this date.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setExtendingLicense(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleExtendLicense}
+              disabled={!newExpiryDate || new Date(newExpiryDate) <= new Date()}
+            >
+              Extend License
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

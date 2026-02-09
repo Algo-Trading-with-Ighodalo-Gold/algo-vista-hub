@@ -34,11 +34,36 @@ interface EnhancedAffiliateTrackingProps {
   loading: boolean
 }
 
+interface ReferredUser {
+  user_id: string
+  first_name: string | null
+  last_name: string | null
+  created_at: string
+}
+
+interface ReferralCommission {
+  id: string
+  referred_user_id: string
+  transaction_id: string | null
+  product_name: string | null
+  purchase_amount: number
+  commission_rate: number
+  commission_amount: number
+  status: string
+  created_at: string
+}
+
 interface AffiliateStats {
   totalClicks: number
   totalConversions: number
   totalEarnings: number
+  totalReferredUsers: number
+  totalSales: number
+  totalCommissions: number
+  pendingCommissions: number
   recentClicks: ReferralClick[]
+  referredUsers: ReferredUser[]
+  commissions: ReferralCommission[]
 }
 
 export function EnhancedAffiliateTracking({ affiliate, loading }: EnhancedAffiliateTrackingProps) {
@@ -48,7 +73,13 @@ export function EnhancedAffiliateTracking({ affiliate, loading }: EnhancedAffili
     totalClicks: 0,
     totalConversions: 0,
     totalEarnings: 0,
-    recentClicks: []
+    totalReferredUsers: 0,
+    totalSales: 0,
+    totalCommissions: 0,
+    pendingCommissions: 0,
+    recentClicks: [],
+    referredUsers: [],
+    commissions: []
   })
   const [statsLoading, setStatsLoading] = useState(false)
 
@@ -63,23 +94,59 @@ export function EnhancedAffiliateTracking({ affiliate, loading }: EnhancedAffili
     
     setStatsLoading(true)
     try {
-      const { data: clicks, error } = await supabase
+      // Fetch referral clicks
+      const { data: clicks, error: clicksError } = await supabase
         .from('referral_clicks')
         .select('*')
         .eq('referrer_user_id', user.id)
         .order('clicked_at', { ascending: false })
         .limit(10)
 
-      if (error) throw error
+      if (clicksError) throw clicksError
+
+      // Fetch referred users (profiles where referred_by = user.id)
+      const { data: referredUsers, error: usersError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, created_at')
+        .eq('referred_by', user.id)
+        .order('created_at', { ascending: false })
+
+      if (usersError) {
+        console.error('Error fetching referred users:', usersError)
+        // Continue even if this fails
+      }
+
+      // Fetch referral commissions (purchases made by referred users)
+      const { data: commissions, error: commissionsError } = await supabase
+        .from('referral_commissions')
+        .select('*')
+        .eq('referrer_user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (commissionsError) {
+        console.error('Error fetching commissions:', commissionsError)
+        // Continue even if this fails
+      }
 
       const totalClicks = clicks?.length || 0
       const totalConversions = clicks?.filter(click => click.converted).length || 0
+      const totalReferredUsers = referredUsers?.length || 0
+      const totalSales = commissions?.length || 0
+      const totalCommissions = commissions?.reduce((sum, c) => sum + (c.commission_amount || 0), 0) || 0
+      const pendingCommissions = commissions?.filter(c => c.status === 'pending').reduce((sum, c) => sum + (c.commission_amount || 0), 0) || 0
       
       setStats({
         totalClicks,
         totalConversions,
         totalEarnings: affiliate?.commission_earned || 0,
-        recentClicks: clicks || []
+        totalReferredUsers,
+        totalSales,
+        totalCommissions,
+        pendingCommissions,
+        recentClicks: clicks || [],
+        referredUsers: referredUsers || [],
+        commissions: commissions || []
       })
     } catch (error) {
       console.error('Error fetching affiliate stats:', error)
@@ -189,7 +256,7 @@ export function EnhancedAffiliateTracking({ affiliate, loading }: EnhancedAffili
         ) : (
           <div className="space-y-6">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="border rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <MousePointer className="h-4 w-4 text-primary" />
@@ -202,22 +269,38 @@ export function EnhancedAffiliateTracking({ affiliate, loading }: EnhancedAffili
               
               <div className="border rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Target className="h-4 w-4 text-success" />
-                  <span className="text-sm font-medium">Conversions</span>
+                  <Users className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm font-medium">Referred Users</span>
                 </div>
-                <div className="text-2xl font-bold text-success">
-                  {statsLoading ? '...' : stats.totalConversions}
+                <div className="text-2xl font-bold text-blue-500">
+                  {statsLoading ? '...' : stats.totalReferredUsers}
                 </div>
               </div>
               
               <div className="border rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
+                  <Target className="h-4 w-4 text-success" />
+                  <span className="text-sm font-medium">Total Sales</span>
+                </div>
+                <div className="text-2xl font-bold text-success">
+                  {statsLoading ? '...' : stats.totalSales}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Purchases made</p>
+              </div>
+              
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-medium">Earnings</span>
+                  <span className="text-sm font-medium">Total Earnings</span>
                 </div>
                 <div className="text-2xl font-bold text-accent">
-                  ${(affiliate.commission_earned || 0).toFixed(2)}
+                  ₦{(stats.totalCommissions || affiliate?.commission_earned || 0).toFixed(2)}
                 </div>
+                {stats.pendingCommissions > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ₦{stats.pendingCommissions.toFixed(2)} pending
+                  </p>
+                )}
               </div>
             </div>
 
@@ -272,10 +355,75 @@ export function EnhancedAffiliateTracking({ affiliate, loading }: EnhancedAffili
               </Button>
             </div>
 
+            {/* Commissions/Purchases */}
+            {stats.commissions.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Recent Purchases & Commissions ({stats.commissions.length})</h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {stats.commissions.map((commission) => (
+                    <div key={commission.id} className="flex items-center justify-between text-xs p-3 bg-muted rounded border">
+                      <div className="flex-1">
+                        <div className="font-medium">{commission.product_name || 'Product Purchase'}</div>
+                        <div className="text-muted-foreground mt-1">
+                          Purchase: ₦{commission.purchase_amount?.toFixed(2) || '0.00'} • 
+                          Commission: {commission.commission_rate}% = ₦{commission.commission_amount?.toFixed(2) || '0.00'}
+                        </div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <Badge 
+                          variant={
+                            commission.status === 'paid' ? 'default' : 
+                            commission.status === 'approved' ? 'secondary' : 
+                            'outline'
+                          }
+                          className="text-xs mb-1"
+                        >
+                          {commission.status}
+                        </Badge>
+                        <div className="text-muted-foreground text-xs mt-1">
+                          {new Date(commission.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Referred Users */}
+            {stats.referredUsers.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Referred Users ({stats.referredUsers.length})</h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {stats.referredUsers.map((referredUser) => {
+                    const hasPurchase = stats.commissions.some(c => c.referred_user_id === referredUser.user_id);
+                    return (
+                      <div key={referredUser.user_id} className="flex items-center justify-between text-xs p-2 bg-muted rounded">
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {referredUser.first_name || referredUser.last_name 
+                              ? `${referredUser.first_name || ''} ${referredUser.last_name || ''}`.trim()
+                              : `User ${referredUser.user_id.substring(0, 8)}`
+                            }
+                          </span>
+                          {hasPurchase && (
+                            <Badge variant="outline" className="text-xs">Purchased</Badge>
+                          )}
+                        </div>
+                        <span className="text-muted-foreground">
+                          {new Date(referredUser.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Recent Activity */}
             {stats.recentClicks.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium">Recent Referral Activity</h4>
+                <h4 className="text-sm font-medium">Recent Referral Clicks</h4>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {stats.recentClicks.map((click) => (
                     <div key={click.id} className="flex items-center justify-between text-xs p-2 bg-muted rounded">

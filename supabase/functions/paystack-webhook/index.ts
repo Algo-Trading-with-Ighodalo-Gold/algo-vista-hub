@@ -85,6 +85,40 @@ serve(async (req) => {
         console.log('Could not update transaction in database:', error);
       }
 
+      // If payment used a discount campaign, increment redemption_count and optionally award campaign affiliate
+      const discountCampaignId = transaction.metadata?.discount_campaign_id;
+      if (discountCampaignId) {
+        try {
+          const { data: campaign } = await serviceSupabase.from('discount_campaigns').select('redemption_count, affiliate_id').eq('id', discountCampaignId).single();
+          if (campaign) {
+            await serviceSupabase.from('discount_campaigns').update({
+              redemption_count: (campaign.redemption_count || 0) + 1,
+              updated_at: new Date().toISOString(),
+            }).eq('id', discountCampaignId);
+            if (campaign.affiliate_id) {
+              const { data: aff } = await serviceSupabase.from('affiliates').select('user_id').eq('id', campaign.affiliate_id).single();
+              if (aff?.user_id) {
+                const purchaseAmount = transaction.amount / 100;
+                try {
+                  await serviceSupabase.rpc('award_referral_commission', {
+                    referred_user_id_param: userId,
+                    transaction_id_param: reference,
+                    product_id_param: productId || userId,
+                    product_name_param: transaction.metadata?.productName || 'Purchase',
+                    purchase_amount_param: purchaseAmount,
+                    referrer_user_id_override: aff.user_id,
+                  });
+                } catch (e) {
+                  console.error('Error awarding campaign affiliate commission:', e);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.log('Discount campaign follow-up failed:', e);
+        }
+      }
+
       // Create license if product is specified
       if (productId || productCode) {
         try {
@@ -148,6 +182,31 @@ serve(async (req) => {
             }).select().single();
 
             console.log(`License created for user ${userId}, product ${product.name}`);
+
+            // Award referral commission if user was referred
+            try {
+              const purchaseAmount = transaction.amount / 100; // Convert from kobo/cents to base currency
+              const { data: commissionData, error: commissionError } = await serviceSupabase.rpc(
+                'award_referral_commission',
+                {
+                  referred_user_id_param: userId,
+                  transaction_id_param: reference,
+                  product_id_param: product.id || product.product_code || String(product.id),
+                  product_name_param: product.name,
+                  purchase_amount_param: purchaseAmount
+                }
+              );
+
+              if (commissionError) {
+                console.error('Error awarding referral commission:', commissionError);
+                // Don't fail the webhook if commission awarding fails
+              } else if (commissionData) {
+                console.log(`Commission awarded: ${commissionData} for purchase ${reference}`);
+              }
+            } catch (commissionError: any) {
+              console.error('Error processing referral commission:', commissionError);
+              // Don't fail the webhook if commission processing fails
+            }
 
             // Sync license to Cloudflare
             if (createdLicense && product.product_code) {

@@ -59,23 +59,12 @@ export class UserAPI {
     referral_code?: string
   }): Promise<ApiResponse<UserProfile>> {
     try {
-      // If referral code provided, link it via RPC function
-      if (profileData.referral_code) {
-        const { error: referralError } = await supabase.rpc('link_referral_on_signup', {
-          new_user_id: userId,
-          referral_code_param: profileData.referral_code
-        })
-        
-        if (referralError) {
-          console.error('Failed to link referral:', referralError)
-          // Continue with profile creation even if referral linking fails
-        }
-      }
-
+      // First, create the profile
       const { data, error } = await supabase
         .from('profiles')
         .insert({
           id: userId,
+          user_id: userId,
           first_name: sanitizeString(profileData.first_name),
           last_name: sanitizeString(profileData.last_name),
           subscription_status: 'free',
@@ -86,6 +75,21 @@ export class UserAPI {
         .single()
 
       if (error) throw error
+
+      // AFTER profile is created, link referral if provided
+      if (profileData.referral_code && data) {
+        const { error: referralError } = await supabase.rpc('link_referral_on_signup', {
+          new_user_id: userId,
+          referral_code_param: profileData.referral_code
+        })
+        
+        if (referralError) {
+          console.error('Failed to link referral:', referralError)
+          // Don't fail profile creation if referral linking fails, but log it
+        } else {
+          console.log('Successfully linked referral:', profileData.referral_code)
+        }
+      }
 
       return { success: true, data }
     } catch (error: any) {
@@ -190,7 +194,8 @@ export class ProjectInquiryAPI {
       })
 
       if (!validation.isValid) {
-        return { success: false, errors: validation.errors }
+        const errorMessages = Object.values(validation.errors).join(', ')
+        return { success: false, error: errorMessages || 'Validation failed' }
       }
 
       const sanitizedData = {
