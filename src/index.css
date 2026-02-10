@@ -28,7 +28,7 @@ All colors MUST be HSL format for proper theme switching
     --secondary-foreground: 240 5.9% 10%;
 
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted-foreground: 240 5.9% 25%; /* Darker for better contrast in light mode */
 
     /* Modern accent with better visibility */
     --accent: 240 4.8% 95.9%;

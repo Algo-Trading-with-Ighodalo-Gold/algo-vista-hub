@@ -183,7 +183,7 @@ export default function HomePage() {
         </div>
 
         {/* Overlay for better text readability */}
-        <div className="absolute inset-0 w-full h-full z-[1] bg-black/40 dark:bg-black/60" />
+        <div className="absolute inset-0 w-full h-full z-[1] bg-black/20 dark:bg-black/60" />
 
         <div className="container relative py-16 lg:py-24 z-10">
 
@@ -210,7 +210,7 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.3}>
-              <p className="mt-4 text-lg sm:text-xl leading-7 text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-4 text-lg sm:text-xl leading-7 text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto font-medium">
 
                 Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
 
@@ -242,7 +242,7 @@ export default function HomePage() {
                       <Tag className="h-4 w-4" />
                       Current offers:
                     </span>
-                    <p className="mt-1 text-muted-foreground">
+                    <p className="mt-1 text-foreground/80 dark:text-muted-foreground">
                       {activeCampaigns.filter((c) => c.promo_code).slice(0, 3).map((c) => (
                         <span key={c.id} className="inline-block mr-2">
                           Use <code className="font-mono bg-muted px-1 rounded">{c.promo_code}</code>
@@ -271,7 +271,7 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.5}>
-              <p className="mt-4 text-xl text-muted-foreground">
+              <p className="mt-4 text-xl text-foreground/75 dark:text-muted-foreground font-medium">
 
                 30-day money-back guarantee • Lifetime updates • 24/7 support
 
@@ -559,74 +559,6 @@ export default function HomePage() {
                       <Link to={`/products/ea-${ea.id.replace('-ea', '')}`}>View Details</Link>
 
                     </Button>
-
-                  </div>
-
-                </CardContent>
-
-              </Card>
-
-            ))}
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      {/* Testimonials */}
-
-      <section className="py-20 bg-muted/30">
-
-        <div className="container">
-
-          <div className="mx-auto max-w-2xl text-center mb-16">
-
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl animate-fade-in">
-
-              What Our Traders Say
-
-            </h2>
-
-            <p className="mt-3 text-base text-muted-foreground animate-fade-in">
-
-              Real results from real traders using our Expert Advisors
-
-            </p>
-
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-            {testimonials.map((testimonial, index) => (
-
-              <Card key={index} className="h-full hover:shadow-lg hover-scale transition-all duration-300 animate-fade-in group">
-
-                <CardContent className="pt-6">
-
-                  <div className="flex mb-4">
-
-                    {[...Array(testimonial.rating)].map((_, i) => (
-
-                      <Star key={i} className="h-4 w-4 fill-warning text-warning transition-transform duration-300 group-hover:scale-110" style={{ animationDelay: `${i * 0.1}s` }} />
-
-                    ))}
-
-                  </div>
-
-                  <blockquote className="text-sm italic mb-4 transition-colors duration-300 group-hover:text-primary">
-
-                    "{testimonial.content}"
-
-                  </blockquote>
-
-                  <div>
-
-                    <div className="font-semibold transition-colors duration-300 group-hover:text-primary">{testimonial.name}</div>
-
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
 
                   </div>
 
