@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { ArrowLeft, CreditCard, Shield, Lock, Check, AlertCircle } from "lucide-react"
+import { ArrowLeft, Shield, Lock, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,19 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
-
-const paymentMethods = [
-  {
-    id: "paystack",
-    name: "Card / Bank Transfer",
-    icon: CreditCard,
-    description: "Secure payment - Cards, Bank Transfer, USSD & More"
-  },
-]
 
 export default function PaymentPage() {
   const location = useLocation()
@@ -31,28 +21,31 @@ export default function PaymentPage() {
   // Get plan data from navigation state with proper defaults
   const planData = {
     eaId: "",
+    eaPlanId: "",
     eaName: "Expert Advisor",
     planName: "Pro Plan",
-    billingPeriod: "monthly", 
+    billingPeriod: "monthly",
+    maxAccounts: 3,
     price: 0,
     features: [],
-    paymentMethod: "paystack",
     ...location.state
   }
 
-  const [paymentMethod, setPaymentMethod] = useState(planData.paymentMethod || "paystack")
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
     lastName: "",
     country: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: "",
     agreeTerms: false
   })
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const billingLabel =
+    planData.billingPeriod === "yearly"
+      ? "Annual"
+      : planData.billingPeriod === "quarterly"
+        ? "Quarterly"
+        : "Monthly"
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -63,6 +56,11 @@ export default function PaymentPage() {
         state: { from: location },
         replace: true 
       })
+      return
+    }
+
+    if (!location.state) {
+      navigate("/products", { replace: true })
     }
   }, [user, navigate, location])
   
@@ -90,7 +88,7 @@ export default function PaymentPage() {
     setIsProcessing(true)
 
     try {
-      // Initialize Paystack payment
+      // Initialize Polar checkout
       const { paymentAPI } = await import('@/lib/api/payments')
       
       // Use user email if available, otherwise form email
@@ -99,29 +97,33 @@ export default function PaymentPage() {
       if (!email) {
         throw new Error('Email is required for payment')
       }
+      if (!planData.eaPlanId) {
+        throw new Error("Selected subscription plan is not configured")
+      }
       
-      const payment = await paymentAPI.createPaystackPayment(
-        planData.price,
-        email,
-        'NGN',
+      const payment = await paymentAPI.createPolarCheckout(
         {
-          eaId: planData.eaId,
-          eaName: planData.eaName,
-          planName: planData.planName,
-          billingPeriod: planData.billingPeriod,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          country: formData.country,
-          userId: user.id
-        }
+          eaPlanId: planData.eaPlanId,
+          allowDiscountCodes: true,
+          metadata: {
+            eaId: planData.eaId,
+            eaName: planData.eaName,
+            planName: planData.planName,
+            billingPeriod: planData.billingPeriod,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            country: formData.country,
+            userId: user.id
+          },
+        },
       )
 
-      // Redirect to Paystack payment page
-      if (payment?.authorization_url) {
-        window.location.assign(payment.authorization_url)
+      // Redirect to Polar checkout page
+      if (payment?.checkoutUrl) {
+        window.location.assign(payment.checkoutUrl)
         return
       }
-      if (!payment?.authorization_url) {
+      if (!payment?.checkoutUrl) {
         throw new Error('Payment initialization failed')
       }
     } catch (error: any) {
@@ -132,26 +134,6 @@ export default function PaymentPage() {
         variant: "destructive"
       })
     }
-  }
-
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
-    const matches = v.match(/\d{4,16}/g)
-    const match = matches && matches[0] || ''
-    const parts = []
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4))
-    }
-    if (parts.length) {
-      return parts.join(' ')
-    } else {
-      return v
-    }
-  }
-
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatCardNumber(e.target.value)
-    handleInputChange('cardNumber', formatted)
   }
 
   return (
@@ -185,7 +167,10 @@ export default function PaymentPage() {
                     <Badge variant="secondary">AI-Powered</Badge>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {planData.planName} Plan - {planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription
+                    {planData.planName} Plan - {billingLabel} Subscription
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Up to {planData.maxAccounts} MT5 account{planData.maxAccounts > 1 ? "s" : ""}
                   </div>
                   
                   <div className="space-y-2 text-sm">
@@ -206,8 +191,8 @@ export default function PaymentPage() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between font-medium text-lg">
-                    <span>{planData.billingPeriod === 'yearly' ? 'Annual' : 'Monthly'} Subscription</span>
-                    <span>₦{planData.price}</span>
+                    <span>{billingLabel} Subscription</span>
+                    <span>${planData.price}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Recurring {planData.billingPeriod} • Cancel anytime
@@ -312,37 +297,10 @@ export default function PaymentPage() {
 
                   <Separator />
 
-                  {/* Payment Method */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold">Payment Method</h3>
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      {paymentMethods.map((method) => (
-                        <div key={method.id} className="flex items-center space-x-2 p-4 border rounded-lg">
-                          <RadioGroupItem value={method.id} id={method.id} />
-                          <Label htmlFor={method.id} className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                {typeof method.icon === 'string' ? (
-                                  <span className="text-xl">{method.icon}</span>
-                                ) : (
-                                  <method.icon className="h-5 w-5" />
-                                )}
-                                <div>
-                                  <div className="font-medium">{method.name}</div>
-                                  <div className="text-sm text-muted-foreground">{method.description}</div>
-                                </div>
-                              </div>
-                            </div>
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  </div>
-
                   <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">
-                      You will be redirected to our secure payment page to complete your transaction.
-                      We accept cards, bank transfers, and mobile money.
+                      You will be redirected to our secure checkout page to complete your transaction.
+                      We accept cards and supported wallets based on your region.
                     </p>
                   </div>
 
@@ -365,7 +323,7 @@ export default function PaymentPage() {
                         <Link to="/privacy" className="text-primary hover:underline">
                           Privacy Policy
                         </Link>
-                        {". "}I understand this is a recurring monthly subscription that can be cancelled at any time.
+                        {". "}I understand this is a recurring {planData.billingPeriod} subscription that can be cancelled at any time.
                       </Label>
                     </div>
                   </div>
@@ -385,7 +343,7 @@ export default function PaymentPage() {
                     ) : (
                       <>
                         <Lock className="h-4 w-4 mr-2" />
-                        Start Subscription - ₦{planData.price}/{planData.billingPeriod === 'yearly' ? 'year' : 'month'}
+                        Start Subscription - ${planData.price}/{planData.billingPeriod === 'yearly' ? 'year' : planData.billingPeriod === 'quarterly' ? 'quarter' : 'month'}
                       </>
                     )}
                   </Button>

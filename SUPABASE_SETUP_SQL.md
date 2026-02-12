@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS public.referral_commissions (
   affiliate_id UUID NOT NULL REFERENCES public.affiliates(id) ON DELETE CASCADE,
   referrer_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   referred_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  transaction_id TEXT, -- Paystack reference or transaction ID
+  transaction_id TEXT, -- Payment provider reference or transaction ID
   product_id UUID, -- Product that was purchased
   product_name TEXT,
   purchase_amount DECIMAL(12, 2) NOT NULL, -- Amount in cents (will be converted)
@@ -349,9 +349,9 @@ Once these are applied:
 You also need to deploy/update these Edge Functions in Supabase:
 
 ### Required Edge Functions:
-1. **paystack-initialize** - Initializes Paystack payments
-2. **paystack-verify** - Verifies Paystack transactions
-3. **paystack-webhook** - Handles Paystack webhook events (awards commissions)
+1. **polar-checkout** - Initializes Polar hosted checkout
+2. **polar-verify** - Verifies Polar checkout/payment status
+3. **polar-webhook** - Handles Polar webhook events (awards commissions)
 4. **create-license** - Creates licenses after successful payment
 5. **sync-license-to-cloudflare** - Syncs licenses to Cloudflare Worker (optional)
 
@@ -360,9 +360,9 @@ You also need to deploy/update these Edge Functions in Supabase:
 **Option 1: Using Supabase CLI (Recommended)**
 ```bash
 # Deploy all functions
-supabase functions deploy paystack-initialize
-supabase functions deploy paystack-verify
-supabase functions deploy paystack-webhook
+supabase functions deploy polar-checkout
+supabase functions deploy polar-verify
+supabase functions deploy polar-webhook
 supabase functions deploy create-license
 supabase functions deploy sync-license-to-cloudflare
 ```
@@ -376,9 +376,8 @@ supabase functions deploy sync-license-to-cloudflare
 
 Make sure these are set in your Supabase project settings:
 
-- `PAYSTACK_SECRET_KEY` - Your Paystack secret key
-- `PAYSTACK_PUBLIC_KEY` - Your Paystack public key (if needed)
-- `PAYSTACK_WEBHOOK_SECRET` - Your Paystack webhook secret (optional but recommended)
+- `POLAR_OAT` - Your Polar Organization Access Token (server-side only)
+- `POLAR_WEBHOOK_SECRET` - Your Polar webhook secret (recommended)
 - `SUPABASE_URL` - Your Supabase project URL (auto-set)
 - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key (auto-set)
 - `CLOUDFLARE_WORKER_URL` - Your Cloudflare Worker URL (only if using sync-license-to-cloudflare)
@@ -394,9 +393,9 @@ Make sure these are set in your Supabase project settings:
 
 - [ ] Run Migration 1: Referral Commissions System
 - [ ] Run Migration 2: Product Image Support
-- [ ] Deploy Edge Function: paystack-initialize
-- [ ] Deploy Edge Function: paystack-verify
-- [ ] Deploy Edge Function: paystack-webhook
+- [ ] Deploy Edge Function: polar-checkout
+- [ ] Deploy Edge Function: polar-verify
+- [ ] Deploy Edge Function: polar-webhook
 - [ ] Deploy Edge Function: create-license
 - [ ] Set environment variables in Supabase
 - [ ] Test payment flow

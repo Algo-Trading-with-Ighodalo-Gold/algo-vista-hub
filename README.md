@@ -15,7 +15,7 @@ A comprehensive web platform for managing and distributing Expert Advisors (EAs)
 - **Expert Advisor Marketplace**: Browse and purchase professional trading EAs
 - **License Management**: Secure license generation, validation, and tracking
 - **Account Linking**: Connect MT5 trading accounts to licenses with limit enforcement
-- **Payment Processing**: Integrated Stripe and Paystack payment gateways
+- **Payment Processing**: Integrated Stripe and Polar payment gateways
 - **User Dashboard**: Comprehensive user portal for managing licenses, accounts, and transactions
 - **Admin Dashboard**: Full administrative control panel for managing users, products, and licenses
 
@@ -48,7 +48,7 @@ A comprehensive web platform for managing and distributing Expert Advisors (EAs)
 - **Node.js** 18+ and npm
 - **Supabase Account** - [Sign up here](https://supabase.com)
 - **Stripe Account** (for payments) - [Sign up here](https://stripe.com)
-- **Paystack Account** (optional, for African markets) - [Sign up here](https://paystack.com)
+- **Polar Account** (optional, for hosted checkout) - [Sign up here](https://polar.sh)
 
 ### Installation
 
@@ -146,7 +146,7 @@ algo-vista-hub/
 
 ### Payment Processing
 - **Stripe** - Global payment processing
-- **Paystack** - African payment gateway
+- **Polar** - Hosted checkout and subscription billing
 
 ### Additional Tools
 - **Zod** - Schema validation
@@ -168,10 +168,13 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 VITE_STRIPE_SECRET_KEY=sk_test_...
 VITE_STRIPE_WEBHOOK_SECRET=whsec_...
 
-# Paystack Configuration (Optional)
-VITE_PAYSTACK_PUBLIC_KEY=pk_test_...
-VITE_PAYSTACK_SECRET_KEY=sk_test_...
-VITE_PAYSTACK_WEBHOOK_SECRET=...
+# Polar Configuration (Optional)
+VITE_POLAR_WEBHOOK_SECRET=...
+VITE_POLAR_ORGANIZATION_ID=...
+VITE_POLAR_DEFAULT_PRODUCT_ID=...
+
+# Server-only secret (set in Supabase Edge Function secrets)
+POLAR_OAT=polar_oat_...
 
 # Email Configuration (SMTP)
 VITE_SMTP_HOST=smtp.gmail.com
@@ -236,13 +239,13 @@ See `DATABASE_SETUP.md` for detailed database documentation.
 3. Set up webhook endpoint: `https://your-domain.com/api/webhooks/stripe`
 4. Add webhook secret to `.env`
 
-### Paystack Setup
-1. Create a Paystack account
-2. Get API keys from Settings → API Keys & Webhooks
-3. Configure webhook URL
-4. Add keys to `.env`
+### Polar Setup
+1. Create a Polar account
+2. Create products/prices and copy IDs
+3. Generate an access token and webhook secret
+4. Add Polar keys to `.env`
 
-See `STRIPE_SETUP.md` and `PAYSTACK_SETUP_GUIDE.md` for detailed setup instructions.
+See `STRIPE_SETUP.md` and `POLAR_SETUP_GUIDE.md` for detailed setup instructions.
 
 ## 🔑 License System
 
@@ -298,7 +301,7 @@ The build output will be in the `dist/` directory.
 - [Database Setup](DATABASE_SETUP.md)
 - [Backend Setup](BACKEND_SETUP.md)
 - [Stripe Setup](STRIPE_SETUP.md)
-- [Paystack Setup](PAYSTACK_SETUP_GUIDE.md)
+- [Polar Setup](POLAR_SETUP_GUIDE.md)
 - [Accounts & Licensing](HOW_ACCOUNTS_WORK.md)
 - [Admin Setup](ADMIN_SETUP.md)
 

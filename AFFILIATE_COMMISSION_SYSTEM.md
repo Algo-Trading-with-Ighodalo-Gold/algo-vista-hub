@@ -42,7 +42,7 @@ Tracks all commissions from purchases:
 - `affiliate_id`: Link to affiliate record
 - `referrer_user_id`: The affiliate's user ID
 - `referred_user_id`: The buyer's user ID
-- `transaction_id`: Paystack reference
+- `transaction_id`: Payment provider reference
 - `product_id`: Product purchased
 - `product_name`: Product name
 - `purchase_amount`: Amount paid (in base currency)

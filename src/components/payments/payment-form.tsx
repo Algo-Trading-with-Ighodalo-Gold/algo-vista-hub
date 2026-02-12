@@ -1,5 +1,5 @@
 // Payment Form Component
-// This component handles payment processing via Paystack
+// This component handles payment processing via Polar
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -23,10 +23,11 @@ export function PaymentForm({
   productId,
   productName,
   amount,
-  currency = 'NGN',
+  currency = 'USD',
   onSuccess,
   onError,
 }: PaymentFormProps) {
+  const paymentMethodLabel = 'Secure payment';
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     email: '',
@@ -56,13 +57,12 @@ export function PaymentForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlePaystackPayment = async () => {
+  const handlePolarPayment = async () => {
     try {
       setIsProcessing(true);
       setErrors({});
 
-      // Create Paystack payment (charge in NGN; Paystack default is NGN only)
-      const payment = await paymentAPI.createPaystackPayment(
+      const payment = await paymentAPI.createPolarCheckout(
         amount,
         customerInfo.email,
         currency,
@@ -74,9 +74,9 @@ export function PaymentForm({
         }
       );
 
-      // Redirect to Paystack payment page
-      if (payment?.authorization_url) {
-        window.location.assign(payment.authorization_url);
+      // Redirect to Polar checkout page
+      if (payment?.checkoutUrl) {
+        window.location.assign(payment.checkoutUrl);
       } else {
         throw new Error('Payment initialization failed');
       }
@@ -93,7 +93,7 @@ export function PaymentForm({
       return;
     }
 
-    await handlePaystackPayment();
+    await handlePolarPayment();
   };
 
   return (
@@ -189,7 +189,7 @@ export function PaymentForm({
             <Label>Payment Method</Label>
             <div className="flex items-center gap-2 text-sm">
               <CreditCard className="h-4 w-4" />
-              <span>Secure payment via cards, bank transfer, USSD & more</span>
+              <span>Secure payment via cards and supported wallets</span>
             </div>
           </div>
 
@@ -205,7 +205,7 @@ export function PaymentForm({
             </div>
             <div className="flex justify-between">
               <span>Payment Method:</span>
-              <span className="font-medium capitalize">{paymentMethod}</span>
+              <span className="font-medium">{paymentMethodLabel}</span>
             </div>
           </div>
 

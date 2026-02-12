@@ -23,11 +23,11 @@ export const config = {
     webhookSecret: import.meta.env.VITE_STRIPE_WEBHOOK_SECRET || '',
   },
 
-  // Paystack Configuration
-  paystack: {
-    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '',
-    secretKey: import.meta.env.VITE_PAYSTACK_SECRET_KEY || '',
-    webhookSecret: import.meta.env.VITE_PAYSTACK_WEBHOOK_SECRET || '',
+  // Polar Configuration
+  polar: {
+    webhookSecret: import.meta.env.VITE_POLAR_WEBHOOK_SECRET || '',
+    organizationId: import.meta.env.VITE_POLAR_ORGANIZATION_ID || '',
+    defaultProductId: import.meta.env.VITE_POLAR_DEFAULT_PRODUCT_ID || '',
   },
 
   // Email Configuration
@@ -68,11 +68,11 @@ export const config = {
     timeout: 30000, // 30 seconds
   },
 
-  // Payment Configuration (Paystack NGN only)
+  // Payment Configuration
   payments: {
-    defaultCurrency: 'NGN',
-    supportedCurrencies: ['USD', 'NGN', 'ZAR', 'GHS', 'KES'],
-    paystackEnabled: !!import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+    defaultCurrency: 'USD',
+    supportedCurrencies: ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SEK'],
+    polarEnabled: true,
   },
 
   // License Configuration
@@ -130,8 +130,8 @@ export function validateConfig(): { isValid: boolean; missingKeys: string[] } {
   }
 
   // Check payment configuration
-  if (!config.stripe.publishableKey && !config.paystack.publicKey) {
-    missingKeys.push('VITE_STRIPE_PUBLISHABLE_KEY or VITE_PAYSTACK_PUBLIC_KEY');
+  if (!config.stripe.publishableKey && !config.polar.organizationId) {
+    missingKeys.push('VITE_STRIPE_PUBLISHABLE_KEY or VITE_POLAR_ORGANIZATION_ID');
   }
 
   // Check email configuration
@@ -150,7 +150,7 @@ export const {
   app,
   supabase: supabaseConfig,
   stripe: stripeConfig,
-  paystack: paystackConfig,
+  polar: polarConfig,
   email: emailConfig,
   security: securityConfig,
   telegram: telegramConfig,

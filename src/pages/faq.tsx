@@ -38,7 +38,7 @@ const faqCategories = [
     faqs: [
       {
         question: "What subscription plans do you offer?",
-        answer: "We offer two main subscription periods: 3 months and 1 year subscriptions. Each comes in Basic, Pro, and Elite tiers with different MT5 account limits and features. All subscriptions auto-renew."
+        answer: "We offer Basic, Pro, and Premium plans with monthly, quarterly, or yearly billing. Basic supports 1 MT5 account, Pro supports 2, and Premium supports 3, with each tier including different support and analytics features."
       },
       {
         question: "Can I change my subscription plan?",
@@ -46,7 +46,7 @@ const faqCategories = [
       },
       {
         question: "What payment methods do you accept?",
-        answer: "We accept payments through Paystack, which supports credit/debit cards, bank transfers, USSD, and mobile money. All payments are processed securely."
+        answer: "We accept secure payments including major credit/debit cards and supported digital wallets based on your region. All payments are processed through hosted, encrypted checkout pages."
       },
       {
         question: "Is there a refund policy?",
@@ -104,7 +104,7 @@ const faqCategories = [
       },
       {
         question: "Can I transfer my license to a different MT5 account?",
-        answer: "Yes, you can change your MT5 account details in your dashboard. Basic plans allow 3 accounts, Pro plans allow 5, and Elite plans allow up to 10 accounts."
+        answer: "Yes, you can change your MT5 account details in your dashboard. Account limits depend on your plan: Basic allows 1 account, Pro allows 2, and Premium allows up to 3."
       },
       {
         question: "What if I forget my login credentials?",

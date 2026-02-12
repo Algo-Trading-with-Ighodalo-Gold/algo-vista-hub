@@ -96,7 +96,7 @@ The affiliate dashboard should now show:
 
 2. **Make a purchase**:
    - Go through checkout
-   - Complete Paystack payment
+   - Complete Polar checkout
    - Webhook should automatically award commission
 
 3. **Verify commission**:
@@ -127,7 +127,7 @@ The affiliate dashboard should now show:
 ## Next Steps
 
 After fixing affiliate tracking:
-1. Configure Paystack (see `PAYSTACK_CONFIGURATION.md`)
+1. Configure Polar (see `POLAR_SETUP_GUIDE.md`)
 2. Set up per-EA plans (see migration file)
 3. Test end-to-end purchase flow
 4. Monitor webhook logs for any errors

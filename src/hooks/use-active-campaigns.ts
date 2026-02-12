@@ -8,6 +8,7 @@ export interface ActiveCampaign {
   discount_type: string
   discount_value: number
   product_ids: string[] | null
+  ends_at: string
 }
 
 /**
@@ -23,7 +24,7 @@ export function useActiveCampaigns() {
     setLoading(true)
     supabase
       .from('discount_campaigns')
-      .select('id, name, promo_code, discount_type, discount_value, product_ids')
+      .select('id, name, promo_code, discount_type, discount_value, product_ids, ends_at')
       .then(({ data, error }) => {
         if (cancelled) return
         setLoading(false)

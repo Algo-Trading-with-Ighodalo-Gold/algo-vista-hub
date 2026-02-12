@@ -326,6 +326,19 @@ All colors MUST be HSL format for proper theme switching
   .animate-stagger:nth-child(5) { animation-delay: 0.5s; }
   .animate-stagger:nth-child(6) { animation-delay: 0.6s; }
 
+  /* Pinned tag swing: swing + pulse for attention */
+  .animate-pin-swing {
+    animation: pinSwing 2.5s ease-in-out infinite;
+    transform-origin: top center;
+  }
+  .animate-shimmer {
+    position: absolute;
+  }
+  .animate-shimmer-slide {
+    animation: shimmerSlide 2s ease-in-out infinite;
+  }
+
+
   /* Responsive utilities */
   .mobile-only {
     @apply block sm:hidden;
@@ -528,6 +541,52 @@ All colors MUST be HSL format for proper theme switching
   }
   60% {
     transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+@keyframes swingPin {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes swing {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes pinSwing {
+  0%, 100% {
+    transform: rotate(-8deg) scale(1);
+    box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.5);
+  }
+  25% {
+    transform: rotate(4deg) scale(1.03);
+    box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.7);
+  }
+  50% {
+    transform: rotate(8deg) scale(1);
+    box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.5);
+  }
+  75% {
+    transform: rotate(-4deg) scale(1.03);
+    box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.7);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 

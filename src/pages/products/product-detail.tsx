@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CandlestickBackground } from "@/components/ui/candlestick-background"
 import { supabase } from "@/integrations/supabase/client"
-import { useAuth } from "@/contexts/auth-context"
 import { useActiveCampaigns } from "@/hooks/use-active-campaigns"
 import type { Database } from "@/integrations/supabase/types"
 
@@ -48,7 +47,6 @@ const imageMap: Record<string, string> = {
 export default function ProductDetailPage() {
   const { eaId } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
   const [ea, setEa] = useState<EaProduct | null>(null)
   const [loading, setLoading] = useState(true)
   const { campaigns: activeCampaigns } = useActiveCampaigns()
@@ -105,31 +103,7 @@ export default function ProductDetailPage() {
   })
 
   const handleSubscribe = () => {
-    if (user) {
-      navigate("/dashboard/checkout", {
-        state: {
-          productId: ea.id,
-          productCode: ea.product_code,
-          productName: ea.name,
-          price: Number(price),
-          features,
-        },
-      });
-    } else {
-      navigate("/auth/login", {
-      state: {
-          from: `/products/${ea.product_code}`,
-          redirectTo: "/dashboard/checkout",
-          productData: {
-            productId: ea.id,
-            productCode: ea.product_code,
-            productName: ea.name,
-        price: Number(price),
-        features,
-          }
-      },
-      });
-    }
+    navigate(`/products/${ea.product_code}/plans`)
   }
 
   return (
@@ -192,7 +166,7 @@ export default function ProductDetailPage() {
                     {campaignsForProduct.map((c) => (
                       <li key={c.id}>
                         Use code <code className="font-mono font-medium text-foreground bg-muted px-1.5 py-0.5 rounded">{c.promo_code}</code>
-                        {c.discount_type === 'percentage' ? ` for ${c.discount_value}% off` : ` for ₦${Number(c.discount_value).toFixed(2)} off`}
+                        {c.discount_type === 'percentage' ? ` for ${c.discount_value}% off` : ` for $${Number(c.discount_value).toFixed(2)} off`}
                       </li>
                     ))}
                   </ul>
@@ -204,7 +178,7 @@ export default function ProductDetailPage() {
                 className="w-full lg:w-auto hover-scale" 
                 onClick={handleSubscribe}
               >
-                Subscribe & Pay
+                Subscribe
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -320,10 +294,10 @@ export default function ProductDetailPage() {
         <div className="container text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Licenses start at ₦{price} — automate your trading with {ea.name}.
+            Licenses start at ${price} - automate your trading with {ea.name}.
           </p>
           <Button size="lg" className="hover-scale" onClick={handleSubscribe}>
-            Subscribe & Pay
+            Subscribe
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.referral_commissions (
   affiliate_id UUID NOT NULL REFERENCES public.affiliates(id) ON DELETE CASCADE,
   referrer_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   referred_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  transaction_id TEXT, -- Paystack reference or transaction ID
+  transaction_id TEXT, -- Payment provider reference or transaction ID
   product_id UUID, -- Product that was purchased
   product_name TEXT,
   purchase_amount DECIMAL(12, 2) NOT NULL, -- Amount in cents (will be converted)

@@ -2,14 +2,13 @@
 // This service provides high-level payment operations for the platform
 
 import { stripeService } from '@/lib/payments/stripe';
-import { paystackService } from '@/lib/payments/paystack';
+import { polarService } from '@/lib/payments/polar';
 
 export interface PaymentIntent {
   id: string;
   clientSecret?: string;
   paymentUrl?: string;
-  authorization_url?: string;
-  access_code?: string;
+  checkoutUrl?: string;
   reference?: string;
   amount: number;
   currency: string;
@@ -22,7 +21,7 @@ export interface ProcessedPayment {
   amount: number;
   currency: string;
   status: 'success' | 'failed' | 'pending';
-  paymentMethod: 'stripe' | 'paystack';
+  paymentMethod: 'stripe' | 'polar';
   transactionId: string;
   licenseKey?: string;
   timestamp: string;
@@ -43,29 +42,39 @@ export class PaymentAPI {
     }
   }
 
-
-  // Create Paystack payment
-  async createPaystackPayment(
-    amount: number,
-    email: string,
+  // Create Polar hosted checkout
+  async createPolarCheckout(
+    payload:
+      | {
+          eaPlanId: string;
+          metadata?: Record<string, any>;
+          allowDiscountCodes?: boolean;
+          discountId?: string;
+        }
+      | number,
+    email?: string,
     currency: string = 'USD',
     metadata: Record<string, any> = {},
     reference?: string
   ) {
     try {
-      return await paystackService.initializeTransaction(amount, email, currency, metadata, reference);
+      if (typeof payload === "number") {
+        if (!email) throw new Error("Email is required for amount-based checkout");
+        return await polarService.createAmountCheckout(payload, email, currency, metadata, reference);
+      }
+      return await polarService.createCheckout(payload);
     } catch (error) {
-      console.error('Error creating Paystack payment:', error);
+      console.error('Error creating Polar checkout:', error);
       throw error;
     }
   }
 
-  // Verify Paystack transaction
-  async verifyPaystackTransaction(reference: string) {
+  // Verify Polar checkout or order
+  async verifyPolarCheckout(referenceOrCheckoutId: string) {
     try {
-      return await paystackService.verifyTransaction(reference);
+      return await polarService.verifyCheckout(referenceOrCheckoutId);
     } catch (error) {
-      console.error('Error verifying Paystack transaction:', error);
+      console.error('Error verifying Polar checkout:', error);
       throw error;
     }
   }
@@ -77,22 +86,22 @@ export class PaymentAPI {
     productId: string,
     amount: number,
     currency: string,
-    paymentMethod: 'stripe' | 'paystack'
+    paymentMethod: 'stripe' | 'polar'
   ): Promise<ProcessedPayment> {
     try {
       // Validate payment
       let payment: any;
       if (paymentMethod === 'stripe') {
         payment = await stripeService.getPaymentIntentStatus(paymentIntentId);
-      } else if (paymentMethod === 'paystack') {
-        payment = await paystackService.verifyTransaction(paymentIntentId);
+      } else if (paymentMethod === 'polar') {
+        payment = await polarService.verifyCheckout(paymentIntentId);
       }
 
-      if (paymentMethod === 'paystack') {
-        if (payment.status !== 'success') {
-          throw new Error('Payment not completed');
-        }
-      } else if (payment.status !== 'succeeded' && payment.status !== 'completed') {
+      if (
+        payment.status !== 'success' &&
+        payment.status !== 'succeeded' &&
+        payment.status !== 'completed'
+      ) {
         throw new Error('Payment not completed');
       }
 
@@ -102,13 +111,11 @@ export class PaymentAPI {
       // Create processed payment record
       const processedPayment: ProcessedPayment = {
         id: paymentIntentId,
-        amount: paymentMethod === 'paystack' 
-          ? payment.amount / 100  // Convert from kobo
-          : payment.amount / 100, // Convert from cents
+        amount: payment.amount / 100,
         currency: payment.currency,
         status: 'success',
         paymentMethod,
-        transactionId: paymentMethod === 'paystack' ? payment.reference : paymentIntentId,
+        transactionId: payment.reference || payment.id || paymentIntentId,
         licenseKey,
         timestamp: new Date().toISOString(),
       };
@@ -129,23 +136,14 @@ export class PaymentAPI {
     productId: string,
     priceId: string,
     billingCycle: 'monthly' | 'yearly' = 'monthly',
-    paymentMethod: 'stripe' | 'paystack' = 'paystack',
+    paymentMethod: 'stripe' | 'polar' = 'polar',
     metadata: Record<string, any> = {}
   ) {
     try {
       if (paymentMethod === 'stripe') {
         return await stripeService.createSubscription(customerId, priceId, metadata);
-      } else if (paymentMethod === 'paystack') {
-        // For Paystack, we need to create a plan first if it doesn't exist
-        const amount = this.getSubscriptionAmount(productId, billingCycle);
-        const interval = billingCycle === 'monthly' ? 'monthly' : 'annually';
-        
-        // Create or get plan
-        const planName = `${productId}-${billingCycle}`;
-        // Note: In production, you'd want to check if plan exists first
-        const plan = await paystackService.createPlan(planName, amount, interval, 'NGN');
-        
-        return await paystackService.createSubscription(customerId, plan.id, undefined, metadata);
+      } else if (paymentMethod === 'polar') {
+        return await polarService.createSubscription(customerId, productId, billingCycle, metadata);
       }
     } catch (error) {
       console.error('Error creating subscription:', error);
@@ -156,14 +154,14 @@ export class PaymentAPI {
   // Cancel subscription
   async cancelSubscription(
     subscriptionId: string,
-    paymentMethod: 'stripe' | 'paystack',
+    paymentMethod: 'stripe' | 'polar',
     immediately: boolean = false
   ) {
     try {
       if (paymentMethod === 'stripe') {
         return await stripeService.cancelSubscription(subscriptionId, immediately);
-      } else if (paymentMethod === 'paystack') {
-        return await paystackService.cancelSubscription(subscriptionId);
+      } else if (paymentMethod === 'polar') {
+        return await polarService.cancelSubscription(subscriptionId, immediately);
       }
     } catch (error) {
       console.error('Error canceling subscription:', error);
@@ -172,12 +170,12 @@ export class PaymentAPI {
   }
 
   // Get subscription details
-  async getSubscription(subscriptionId: string, paymentMethod: 'stripe' | 'paystack') {
+  async getSubscription(subscriptionId: string, paymentMethod: 'stripe' | 'polar') {
     try {
       if (paymentMethod === 'stripe') {
         return await stripeService.getSubscription(subscriptionId);
-      } else if (paymentMethod === 'paystack') {
-        return await paystackService.getSubscription(subscriptionId);
+      } else if (paymentMethod === 'polar') {
+        return await polarService.getSubscription(subscriptionId);
       }
     } catch (error) {
       console.error('Error getting subscription:', error);
@@ -189,18 +187,16 @@ export class PaymentAPI {
   async getOrCreateCustomer(
     email: string,
     name: string,
-    paymentMethod: 'stripe' | 'paystack' = 'paystack',
+    paymentMethod: 'stripe' | 'polar' = 'polar',
     metadata: Record<string, any> = {},
     phone?: string
   ) {
+    void phone;
     try {
       if (paymentMethod === 'stripe') {
         return await stripeService.getOrCreateCustomer(email, name, metadata);
-      } else if (paymentMethod === 'paystack') {
-        const nameParts = name.split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-        return await paystackService.getOrCreateCustomer(email, firstName, lastName, phone, metadata);
+      } else if (paymentMethod === 'polar') {
+        return await polarService.getOrCreateCustomer(email, name, metadata);
       }
     } catch (error) {
       console.error('Error getting or creating customer:', error);

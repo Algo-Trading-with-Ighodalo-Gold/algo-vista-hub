@@ -100,7 +100,7 @@ export function LicenseCard({
         return
       }
 
-      const result = data as { success: boolean; error?: string; file_key?: string; bucket?: string; product_name?: string }
+      const result = data as { success: boolean; error?: string; file_key?: string; bucket?: string; product_name?: string; product_code?: string }
       
       if (!result || !result.success) {
         toast({
@@ -178,6 +178,44 @@ EndHour=23
       
       // Add settings file to ZIP
       zip.file(settingsFileName, settingsContent)
+
+      // Try to fetch and include folder files if product_code is available
+      if (result.product_code) {
+        try {
+          const folderPath = `${result.product_code}/files/`
+          const { data: folderFiles, error: listError } = await supabase.storage
+            .from('ea-files')
+            .list(folderPath, {
+              limit: 100,
+              sortBy: { column: 'name', order: 'asc' }
+            })
+
+          if (!listError && folderFiles && folderFiles.length > 0) {
+            // Download each file and add to ZIP
+            for (const file of folderFiles) {
+              try {
+                const { data: fileUrlData } = await supabase.storage
+                  .from('ea-files')
+                  .createSignedUrl(`${folderPath}${file.name}`, 3600)
+                
+                if (fileUrlData) {
+                  const fileResponse = await fetch(fileUrlData.signedUrl)
+                  if (fileResponse.ok) {
+                    const fileBlob = await fileResponse.blob()
+                    zip.file(`files/${file.name}`, fileBlob)
+                  }
+                }
+              } catch (fileError) {
+                console.error(`Error downloading ${file.name}:`, fileError)
+                // Continue with other files
+              }
+            }
+          }
+        } catch (folderError) {
+          console.error('Error fetching folder files:', folderError)
+          // Continue without folder files
+        }
+      }
 
       // Generate ZIP file
       const zipBlob = await zip.generateAsync({ type: 'blob' })

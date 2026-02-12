@@ -163,7 +163,7 @@ export default function EAVelocityProPage() {
                     Buy Now - $279
                   </Button>
                   <Button size="lg" variant="outline" className="hover-scale" onClick={handleSubscribe}>
-                    Subscribe $29/mo
+                    Subscribe
                   </Button>
                 </div>
                 
@@ -468,7 +468,7 @@ export default function EAVelocityProPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" variant="secondary" className="text-lg px-8 hover-scale" onClick={handleSubscribe}>
-              Subscribe to EA VelocityPro
+              Subscribe
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover-scale">
               Contact Support

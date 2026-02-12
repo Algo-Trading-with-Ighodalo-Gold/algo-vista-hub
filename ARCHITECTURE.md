@@ -33,7 +33,7 @@ graph TB
     subgraph "💳 Payment Gateways"
         direction LR
         Stripe[Stripe API<br/>Global Payments]
-        Paystack[Paystack API<br/>African Markets]
+        Polar[Polar API<br/>Hosted Checkout & Billing]
     end
     
     subgraph "🔐 Security & Validation"
@@ -68,7 +68,7 @@ graph TB
     UI --> CustomAPI
     UI --> CFWorker
     UI --> Stripe
-    UI --> Paystack
+    UI --> Polar
     
     SDK --> Supabase
     Realtime --> RealtimeSub
@@ -83,7 +83,7 @@ graph TB
     DB --> Tables
     
     Stripe --> Supabase
-    Paystack --> Supabase
+    Polar --> Supabase
     
     Supabase --> Email
     Supabase --> Telegram
@@ -93,7 +93,7 @@ graph TB
     style Supabase fill:#3ECF8E,stroke:#2A9D7A,stroke-width:3px
     style DB fill:#FFD700,stroke:#D4AF37,stroke-width:3px
     style Stripe fill:#635BFF,stroke:#4A45B8,stroke-width:2px
-    style Paystack fill:#00C964,stroke:#00994D,stroke-width:2px
+    style Polar fill:#1D4ED8,stroke:#1E3A8A,stroke-width:2px
     style CFWorkerSvc fill:#F38020,stroke:#D66F0A,stroke-width:2px
     style RLS fill:#FF6B6B,stroke:#D63031,stroke-width:2px
 ```
@@ -311,7 +311,7 @@ graph TB
         
         C --> H[Payment APIs]
         H --> I[Stripe]
-        H --> J[Paystack]
+        H --> J[Polar]
         
         C --> K[Cloudflare Workers]
         K --> L[License Verification]
@@ -345,7 +345,7 @@ graph TB
 | **State** | React Context + TanStack Query | Global state + Server state |
 | **Backend** | Supabase | BaaS (Database + Auth + Functions) |
 | **Database** | PostgreSQL | Relational database |
-| **Payments** | Stripe + Paystack | Payment processing |
+| **Payments** | Stripe + Polar | Payment processing |
 | **Validation** | Cloudflare Workers | License verification |
 | **Email** | SMTP (Gmail) | Transactional emails |
 | **Notifications** | Telegram Bot API | User alerts |

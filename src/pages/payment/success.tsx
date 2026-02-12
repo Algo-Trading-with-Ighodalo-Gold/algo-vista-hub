@@ -17,7 +17,7 @@ export default function PaymentSuccessPage() {
   const [paymentData, setPaymentData] = useState<any>(null)
   const [license, setLicense] = useState<any>(null)
 
-  const reference = searchParams.get('reference')
+  const reference = searchParams.get('reference') || searchParams.get('checkout_id') || searchParams.get('id')
 
   useEffect(() => {
     if (!reference) {
@@ -34,10 +34,10 @@ export default function PaymentSuccessPage() {
       try {
         setVerifying(true)
         
-        // Verify payment with Paystack
-        const transaction = await paymentAPI.verifyPaystackTransaction(reference)
+        // Verify payment with Polar
+        const transaction = await paymentAPI.verifyPolarCheckout(reference)
         
-        if (transaction.status === 'success') {
+        if (['success', 'succeeded', 'completed'].includes(transaction.status)) {
           setPaymentData(transaction)
           
           // Wait a bit for webhook to process, then fetch license
@@ -107,12 +107,12 @@ export default function PaymentSuccessPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Transaction Reference:</span>
-                  <span className="font-mono">{paymentData.reference}</span>
+                  <span className="font-mono">{paymentData.reference || paymentData.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Amount:</span>
                   <span className="font-medium">
-                    {paymentData.currency === 'USD' ? '$' : '₦'}
+                    {paymentData.currency === 'USD' ? '$' : `${paymentData.currency} `}
                     {(paymentData.amount / 100).toLocaleString()}
                   </span>
                 </div>

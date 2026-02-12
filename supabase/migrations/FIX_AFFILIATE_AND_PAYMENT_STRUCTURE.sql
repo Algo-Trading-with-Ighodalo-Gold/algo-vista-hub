@@ -157,7 +157,7 @@ CREATE TRIGGER update_ea_plans_updated_at
   EXECUTE FUNCTION public.update_ea_plans_updated_at();
 
 -- ============================================
--- 3. UPDATE PAYSTACK WEBHOOK TO USE CORRECT FUNCTION SIGNATURE
+-- 3. UPDATE PAYMENT WEBHOOK TO USE CORRECT FUNCTION SIGNATURE
 -- ============================================
 -- Note: The webhook code needs to be updated to match the new function signature
 -- This SQL just ensures the function exists with the correct signature

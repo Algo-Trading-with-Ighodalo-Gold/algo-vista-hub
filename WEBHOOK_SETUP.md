@@ -2,11 +2,11 @@
 
 ## What are Webhooks?
 
-Webhooks are HTTP callbacks that Paystack sends to your server when payment events happen:
-- Payment successful
-- Payment failed
-- Subscription created/cancelled
-- etc.
+Webhooks are HTTP callbacks that Polar sends to your server when payment events happen:
+- Checkout completed
+- Checkout failed
+- Subscription created/updated/canceled
+- Refund and dispute lifecycle events
 
 ## For Development (No Domain Yet)
 
@@ -30,14 +30,14 @@ Webhooks are HTTP callbacks that Paystack sends to your server when payment even
    # This gives you a public URL like: https://abc123.ngrok.io
    ```
 
-4. **Add webhook in Paystack**
-   - Go to Paystack Dashboard → Settings → Webhooks
-   - Add webhook URL: `https://abc123.ngrok.io/api/payments/paystack/webhook`
+4. **Add webhook in Polar**
+   - Go to Polar Dashboard → Webhooks
+   - Add webhook URL: `https://abc123.ngrok.io/api/payments/polar/webhook`
    - Copy the webhook secret
 
 5. **Update .env.local**
    ```env
-   VITE_PAYSTACK_WEBHOOK_SECRET=whsec_xxxxx
+   VITE_POLAR_WEBHOOK_SECRET=whsec_xxxxx
    ```
 
 **Note:** ngrok free tier gives you a new URL each time. For development, this is fine.
@@ -51,13 +51,13 @@ npm install -g localtunnel
 # Expose your local server
 lt --port 5173
 
-# Use the provided URL in Paystack webhook settings
+# Use the provided URL in Polar webhook settings
 ```
 
 ### Option 3: Skip Webhooks for Now (Manual Verification)
 
 You can test payments without webhooks, but you'll need to:
-- Manually verify payments in Paystack dashboard
+- Manually verify payments in Polar dashboard
 - Manually create licenses in your database
 - Not ideal for production, but works for initial testing
 
@@ -65,22 +65,22 @@ You can test payments without webhooks, but you'll need to:
 
 1. **Deploy your backend/API**
    - Deploy to Vercel, Netlify, Railway, or your own server
-   - Your webhook endpoint should be: `https://yourdomain.com/api/payments/paystack/webhook`
+   - Your webhook endpoint should be: `https://yourdomain.com/api/payments/polar/webhook`
 
-2. **Set up webhook in Paystack**
-   - Go to Paystack Dashboard → Settings → Webhooks
-   - Add webhook URL: `https://yourdomain.com/api/payments/paystack/webhook`
+2. **Set up webhook in Polar**
+   - Go to Polar Dashboard → Webhooks
+   - Add webhook URL: `https://yourdomain.com/api/payments/polar/webhook`
    - Select events:
-     - `charge.success`
-     - `charge.failed`
-     - `subscription.create`
-     - `subscription.disable`
-     - `subscription.enable`
+     - `checkout.completed`
+     - `checkout.failed`
+     - `subscription.created`
+     - `subscription.updated`
+     - `subscription.canceled`
    - Copy the webhook secret
 
 3. **Update production environment**
    ```env
-   VITE_PAYSTACK_WEBHOOK_SECRET=whsec_your_production_secret
+   VITE_POLAR_WEBHOOK_SECRET=whsec_your_production_secret
    ```
 
 ## Webhook Endpoint Implementation
@@ -88,23 +88,23 @@ You can test payments without webhooks, but you'll need to:
 You'll need to create this endpoint in your backend:
 
 ```typescript
-// Example: /api/payments/paystack/webhook
-POST /api/payments/paystack/webhook
+// Example: /api/payments/polar/webhook
+POST /api/payments/polar/webhook
 
 // Verify webhook signature
 // Process the event:
-// - charge.success → Create license, activate subscription
-// - subscription.create → Link subscription to user
-// - subscription.disable → Deactivate license
+// - checkout.completed → Create license / grant product
+// - subscription.created → Link subscription to user
+// - subscription.canceled → Deactivate or mark expiring
 ```
 
 ## Current Status
 
 ✅ **You can test payments NOW without webhooks:**
 - Users can make payments
-- They'll be redirected to Paystack
+- They'll be redirected to Polar checkout
 - Payment will complete
-- You'll need to manually verify in Paystack dashboard
+- You'll need to manually verify in Polar dashboard
 
 ⚠️ **Webhooks needed for:**
 - Automatic license creation after payment

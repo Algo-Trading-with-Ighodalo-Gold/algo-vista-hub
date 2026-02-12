@@ -14,21 +14,24 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 | `VITE_SUPABASE_URL` | Yes | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anon/public key |
 | `VITE_APP_URL` | Yes (prod) | Your Vercel URL, e.g. `https://your-app.vercel.app` |
-| `VITE_PAYSTACK_PUBLIC_KEY` | If using Paystack | Paystack public key (client-side) |
+| `VITE_POLAR_ORGANIZATION_ID` | If using Polar | Polar organization id |
+| `VITE_POLAR_WEBHOOK_SECRET` | If using Polar | Polar webhook signing secret |
 
 Optional (for features you use):
 
-- `VITE_PAYSTACK_PUBLIC_KEY` – Paystack
+- `VITE_POLAR_WEBHOOK_SECRET` – Polar webhook signing secret
+- `VITE_POLAR_ORGANIZATION_ID` – Polar organization ID
+- `VITE_POLAR_DEFAULT_PRODUCT_ID` – default Polar product
 - `VITE_STRIPE_PUBLISHABLE_KEY` – Stripe
 - Other `VITE_*` from `env.example`
 
 **Important:** Set `VITE_APP_URL` to your production URL (e.g. `https://your-app.vercel.app`) so redirects and links work. Redeploy after changing env vars.
 
-## 3. Supabase / Paystack (Edge Function)
+## 3. Supabase / Polar (Edge Function)
 
-- Payment uses **Supabase Edge Functions** (e.g. `paystack-initialize`). Those run on Supabase, not Vercel.
-- In **Supabase**: set `PAYSTACK_SECRET_KEY` and optionally `SITE_URL` (your Vercel URL) in Edge Function secrets.
-- In **Paystack**: set the success/callback URL and webhook URL to your Supabase Edge Function URLs and your app URL as needed.
+- Payment uses **Supabase Edge Functions** (e.g. `polar-checkout`, `polar-verify`). Those run on Supabase, not Vercel.
+- In **Supabase**: set `POLAR_OAT`, `POLAR_WEBHOOK_SECRET`, and optionally `SITE_URL` in Edge Function secrets.
+- In **Polar**: set the success/callback URL and webhook URL to your app URL and Supabase function URL as needed.
 
 ## 4. Deploy
 

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 
-import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle, Code, Zap, Trophy, Target, Sparkles, Tag } from "lucide-react"
+import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle, Code, Zap, Trophy, Target, Sparkles, Tag, Timer } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -182,15 +182,15 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 w-full h-full z-[1] bg-black/20 dark:bg-black/60" />
+        {/* Overlay for better text readability - stronger in light mode for Spline contrast */}
+        <div className="absolute inset-0 w-full h-full z-[1] bg-black/45 dark:bg-black/60" />
 
         <div className="container relative py-16 lg:py-24 z-10">
 
           <div className="mx-auto max-w-4xl text-center">
 
             <ScrollReveal direction="up" delay={0.1}>
-              <Badge variant="secondary" className="mb-4">
+              <Badge variant="secondary" className="mb-4 bg-white/90 text-slate-800 border-white/50 shadow-sm">
 
                 🚀 New: Custom EA Development Available
 
@@ -198,11 +198,11 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.2}>
-              <h1 className="text-hero animate-crazy-float">
+              <h1 className="text-hero animate-crazy-float text-white drop-shadow-lg">
 
                 Professional{" "}
 
-                <span className="text-gradient bg-gradient-trading">Algorithmic Trading</span>{" "}
+                <span className="text-gradient bg-gradient-trading drop-shadow-none">Algorithmic Trading</span>{" "}
 
                 Solutions
 
@@ -210,7 +210,7 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.3}>
-              <p className="mt-4 text-lg sm:text-xl leading-7 text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto font-medium">
+              <p className="mt-4 text-lg sm:text-xl leading-7 text-white/95 max-w-2xl mx-auto font-semibold drop-shadow-md">
 
                 Automate your trading with secure, backtested Expert Advisors for MetaTrader 5. 
 
@@ -218,6 +218,70 @@ export default function HomePage() {
 
               </p>
             </ScrollReveal>
+
+            {/* Pinned Special Offer Tag */}
+            {hasOffers && (
+              <ScrollReveal direction="up" delay={0.35}>
+                <div className="mt-6 mb-4 flex justify-center">
+                  <div className="relative">
+                    {/* Red push-pin (thumbtack style) - tip pierces top of tag */}
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
+                      <svg width="36" height="44" viewBox="0 0 36 44" fill="none" className="drop-shadow-lg" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                        <defs>
+                          <linearGradient id="pinNeedle" x1="18" y1="26" x2="18" y2="44" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#a0a0a0"/>
+                            <stop offset="0.3" stopColor="#e0e0e0"/>
+                            <stop offset="0.7" stopColor="#d0d0d0"/>
+                            <stop offset="1" stopColor="#707070"/>
+                          </linearGradient>
+                        </defs>
+                        {/* Round flat head - top-down view */}
+                        <circle cx="18" cy="10" r="10" fill="#FF0000"/>
+                        <ellipse cx="18" cy="10" rx="10" ry="2.5" fill="#cc0000"/>
+                        {/* Cylindrical shaft */}
+                        <rect x="12" y="18" width="12" height="8" rx="1" fill="#FF0000"/>
+                        <rect x="13" y="20" width="10" height="4" fill="#dd0000"/>
+                        {/* Sharp metallic needle - conical */}
+                        <path d="M14 26 L18 44 L22 26 Z" fill="url(#pinNeedle)"/>
+                      </svg>
+                    </div>
+                    {/* Blue Tag with eye-catching animation */}
+                    <div className="relative pt-4 animate-pin-swing bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 px-5 py-3 sm:px-6 sm:py-4 rounded-lg shadow-2xl border-2 border-white/50">
+                      <div className="absolute inset-0 animate-shimmer rounded-lg overflow-hidden pointer-events-none">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shimmer-slide"></div>
+                      </div>
+                      <div className="relative flex flex-col sm:flex-row items-center gap-2 text-white font-bold text-xs sm:text-sm">
+                        <div className="flex items-center gap-1.5">
+                          <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <span>Special Offer:</span>
+                        </div>
+                        {activeCampaigns.filter((c) => c.promo_code).slice(0, 1).map((c) => {
+                          const endDate = new Date(c.ends_at)
+                          const now = new Date()
+                          const timeLeft = endDate.getTime() - now.getTime()
+                          const daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24))
+                          const hoursLeft = Math.ceil(timeLeft / (1000 * 60 * 60))
+                          
+                          return (
+                            <div key={c.id} className="flex flex-col items-center gap-1.5">
+                              <span className="bg-white/30 backdrop-blur-sm px-2.5 py-1 rounded-md font-mono text-xs sm:text-sm border border-white/40">
+                                {c.promo_code} - {c.discount_type === 'percentage' ? `${c.discount_value}% OFF` : `₦${Number(c.discount_value).toFixed(2)} OFF`}
+                              </span>
+                              <div className="flex items-center gap-1 text-white/90 text-[10px] sm:text-xs">
+                                <Timer className="h-3 w-3" />
+                                <span>
+                                  {daysLeft > 0 ? `Ends in ${daysLeft} day${daysLeft > 1 ? 's' : ''}` : hoursLeft > 0 ? `Ends in ${hoursLeft} hour${hoursLeft > 1 ? 's' : ''}` : 'Ending soon!'}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
 
             <ScrollReveal direction="up" delay={0.4}>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -236,26 +300,9 @@ export default function HomePage() {
 
                 </MagneticButton>
 
-                {hasOffers && (
-                  <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-center text-sm">
-                    <span className="font-medium flex items-center justify-center gap-2">
-                      <Tag className="h-4 w-4" />
-                      Current offers:
-                    </span>
-                    <p className="mt-1 text-foreground/80 dark:text-muted-foreground">
-                      {activeCampaigns.filter((c) => c.promo_code).slice(0, 3).map((c) => (
-                        <span key={c.id} className="inline-block mr-2">
-                          Use <code className="font-mono bg-muted px-1 rounded">{c.promo_code}</code>
-                          {c.discount_type === 'percentage' ? ` ${c.discount_value}% off` : ` ₦${Number(c.discount_value).toFixed(2)} off`}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
-
                 <MagneticButton>
 
-                  <Button size="lg" variant="outline" className="px-8 border-2" asChild>
+                  <Button size="lg" variant="outline" className="px-8 border-2 border-white/60 text-white bg-white/5 hover:bg-white/15 hover:text-white hover:border-white" asChild>
 
                     <Link to="/auth/login">
 
@@ -271,7 +318,7 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.5}>
-              <p className="mt-4 text-xl text-foreground/75 dark:text-muted-foreground font-medium">
+              <p className="mt-4 text-xl text-white/90 font-semibold drop-shadow-md">
 
                 30-day money-back guarantee • Lifetime updates • 24/7 support
 
@@ -281,7 +328,7 @@ export default function HomePage() {
             <ScrollReveal direction="up" delay={0.6}>
               <div className="mt-6">
 
-                <Button variant="outline" size="lg" className="hover-scale px-8 text-lg" asChild>
+                <Button variant="outline" size="lg" className="hover-scale px-8 text-lg border-white/60 text-white bg-white/5 hover:bg-white/15 hover:text-white hover:border-white" asChild>
 
                   <a href="https://t.me/AlgotradingwithIghodalo" target="_blank" rel="noopener noreferrer">
 

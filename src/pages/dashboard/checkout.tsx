@@ -212,10 +212,10 @@ export default function CheckoutPage() {
         throw new Error('Email is required for payment')
       }
 
-      const payment = await paymentAPI.createPaystackPayment(
+      const payment = await paymentAPI.createPolarCheckout(
         finalPrice,
         email,
-        'NGN',
+        'USD',
         {
           productId: product.id,
           productCode: product.product_code,
@@ -231,9 +231,9 @@ export default function CheckoutPage() {
         }
       )
 
-      // Redirect to payment page (force navigation so Paystack opens)
-      if (payment?.authorization_url) {
-        window.location.assign(payment.authorization_url)
+      // Redirect to Polar hosted checkout page
+      if (payment?.checkoutUrl) {
+        window.location.assign(payment.checkoutUrl)
         return
       }
       throw new Error('Payment link was not received. Please try again.')
@@ -331,17 +331,17 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
-                    <span>₦{Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span>${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                   {appliedCampaign && (
                     <div className="flex justify-between text-sm text-success">
                       <span>Discount ({appliedCampaign.promo_code})</span>
-                      <span>-₦{discountAmount.toFixed(2)}</span>
+                      <span>-${discountAmount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-medium text-lg">
                     <span>Total</span>
-                    <span>₦{Number(finalPriceStr).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span>${Number(finalPriceStr).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     One-time payment • No recurring charges
@@ -354,7 +354,7 @@ export default function CheckoutPage() {
                     Secure Payment
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    Supports cards, bank transfer, USSD & mobile money
+                    Secure checkout supports cards and wallets by region
                   </div>
                 </div>
               </CardContent>
@@ -452,7 +452,7 @@ export default function CheckoutPage() {
                         <div className="font-medium">Secure Payment</div>
                         <div className="text-sm text-muted-foreground">
                           You will be redirected to our secure payment page to complete your transaction.
-                          We accept cards, bank transfers, USSD, and mobile money.
+                          Cards and supported wallets are available based on your region.
                         </div>
                       </div>
                     </div>
@@ -496,7 +496,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <Lock className="h-4 w-4 mr-2" />
-                        Pay ₦{Number(finalPriceStr).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        Pay ${Number(finalPriceStr).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </>
                     )}
                   </Button>

@@ -15,7 +15,7 @@ git add -A
 
 echo.
 echo === Committing ===
-git commit -m "Sync all: Spline background, Paystack fixes, promo UI, Vercel config, header avatar, discount campaigns, 401 fix"
+git commit -m "Sync all: Polar migration, promo UI, Vercel config, header avatar, discount campaigns"
 if errorlevel 1 echo (Nothing to commit or already committed.)
 
 echo.

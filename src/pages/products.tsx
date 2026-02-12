@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Star, TrendingUp, Shield, Clock, ArrowRight, BarChart3, Target, DollarSign, Timer } from "lucide-react"
+import { Star, TrendingUp, Shield, Clock, ArrowRight, BarChart3, Target, DollarSign, Timer, Tag } from "lucide-react"
 import { CandlestickBackground } from "@/components/ui/candlestick-background"
 import { ScrollReveal, StaggerContainer, StaggerItem, ScaleReveal } from "@/components/ui/scroll-reveal"
 import { supabase } from "@/integrations/supabase/client"
+import { useActiveCampaigns } from "@/hooks/use-active-campaigns"
 import type { Database } from "@/integrations/supabase/types"
 
 import goldRushImage from "@/assets/gold-rush-ea.jpg"
@@ -50,6 +51,7 @@ export default function ProductsPage() {
   const navigate = useNavigate()
   const [products, setProducts] = useState<EaProduct[]>([])
   const [loading, setLoading] = useState(true)
+  const { campaigns: activeCampaigns } = useActiveCampaigns()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -155,17 +157,45 @@ export default function ProductsPage() {
               <StaggerItem key={ea.id} direction={index % 3 === 0 ? 'left' : index % 3 === 1 ? 'up' : 'right'}>
                 <Card className="group card-hover">
                 <CardHeader className="pb-4">
-                  <div className="aspect-video bg-gradient-subtle rounded-lg mb-4 overflow-hidden">
+                  <div className="aspect-video bg-gradient-subtle rounded-lg mb-4 overflow-hidden relative">
                     <img 
                       src={imageSrc} 
                       alt={ea.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    {/* Special Offer Badge */}
+                    {activeCampaigns.some(c => 
+                      !c.product_ids || 
+                      c.product_ids.length === 0 || 
+                      c.product_ids.includes(ea.id)
+                    ) && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0 shadow-lg animate-pulse">
+                          <Tag className="h-3 w-3 mr-1" />
+                          Special Offer
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                   <CardTitle className="text-heading group-hover:text-primary transition-colors">
                     {ea.name}
                   </CardTitle>
                   <CardDescription className="text-body">{ea.short_description}</CardDescription>
+                  {/* Promo Code Display */}
+                  {activeCampaigns.filter(c => 
+                    c.promo_code && 
+                    (!c.product_ids || c.product_ids.length === 0 || c.product_ids.includes(ea.id))
+                  ).slice(0, 1).map((c) => (
+                    <div key={c.id} className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-2 text-xs">
+                        <Tag className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                        <span className="font-mono font-bold text-blue-700 dark:text-blue-300">{c.promo_code}</span>
+                        <span className="text-blue-600 dark:text-blue-400">
+                          - {c.discount_type === 'percentage' ? `${c.discount_value}% OFF` : `₦${Number(c.discount_value).toFixed(2)} OFF`}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </CardHeader>
                 
                 <CardContent className="space-y-4">

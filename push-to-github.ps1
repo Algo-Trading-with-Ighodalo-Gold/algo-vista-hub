@@ -15,7 +15,7 @@ git add -A
 Write-Host "`n=== Status after add ===" -ForegroundColor Cyan
 git status --short
 
-$msg = "Sync all: Spline background, Paystack fixes, promo UI, Vercel config, header avatar, discount campaigns, 401 fix"
+$msg = "Sync all: Polar migration, promo UI, Vercel config, header avatar, discount campaigns"
 $committed = $false
 try {
     git commit -m $msg

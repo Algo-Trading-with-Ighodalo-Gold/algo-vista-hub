@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Edit, Trash2, Package, TrendingUp, BarChart3, Upload, X, Image as ImageIcon, Loader2, Key } from "lucide-react"
 import type { Database } from "@/integrations/supabase/types"
+import { getPriceCents, type PlanTier, type BillingTerm } from "@/lib/ea-pricing"
 
 // Use products table instead of ea_products
 type EaProduct = {
@@ -54,8 +55,18 @@ export default function EAManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [viewingStatsProduct, setViewingStatsProduct] = useState<EaProduct | null>(null)
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false)
+  const [isPlanDialogOpen, setIsPlanDialogOpen] = useState(false)
+  const [selectedPlanProduct, setSelectedPlanProduct] = useState<EaProduct | null>(null)
+  const [creatingPlan, setCreatingPlan] = useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
+  const [planForm, setPlanForm] = useState({
+    tier: "basic",
+    term: "monthly",
+    price_cents: 0,
+    currency: "USD",
+    baseMonthlyCents: 2900, // Basic monthly in cents; used for auto-compute
+  })
 
   const [formData, setFormData] = useState<Partial<EaProductInsert>>({
     product_code: "",
@@ -82,6 +93,7 @@ export default function EAManagement() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [eaFile, setEaFile] = useState<File | null>(null)
+  const [eaFolderFiles, setEaFolderFiles] = useState<File[]>([])
   const [licenseFile, setLicenseFile] = useState<File | null>(null)
   const [uploadingEA, setUploadingEA] = useState(false)
   const [currentEAFile, setCurrentEAFile] = useState<string | null>(null)
@@ -139,6 +151,59 @@ export default function EAManagement() {
     setIsStatsDialogOpen(true)
   }
 
+  const handleOpenPlanDialog = (product: EaProduct) => {
+    setSelectedPlanProduct(product)
+    const base = Math.max(0, product.price_cents || 2900)
+    setPlanForm({
+      tier: "basic",
+      term: "monthly",
+      price_cents: getPriceCents(base, "basic", "monthly"),
+      currency: "USD",
+      baseMonthlyCents: base,
+    })
+    setIsPlanDialogOpen(true)
+  }
+
+  const updatePlanPriceFromBase = (base: number, tier: PlanTier, term: BillingTerm) => {
+    setPlanForm((prev) => ({
+      ...prev,
+      baseMonthlyCents: base,
+      price_cents: getPriceCents(base, tier, term),
+    }))
+  }
+
+  const handleCreatePlan = async () => {
+    if (!selectedPlanProduct) return
+    try {
+      setCreatingPlan(true)
+      const { data, error } = await supabase.functions.invoke("admin-create-ea-plan", {
+        body: {
+          ea_id: selectedPlanProduct.id,
+          tier: planForm.tier,
+          term: planForm.term,
+          price_cents: planForm.price_cents,
+          currency: planForm.currency,
+        },
+      })
+      if (error) throw error
+      if (!data?.success) throw new Error(data?.error || "Failed to create plan")
+
+      toast({
+        title: "Plan created",
+        description: "EA plan and payment product were created successfully.",
+      })
+      setIsPlanDialogOpen(false)
+    } catch (error: any) {
+      toast({
+        title: "Failed to create plan",
+        description: error.message || "Could not create EA plan",
+        variant: "destructive",
+      })
+    } finally {
+      setCreatingPlan(false)
+    }
+  }
+
   const handleCreate = () => {
     setEditingProduct(null)
     setFormData({
@@ -166,6 +231,7 @@ export default function EAManagement() {
     setImageFile(null)
     setImagePreview(null)
     setEaFile(null)
+    setEaFolderFiles([])
     setLicenseFile(null)
     setCurrentEAFile(null)
     setCurrentLicenseFile(null)
@@ -215,6 +281,7 @@ export default function EAManagement() {
     setImageFile(null)
     setImagePreview((product as any).image_key ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/${(product as any).image_key}` : null)
     setEaFile(null)
+    setEaFolderFiles([])
     setLicenseFile(null)
     setCurrentEAFile((product as any).file_key || null)
     setCurrentLicenseFile((product as any).license_file_key || null)
@@ -317,21 +384,69 @@ export default function EAManagement() {
     
     const file = files[0]
     
-    // Prevent folder selection (check if webkitRelativePath exists and has path separators)
-    if ((file as any).webkitRelativePath && (file as any).webkitRelativePath.split('/').length > 1) {
-      toast({
-        title: "Folders Not Allowed",
-        description: "Please select individual files, not folders. Click 'Choose File' and select a single .ex4 or .ex5 file.",
-        variant: "destructive",
-      })
-      e.target.value = '' // Reset input
-      return
-    }
+    // Check if this is a folder upload (has webkitRelativePath with path separators)
+    const isFolder = (file as any).webkitRelativePath && (file as any).webkitRelativePath.split('/').length > 1
     
-    if (file) {
-      // STRICT VALIDATION: Only allow .ex4 and .ex5 files (compiled EA files)
+    if (isFolder) {
+      // Handle folder upload - scan all files
+      const fileArray = Array.from(files)
+      const forbiddenExtensions = ['mq5', 'mq4', 'ex', 'mqh', 'mql', 'mql5', 'mql4', 'cpp', 'h', 'hpp', 'c', 'cs', 'py', 'js', 'ts']
+      
+      // Scan all files for forbidden extensions
+      const forbiddenFiles: string[] = []
+      const allowedFiles: File[] = []
+      let hasEAFile = false
+      
+      fileArray.forEach((f) => {
+        const fileExt = f.name.split('.').pop()?.toLowerCase()
+        if (forbiddenExtensions.includes(fileExt || '')) {
+          forbiddenFiles.push(f.name)
+        } else {
+          allowedFiles.push(f)
+          if (fileExt === 'ex4' || fileExt === 'ex5') {
+            hasEAFile = true
+          }
+        }
+      })
+      
+      if (forbiddenFiles.length > 0) {
+        toast({
+          title: "Security Error: Source Code Files Detected",
+          description: `Folder contains forbidden files: ${forbiddenFiles.slice(0, 3).join(', ')}${forbiddenFiles.length > 3 ? '...' : ''}. Source code files (.mq5, .mq4, etc.) are NOT allowed.`,
+          variant: "destructive",
+        })
+        e.target.value = ''
+        return
+      }
+      
+      if (!hasEAFile) {
+        toast({
+          title: "EA File Required",
+          description: "Folder must contain at least one .ex4 or .ex5 file",
+          variant: "destructive",
+        })
+        e.target.value = ''
+        return
+      }
+      
+      // Find the EA file (.ex4 or .ex5)
+      const eaFileInFolder = allowedFiles.find(f => {
+        const ext = f.name.split('.').pop()?.toLowerCase()
+        return ext === 'ex4' || ext === 'ex5'
+      })
+      
+      if (eaFileInFolder) {
+        setEaFile(eaFileInFolder)
+        setEaFolderFiles(allowedFiles.filter(f => f !== eaFileInFolder)) // Store other files
+        toast({
+          title: "Folder Selected",
+          description: `Found ${allowedFiles.length} file(s). EA file: ${eaFileInFolder.name}`,
+        })
+      }
+    } else {
+      // Single file upload (existing logic)
       const fileExt = file.name.split('.').pop()?.toLowerCase()
-      const allowedExtensions = ['ex4', 'ex5'] // .ex4 for MT4, .ex5 for MT5
+      const allowedExtensions = ['ex4', 'ex5']
       const forbiddenExtensions = ['mq5', 'mq4', 'ex', 'mqh', 'mql', 'mql5', 'mql4', 'cpp', 'h', 'hpp', 'c', 'cs', 'py', 'js', 'ts']
       
       if (!fileExt || !allowedExtensions.includes(fileExt)) {
@@ -343,7 +458,6 @@ export default function EAManagement() {
         return
       }
 
-      // Check if it's a forbidden extension (double check)
       if (forbiddenExtensions.includes(fileExt)) {
         toast({
           title: "Security Error",
@@ -353,7 +467,6 @@ export default function EAManagement() {
         return
       }
 
-      // Validate file size (max 10MB for EA files)
       if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File Too Large",
@@ -364,6 +477,7 @@ export default function EAManagement() {
       }
 
       setEaFile(file)
+      setEaFolderFiles([])
       toast({
         title: "File Selected",
         description: `${file.name} ready to upload`,
@@ -389,7 +503,7 @@ export default function EAManagement() {
       const fileName = `${productCode}-v${version}-${timestamp}.${fileExt}`
       const filePath = fileName
 
-      // Upload to Supabase Storage (ea-files bucket)
+      // Upload EA file to Supabase Storage (ea-files bucket)
       const { error: uploadError } = await supabase.storage
         .from('ea-files')
         .upload(filePath, eaFile, {
@@ -402,10 +516,35 @@ export default function EAManagement() {
         throw uploadError
       }
 
-      toast({
-        title: "EA File Uploaded",
-        description: `${eaFile.name} uploaded successfully`,
-      })
+      // Upload folder files if any (e.g., .set files, test results, pictures)
+      if (eaFolderFiles.length > 0) {
+        const folderPath = `${productCode}/files/`
+        const uploadPromises = eaFolderFiles.map(async (file) => {
+          const folderFileName = `${folderPath}${file.name}`
+          const { error: folderUploadError } = await supabase.storage
+            .from('ea-files')
+            .upload(folderFileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            })
+          
+          if (folderUploadError) {
+            console.error(`Error uploading ${file.name}:`, folderUploadError)
+            // Don't fail entire upload if one file fails
+          }
+        })
+        
+        await Promise.all(uploadPromises)
+        toast({
+          title: "Files Uploaded",
+          description: `EA file and ${eaFolderFiles.length} additional file(s) uploaded successfully`,
+        })
+      } else {
+        toast({
+          title: "EA File Uploaded",
+          description: `${eaFile.name} uploaded successfully`,
+        })
+      }
 
       return filePath
     } catch (error: any) {
@@ -684,8 +823,9 @@ export default function EAManagement() {
       setIsDialogOpen(false)
       setImageFile(null)
       setImagePreview(null)
-      setEaFile(null)
-      setCurrentEAFile(null)
+    setEaFile(null)
+    setEaFolderFiles([])
+    setCurrentEAFile(null)
       fetchProducts()
     } catch (error: any) {
       console.error("Error saving product:", error)
@@ -779,6 +919,13 @@ export default function EAManagement() {
                   onClick={() => handleEdit(product)}
                 >
                   <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenPlanDialog(product)}
+                >
+                  Plan
                 </Button>
                 <Button
                   variant="outline"
@@ -918,30 +1065,61 @@ export default function EAManagement() {
                     <input
                       id="ea_file"
                       type="file"
-                      accept=".ex4,.ex5"
+                      accept=".ex4,.ex5,.set,.jpg,.jpeg,.png,.gif,.pdf"
                       onChange={handleEAFileChange}
                       className="hidden"
                     />
-                    <Button
-                      type="button"
-                      variant="default"
-                      className="mt-2"
-                      onClick={() => {
-                        const input = document.getElementById('ea_file') as HTMLInputElement
-                        if (input) {
-                          input.click()
-                        }
-                      }}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload EA File (.ex4/.ex5)
-                    </Button>
+                    <input
+                      id="ea_folder"
+                      type="file"
+                      webkitdirectory=""
+                      directory=""
+                      multiple
+                      onChange={handleEAFileChange}
+                      className="hidden"
+                    />
+                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                      <Button
+                        type="button"
+                        variant="default"
+                        className="mt-2"
+                        onClick={() => {
+                          const input = document.getElementById('ea_file') as HTMLInputElement
+                          if (input) {
+                            input.click()
+                          }
+                        }}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload EA File (.ex4/.ex5)
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-2"
+                        onClick={() => {
+                          const input = document.getElementById('ea_folder') as HTMLInputElement
+                          if (input) {
+                            input.click()
+                          }
+                        }}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Folder (EA + Files)
+                      </Button>
+                    </div>
                     <p className="text-xs text-red-700 dark:text-red-300 mt-2 font-semibold">
-                      ⚠️ SECURITY: Only compiled .ex4 files allowed
+                      ⚠️ SECURITY: Only compiled .ex4/.ex5 files allowed. Folder will be scanned for .mq5/.mq4 files.
                     </p>
                     <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                      Source code files (.mq5, .mq4, .ex, etc.) are BLOCKED
+                      Source code files (.mq5, .mq4, .ex, etc.) are BLOCKED. Folder can include .set files, test results, and images.
                     </p>
+                    {eaFolderFiles.length > 0 && (
+                      <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded text-xs">
+                        <p className="font-medium text-blue-700 dark:text-blue-300">Additional files in folder: {eaFolderFiles.length}</p>
+                        <p className="text-blue-600 dark:text-blue-400">These will be included in the download ZIP</p>
+                      </div>
+                    )}
                   </div>
                 )}
                 {uploadingEA && (
@@ -1392,6 +1570,105 @@ export default function EAManagement() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPlanDialogOpen} onOpenChange={setIsPlanDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create EA Plan</DialogTitle>
+            <DialogDescription>
+              Creates an EA plan and payment product automatically.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="space-y-2">
+              <Label>EA</Label>
+              <Input value={selectedPlanProduct?.name || ""} disabled />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Tier</Label>
+                <Select
+                  value={planForm.tier}
+                  onValueChange={(value) => {
+                    const tier = value as PlanTier
+                    setPlanForm((prev) => {
+                      const base = prev.baseMonthlyCents ?? 2900
+                      return { ...prev, tier, price_cents: getPriceCents(base, tier, prev.term as BillingTerm) }
+                    })
+                  }}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Basic (1 account)</SelectItem>
+                    <SelectItem value="pro">Pro (2 accounts)</SelectItem>
+                    <SelectItem value="premium">Premium (3 accounts)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Term</Label>
+                <Select
+                  value={planForm.term}
+                  onValueChange={(value) => {
+                    const term = value as BillingTerm
+                    setPlanForm((prev) => {
+                      const base = prev.baseMonthlyCents ?? 2900
+                      return { ...prev, term, price_cents: getPriceCents(base, prev.tier as PlanTier, term) }
+                    })
+                  }}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Base monthly price (Basic tier, cents)</Label>
+              <Input
+                type="number"
+                min={0}
+                placeholder="2900 = $29"
+                value={planForm.baseMonthlyCents ?? 2900}
+                onChange={(e) => {
+                  const base = parseInt(e.target.value, 10) || 2900
+                  updatePlanPriceFromBase(base, planForm.tier as PlanTier, planForm.term as BillingTerm)
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Quarterly 15% off, Yearly 25% off. Pro +70%, Premium +110%.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Price (cents)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={planForm.price_cents}
+                  onChange={(e) => setPlanForm((prev) => ({ ...prev, price_cents: parseInt(e.target.value, 10) || 0 }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Currency</Label>
+                <Input
+                  value={planForm.currency}
+                  onChange={(e) => setPlanForm((prev) => ({ ...prev, currency: e.target.value.toUpperCase() }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPlanDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreatePlan} disabled={creatingPlan}>
+              {creatingPlan ? "Creating..." : "Create Plan"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

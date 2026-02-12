@@ -185,6 +185,7 @@ BEGIN
     'file_key', v_file_key,
     'bucket', 'ea-files',
     'product_name', v_product.name,
+    'product_code', v_product.product_code,
     'version', COALESCE(v_product.version, '1.0.0'),
     'message', 'Download URL generated successfully'
   );
