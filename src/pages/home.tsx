@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom"
 
-import { ArrowRight, Shield, Users, TrendingUp, Star, Download, CheckCircle, MessageCircle, Code, Zap, Trophy, Target, Sparkles, Tag, Timer } from "lucide-react"
+import { ArrowRight, Shield, Users, TrendingUp, Star, MessageCircle, Code, Zap, Trophy, Target, Sparkles, Tag, Timer } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { Badge } from "@/components/ui/badge"
-
-import { StatsCard } from "@/components/ui/stats-card"
 
 import { FloatingIcon, GlowingOrb, MagneticButton } from "@/components/ui/interactive-elements"
 
@@ -94,68 +92,6 @@ const testimonials = [
       "Great experience. My custom EA was delivered on time, tested, optimized, and performing better than expected. Highly recommended.",
     rating: 5,
   },
-]
-
-
-
-const stats = [
-
-  {
-
-    title: "Active Traders",
-
-    value: "2,500+",
-
-    description: "Worldwide",
-
-    icon: Users,
-
-    trend: { value: 12, label: "this month", positive: true }
-
-  },
-
-  {
-
-    title: "Total Profit Generated",
-
-    value: "$4.2M+",
-
-    description: "Cumulative returns",
-
-    icon: TrendingUp,
-
-    trend: { value: 8, label: "this quarter", positive: true }
-
-  },
-
-  {
-
-    title: "Success Rate",
-
-    value: "94%",
-
-    description: "Profitable months",
-
-    icon: CheckCircle,
-
-    trend: { value: 2, label: "vs last year", positive: true }
-
-  },
-
-  {
-
-    title: "Expert Advisors",
-
-    value: "15+",
-
-    description: "Available strategies",
-
-    icon: Download,
-
-    trend: { value: 25, label: "new releases", positive: true }
-
-  }
-
 ]
 
 
@@ -408,80 +344,6 @@ export default function HomePage() {
             ))}
 
           </StaggerContainer>
-
-        </div>
-
-      </section>
-
-
-
-      {/* Stats Section */}
-
-      <section className="py-20 bg-muted/50">
-
-        <div className="container">
-
-          <div className="mx-auto max-w-2xl text-center mb-16">
-
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl animate-fade-in">
-
-              Trusted by Traders Worldwide
-
-            </h2>
-
-            <p className="mt-3 text-base text-muted-foreground animate-fade-in">
-
-              Join a growing community of successful algorithmic traders
-
-            </p>
-
-            <div className="mt-6 animate-fade-in">
-
-              <Button variant="default" className="hover-scale" asChild>
-
-                <a href="https://t.me/AlgotradingwithIghodalo" target="_blank" rel="noopener noreferrer">
-
-                  <MessageCircle className="mr-2 h-4 w-4" />
-
-                  Join Our Telegram Community
-
-                </a>
-
-              </Button>
-
-            </div>
-
-          </div>
-
-          <div className="overflow-hidden">
-
-            <div className="flex gap-6 animate-continuous-scroll">
-
-              {/* First set of stats */}
-              {stats.map((stat, index) => (
-
-                <div key={`first-${index}`} className="min-w-[280px] flex-shrink-0">
-
-                  <StatsCard {...stat} />
-
-                </div>
-
-              ))}
-
-              {/* Duplicate set for seamless loop */}
-              {stats.map((stat, index) => (
-
-                <div key={`second-${index}`} className="min-w-[280px] flex-shrink-0">
-
-                  <StatsCard {...stat} />
-
-                </div>
-
-              ))}
-
-            </div>
-
-          </div>
 
         </div>
 
