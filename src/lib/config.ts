@@ -71,8 +71,9 @@ export const config = {
   // Payment Configuration
   payments: {
     defaultCurrency: 'USD',
-    supportedCurrencies: ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SEK'],
+    supportedCurrencies: ['USD', 'NGN', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SEK'],
     polarEnabled: true,
+    paystackEnabled: true,
   },
 
   // License Configuration
@@ -131,6 +132,7 @@ export function validateConfig(): { isValid: boolean; missingKeys: string[] } {
 
   // Check payment configuration
   if (!config.stripe.publishableKey && !config.polar.organizationId) {
+    // Paystack checkout runs via server-side edge functions; no frontend key required.
     missingKeys.push('VITE_STRIPE_PUBLISHABLE_KEY or VITE_POLAR_ORGANIZATION_ID');
   }
 

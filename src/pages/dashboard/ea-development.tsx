@@ -31,6 +31,8 @@ interface ProjectInquiry {
   updated_at: string
 }
 
+const CALENDLY_BOOKING_LINK = "https://calendly.com/algotradingwithighodalo/30min"
+
 export default function DashboardEADevelopmentPage() {
   const { user } = useAuth()
   const { toast } = useToast()
@@ -57,11 +59,21 @@ export default function DashboardEADevelopmentPage() {
     if (!user) return
 
     try {
-      const result = await ProjectInquiryAPI.getInquiriesByEmail(user.email)
-      if (result.success && result.data) {
-        setProjectInquiries(result.data)
+      const { data, error } = await supabase
+        .from('project_inquiries')
+        .select('*')
+        .ilike('email', (user.email || "").toLowerCase())
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        const result = await ProjectInquiryAPI.getInquiriesByEmail(user.email)
+        if (result.success && result.data) {
+          setProjectInquiries(result.data)
+        } else {
+          console.error('Error fetching project inquiries:', result.error)
+        }
       } else {
-        console.error('Error fetching project inquiries:', result.error)
+        setProjectInquiries((data || []) as any)
       }
     } catch (error) {
       console.error('Error fetching project inquiries:', error)
@@ -86,9 +98,10 @@ export default function DashboardEADevelopmentPage() {
     setIsSubmitting(true)
     
     try {
+      const inquiryEmail = user?.email || formData.email
       const result = await ProjectInquiryAPI.createInquiry({
         name: formData.name,
-        email: formData.email,
+        email: inquiryEmail,
         strategy: formData.strategy,
         instruments: formData.instruments,
         timeframes: formData.timeframes,
@@ -151,6 +164,10 @@ export default function DashboardEADevelopmentPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'approved':
+        return <CheckCircle className="h-4 w-4 text-green-500" />
+      case 'rejected':
+        return <AlertCircle className="h-4 w-4 text-red-500" />
       case 'completed':
         return <CheckCircle className="h-4 w-4 text-green-500" />
       case 'in_progress':
@@ -164,6 +181,10 @@ export default function DashboardEADevelopmentPage() {
 
   const getStatusVariant = (status: string) => {
     switch (status) {
+      case 'approved':
+        return 'default'
+      case 'rejected':
+        return 'destructive'
       case 'completed':
         return 'default'
       case 'in_progress':
@@ -179,6 +200,10 @@ export default function DashboardEADevelopmentPage() {
     if (!user) return
     
     fetchProjectInquiries()
+    setFormData((prev) => ({
+      ...prev,
+      email: user.email || prev.email,
+    }))
     
     // Listen for status updates via custom event
     const handleStatusUpdate = () => {
@@ -319,7 +344,17 @@ export default function DashboardEADevelopmentPage() {
                       </div>
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline">View Details</Button>
-                        <Button size="sm" variant="outline">Message Team</Button>
+                        {inquiry.status === 'approved' ? (
+                          <Button
+                            size="sm"
+                            onClick={() => window.open(CALENDLY_BOOKING_LINK, '_blank')}
+                          >
+                            Book Meeting
+                            <ArrowRight className="ml-1 h-3 w-3" />
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline">Message Team</Button>
+                        )}
                       </div>
                     </div>
                   ))}

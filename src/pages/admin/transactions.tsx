@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { TableScroll } from "@/components/admin/TableScroll"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -295,10 +296,11 @@ export default function TransactionManagement() {
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+            <TableScroll>
+              <Table noWrapper compact>
+                <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>User</TableHead>
@@ -346,7 +348,8 @@ export default function TransactionManagement() {
                   </TableRow>
                 )}
               </TableBody>
-            </Table>
+              </Table>
+            </TableScroll>
           </div>
         </CardContent>
       </Card>

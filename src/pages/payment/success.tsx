@@ -18,6 +18,9 @@ export default function PaymentSuccessPage() {
   const [license, setLicense] = useState<any>(null)
 
   const reference = searchParams.get('reference') || searchParams.get('checkout_id') || searchParams.get('id')
+  const pspParam = searchParams.get('psp')
+  const provider: 'polar' | 'paystack' =
+    pspParam === 'paystack' ? 'paystack' : (searchParams.get('checkout_id') ? 'polar' : 'paystack')
 
   useEffect(() => {
     if (!reference) {
@@ -34,8 +37,8 @@ export default function PaymentSuccessPage() {
       try {
         setVerifying(true)
         
-        // Verify payment with Polar
-        const transaction = await paymentAPI.verifyPolarCheckout(reference)
+        // Verify payment with selected provider
+        const transaction = await paymentAPI.verifyCheckout(provider, reference)
         
         if (['success', 'succeeded', 'completed'].includes(transaction.status)) {
           setPaymentData(transaction)
@@ -76,7 +79,7 @@ export default function PaymentSuccessPage() {
     if (user && reference) {
       verifyPayment()
     }
-  }, [reference, user, navigate, toast])
+  }, [reference, provider, user, navigate, toast])
 
   if (verifying) {
     return (

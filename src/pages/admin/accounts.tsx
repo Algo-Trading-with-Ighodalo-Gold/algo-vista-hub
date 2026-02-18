@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { TableScroll } from "@/components/admin/TableScroll"
 import { Button } from "@/components/ui/button"
 import type { Database } from "@/integrations/supabase/types"
 
@@ -601,26 +602,28 @@ export default function AdminAccounts() {
           </DialogHeader>
           <div className="space-y-4">
             {accountActivities.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead>Details</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {accountActivities.map((activity) => (
-                    <TableRow key={activity.id}>
-                      <TableCell>{new Date(activity.timestamp).toLocaleString()}</TableCell>
-                      <TableCell>{activity.action}</TableCell>
-                      <TableCell className="text-xs">
-                        {activity.details ? JSON.stringify(activity.details) : "N/A"}
-                      </TableCell>
+              <TableScroll maxHeight="300px" className="rounded border">
+                <Table noWrapper compact>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Details</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {accountActivities.map((activity) => (
+                      <TableRow key={activity.id}>
+                        <TableCell>{new Date(activity.timestamp).toLocaleString()}</TableCell>
+                        <TableCell>{activity.action}</TableCell>
+                        <TableCell className="text-xs">
+                          {activity.details ? JSON.stringify(activity.details) : "N/A"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableScroll>
             ) : (
               <p className="text-center text-muted-foreground py-8">No activity logs found</p>
             )}

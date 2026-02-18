@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { TableScroll } from "@/components/admin/TableScroll"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/integrations/supabase/client"
@@ -317,10 +318,11 @@ export default function LicenseManagement() {
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+            <TableScroll>
+              <Table noWrapper compact>
+                <TableHeader>
                 <TableRow>
                   <TableHead>License Key</TableHead>
                   <TableHead>Product</TableHead>
@@ -405,7 +407,8 @@ export default function LicenseManagement() {
                   </TableRow>
                 )}
               </TableBody>
-            </Table>
+              </Table>
+            </TableScroll>
           </div>
         </CardContent>
       </Card>
@@ -424,7 +427,8 @@ export default function LicenseManagement() {
             <div>
               <h3 className="font-semibold mb-2">Validation Logs</h3>
               {licenseValidations.length > 0 ? (
-                <Table>
+                <TableScroll maxHeight="200px" className="rounded border">
+                  <Table noWrapper compact>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
@@ -447,7 +451,8 @@ export default function LicenseManagement() {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                  </Table>
+                </TableScroll>
               ) : (
                 <p className="text-sm text-muted-foreground">No validation logs found</p>
               )}
@@ -457,7 +462,8 @@ export default function LicenseManagement() {
             <div>
               <h3 className="font-semibold mb-2">Activity Logs</h3>
               {licenseLogs.length > 0 ? (
-                <Table>
+                <TableScroll maxHeight="200px" className="rounded border">
+                  <Table noWrapper compact>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
@@ -476,7 +482,8 @@ export default function LicenseManagement() {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                  </Table>
+                </TableScroll>
               ) : (
                 <p className="text-sm text-muted-foreground">No activity logs found</p>
               )}

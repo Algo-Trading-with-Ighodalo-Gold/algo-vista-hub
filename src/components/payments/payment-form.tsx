@@ -1,5 +1,5 @@
 // Payment Form Component
-// This component handles payment processing via Polar
+// This component handles payment processing via hosted PSP checkout
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -57,24 +57,26 @@ export function PaymentForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlePolarPayment = async () => {
+  const handleCheckout = async () => {
     try {
       setIsProcessing(true);
       setErrors({});
 
-      const payment = await paymentAPI.createPolarCheckout(
+      const checkoutPayload = {
         amount,
-        customerInfo.email,
+        email: customerInfo.email,
         currency,
-        {
+        metadata: {
           productId,
           productName,
           customerName: customerInfo.name,
           country: customerInfo.country,
-        }
-      );
+        },
+      } as const;
 
-      // Redirect to Polar checkout page
+      const payment = await paymentAPI.createCheckout('paystack', checkoutPayload);
+
+      // Redirect to hosted checkout page
       if (payment?.checkoutUrl) {
         window.location.assign(payment.checkoutUrl);
       } else {
@@ -93,7 +95,7 @@ export function PaymentForm({
       return;
     }
 
-    await handlePolarPayment();
+    await handleCheckout();
   };
 
   return (
@@ -145,7 +147,8 @@ export function PaymentForm({
               <SelectTrigger className={errors.country ? 'border-red-500' : ''}>
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                <SelectItem value="NG">Nigeria</SelectItem>
                 <SelectItem value="US">United States</SelectItem>
                 <SelectItem value="CA">Canada</SelectItem>
                 <SelectItem value="GB">United Kingdom</SelectItem>

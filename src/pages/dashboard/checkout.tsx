@@ -139,16 +139,25 @@ export default function CheckoutPage() {
     setPromoError("")
     setPromoLoading(true)
     try {
+      const nowIso = new Date().toISOString()
       const { data: campaigns, error } = await supabase
         .from("discount_campaigns")
-        .select("id, name, discount_type, discount_value, promo_code, product_ids")
+        .select("id, name, discount_type, discount_value, promo_code, product_ids, is_active, starts_at, ends_at, max_redemptions, redemption_count")
         .eq("promo_code", code)
+        .eq("is_active", true)
+        .lte("starts_at", nowIso)
+        .gte("ends_at", nowIso)
         .limit(1)
 
       if (error) throw error
       const campaign = campaigns?.[0] as { id: string; name: string; discount_type: string; discount_value: number; promo_code: string | null; product_ids: string[] | null } | undefined
       if (!campaign) {
-        setPromoError("Invalid or expired promo code")
+        setPromoError("Invalid, inactive, or expired promo code")
+        setAppliedCampaign(null)
+        return
+      }
+      if (campaign.max_redemptions != null && Number(campaign.redemption_count || 0) >= Number(campaign.max_redemptions)) {
+        setPromoError("Promo code redemption limit reached")
         setAppliedCampaign(null)
         return
       }
@@ -212,11 +221,11 @@ export default function CheckoutPage() {
         throw new Error('Email is required for payment')
       }
 
-      const payment = await paymentAPI.createPolarCheckout(
-        finalPrice,
+      const checkoutPayload = {
+        amount: finalPrice,
         email,
-        'USD',
-        {
+        currency: 'USD',
+        metadata: {
           productId: product.id,
           productCode: product.product_code,
           productName: product.name,
@@ -228,10 +237,12 @@ export default function CheckoutPage() {
             discount_campaign_id: appliedCampaign.id,
             promo_code: appliedCampaign.promo_code ?? undefined,
           }),
-        }
-      )
+        },
+      } as const
 
-      // Redirect to Polar hosted checkout page
+      const payment = await paymentAPI.createCheckout('paystack', checkoutPayload)
+
+      // Redirect to hosted checkout page
       if (payment?.checkoutUrl) {
         window.location.assign(payment.checkoutUrl)
         return
@@ -429,7 +440,7 @@ export default function CheckoutPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select your country" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-60 overflow-y-auto">
                           <SelectItem value="ng">Nigeria</SelectItem>
                           <SelectItem value="gh">Ghana</SelectItem>
                           <SelectItem value="ke">Kenya</SelectItem>

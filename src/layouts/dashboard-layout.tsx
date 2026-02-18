@@ -39,19 +39,23 @@ const pageTitle: { [key: string]: string } = {
   '/admin/licenses': 'Licenses',
   '/admin/transactions': 'Transactions',
   '/admin/subscriptions': 'Subscriptions',
-  '/admin/ea-development-projects': 'EA Development Projects'
+  '/admin/ea-development-projects': 'EA Development Projects',
+  '/admin/affiliate-applications': 'Affiliate Applications',
+  '/admin/support-tickets': 'Support Tickets'
 }
 
 export function DashboardLayout() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
   const { user, signOut } = useAuth()
   const { profile } = useDashboardData()
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Auto scroll to top on route change
+  // Auto scroll to top on route change (content area is the scroll container)
   useEffect(() => {
-    window.scrollTo(0, 0)
+    const el = document.getElementById('dashboard-content')
+    if (el) el.scrollTo(0, 0)
+    else window.scrollTo(0, 0)
   }, [location.pathname])
 
   const currentTitle = pageTitle[location.pathname] || 'Dashboard'
@@ -63,12 +67,12 @@ export function DashboardLayout() {
     : profile?.first_name || user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'
 
   const handleSignOut = async () => {
-    await signOut()
     navigate('/')
+    await signOut()
   }
 
   return (
-    <div className="h-screen max-h-screen bg-gradient-subtle flex relative overflow-hidden">
+    <div className="h-screen max-h-screen bg-gradient-subtle flex relative min-w-0 overflow-hidden">
       {/* Dashboard-specific animated background */}
       <AnimatedBackground variant="geometric" className="opacity-30" />
       <FloatingBackground elementCount={8} variant="particles" className="opacity-40" />
@@ -79,21 +83,21 @@ export function DashboardLayout() {
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
       
-      <main className="flex-1 min-h-0 flex flex-col relative z-10">
+      <main className="flex-1 min-h-0 min-w-0 flex flex-col relative z-10">
         {/* Top Bar */}
         <div className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-4">
+          <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2"
+                className="shrink-0 gap-1 sm:gap-2 text-xs sm:text-sm"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Website
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                Back<span className="hidden sm:inline"> to Website</span>
               </Button>
-              <h1 className="text-heading font-semibold text-foreground animate-fade-in">
+              <h1 className="text-sm sm:text-base font-semibold text-foreground animate-fade-in truncate">
                 {currentTitle}
               </h1>
             </div>
@@ -139,8 +143,11 @@ export function DashboardLayout() {
           </div>
         </div>
 
-        {/* Content Area - scrollable when content overflows */}
-        <div className="flex-1 min-h-0 overflow-auto p-6 w-full max-w-7xl mx-auto">
+        {/* Content Area - scrollable when content overflows. min-w-0 required for flex child to allow horizontal scroll. */}
+        <div
+          id="dashboard-content"
+          className={`flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-auto p-3 sm:p-6 w-full max-w-7xl mx-auto ${location.pathname.startsWith('/admin') ? 'admin-dashboard' : ''}`}
+        >
           <Outlet />
         </div>
       </main>

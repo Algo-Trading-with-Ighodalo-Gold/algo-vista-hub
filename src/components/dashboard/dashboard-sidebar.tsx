@@ -28,7 +28,9 @@ import {
   Key,
   CreditCard,
   Code,
-  Tag
+  Tag,
+  UserPlus,
+  MessageSquare
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -117,9 +119,19 @@ const adminNavigationItems = [
     icon: LinkIcon
   },
   {
+    title: "Affiliate Applications",
+    href: "/admin/affiliate-applications",
+    icon: UserPlus
+  },
+  {
     title: "EA Development Projects",
     href: "/admin/ea-development-projects",
     icon: Code
+  },
+  {
+    title: "Support Tickets",
+    href: "/admin/support-tickets",
+    icon: MessageSquare
   },
   {
     title: "Discounts",
@@ -136,8 +148,8 @@ export function DashboardSidebar({ collapsed, onToggle }: DashboardSidebarProps)
   const location = useLocation()
 
   const handleSignOut = async () => {
-    await signOut()
     navigate('/')
+    await signOut()
   }
 
   // Get display name from profile or user metadata
@@ -150,8 +162,8 @@ export function DashboardSidebar({ collapsed, onToggle }: DashboardSidebarProps)
 
   return (
     <div className={cn(
-      "relative h-full bg-gradient-to-b from-primary/5 to-primary/10 border-r transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
+      "relative h-full bg-gradient-to-b from-primary/5 to-primary/10 border-r transition-all duration-300 shrink-0",
+      collapsed ? "w-14 sm:w-16" : "w-56 sm:w-64"
     )}>
       {/* Toggle Button */}
       <Button

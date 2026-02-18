@@ -54,6 +54,29 @@ const benefits = [
   }
 ]
 
+const howItWorks = [
+  {
+    step: "01",
+    title: "Apply",
+    description: "Submit your affiliate application from this page.",
+  },
+  {
+    step: "02",
+    title: "Get Approved",
+    description: "Admin reviews your profile and activates your affiliate account.",
+  },
+  {
+    step: "03",
+    title: "Share Link",
+    description: "Use your referral link to invite traders to the platform.",
+  },
+  {
+    step: "04",
+    title: "Earn Commission",
+    description: "Receive commission on successful paid referrals.",
+  },
+]
+
 const faqs = [
   {
     question: "How much can I earn as an affiliate?",
@@ -149,6 +172,26 @@ export default function AffiliatePage() {
       </div>
 
       {/* Affiliate Status */}
+      <Card className="animate-fade-in [animation-delay:0.05s] opacity-0 [animation-fill-mode:forwards]">
+        <CardHeader>
+          <CardTitle>How It Works</CardTitle>
+          <CardDescription>
+            Quick overview of the affiliate workflow
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {howItWorks.map((item) => (
+              <div key={item.step} className="rounded-lg border p-4 space-y-2">
+                <Badge variant="outline">{item.step}</Badge>
+                <h3 className="font-semibold">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {affiliate ? (
         <>
           {/* Performance Overview */}
@@ -197,13 +240,21 @@ export default function AffiliatePage() {
 
             <Card className="hover:shadow-lg transition-shadow hover-scale">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Payout Status</CardTitle>
+                <CardTitle className="text-sm font-medium">Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <Badge variant={affiliate.payout_status === 'paid' ? 'default' : 'secondary'}>
-                  {affiliate.payout_status || 'pending'}
-                </Badge>
-                <p className="text-xs text-muted-foreground mt-1">Current status</p>
+                <div className="space-y-2">
+                  <div>
+                    <Badge variant="default">Approved</Badge>
+                    <p className="text-xs text-muted-foreground mt-1">Affiliate application</p>
+                  </div>
+                  <div>
+                    <Badge variant={affiliate.payout_status === 'paid' ? 'default' : 'secondary'}>
+                      {affiliate.payout_status || 'pending'}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-1">Commission payout</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

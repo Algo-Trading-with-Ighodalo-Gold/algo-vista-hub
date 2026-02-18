@@ -35,6 +35,7 @@ A comprehensive web platform for managing and distributing Expert Advisors (EAs)
 - [Technology Stack](#technology-stack)
 - [Environment Variables](#environment-variables)
 - [Database Setup](#database-setup)
+- [Email Setup](#email-setup-project-approvals)
 - [Payment Integration](#payment-integration)
 - [License System](#license-system)
 - [Deployment](#deployment)
@@ -230,6 +231,13 @@ VITE_ENABLE_EMAIL_NOTIFICATIONS=true
    ```
 
 See `DATABASE_SETUP.md` for detailed database documentation.
+
+### Email Setup (Project Approvals)
+
+When approving EA Development project inquiries, the system sends an email to the applicant. See [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md) for:
+- Deploying the `send-email` Edge Function
+- Setting `RESEND_API_KEY` in Supabase secrets
+- Testing with Resend's onboarding sender
 
 ## 💳 Payment Integration
 

@@ -53,6 +53,7 @@ export function LicenseCard({
 
   const active = isLicenseActive(license)
   const statusVariant = getLicenseStatusVariant(license.status, active)
+  const statusLabel = active ? "Active" : "Inactive"
   const planName = formatPlanName(license.tier || null)
   const canConnect = active && (license.max_allowed === 0 || license.connected_count < license.max_allowed)
   
@@ -170,6 +171,33 @@ EndHour=23
 ; Or load it directly in the EA input parameters dialog
 `
 
+      const readmeContent = `# ${result.product_name || 'EA'} - Installation Instructions
+
+Thank you for downloading your EA package.
+
+## What's in this ZIP
+- The EA executable file (.ex5 or .ex4)
+- A sample settings file (.set)
+- Optional additional files in the files/ folder
+
+## What to do after downloading
+1. Extract this ZIP to any folder on your computer.
+2. Open MetaTrader (MT4/MT5).
+3. Go to File -> Open Data Folder.
+4. Open:
+   - MT5: MQL5/Experts
+   - MT4: MQL4/Experts
+5. Copy the EA executable file into the Experts folder.
+6. Restart MetaTrader.
+7. Attach the EA to a chart and enter your license key.
+8. Optional: load the included .set file from EA Inputs.
+
+## Important
+- Enable AutoTrading/Algo Trading.
+- Start on demo before going live.
+- Keep risk settings conservative.
+`
+
       // Create ZIP file
       const zip = new JSZip()
       
@@ -178,6 +206,9 @@ EndHour=23
       
       // Add settings file to ZIP
       zip.file(settingsFileName, settingsContent)
+      
+      // Add post-download instructions
+      zip.file("README.txt", readmeContent)
 
       // Try to fetch and include folder files if product_code is available
       if (result.product_code) {
@@ -258,7 +289,7 @@ EndHour=23
               </CardTitle>
               <div className="flex items-center gap-3 mt-2 flex-wrap">
                 <Badge variant={statusVariant}>
-                  {active ? 'Active' : license.status}
+                  {statusLabel}
                 </Badge>
                 <Badge variant="outline">
                   {planName}
@@ -408,7 +439,7 @@ EndHour=23
                     Download EA
                   </Button>
                   <p className="text-xs text-muted-foreground mt-2 text-center">
-                    Download the EA file (.ex4) for this license
+                    Download the EA package (.zip) for this license
                   </p>
                 </div>
               )}

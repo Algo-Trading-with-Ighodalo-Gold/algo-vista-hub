@@ -159,6 +159,26 @@ All colors MUST be HSL format for proper theme switching
     font-weight: 400;
   }
 
+  /* Disable text selection/copy on general website content */
+  html,
+  body,
+  #root {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Keep form fields editable/selectable */
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
   /* Smooth transitions */
   * {
     @apply transition-colors duration-200;
@@ -211,6 +231,13 @@ All colors MUST be HSL format for proper theme switching
 
   .dashboard-subtitle {
     @apply text-sm text-muted-foreground;
+  }
+
+  /* Keep Admin dashboard table text size unchanged */
+  .admin-dashboard table,
+  .admin-dashboard table th,
+  .admin-dashboard table td {
+    font-size: 0.875rem;
   }
 
   .gradient-primary {

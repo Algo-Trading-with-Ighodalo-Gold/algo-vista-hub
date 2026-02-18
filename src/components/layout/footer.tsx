@@ -2,20 +2,13 @@ import { Link } from "react-router-dom"
 import { TrendingUp, Twitter, Linkedin, Mail } from "lucide-react"
 
 const footerLinks = {
-  company: [
-    { name: "About Us", href: "/about" },
-    { name: "Our Story", href: "/story" },
-  ],
   product: [
     { name: "Expert Advisors", href: "/products" },
-    { name: "API Documentation", href: "/docs" },
-    { name: "System Status", href: "/status" },
   ],
   support: [
     { name: "Help Center", href: "/support" },
     { name: "Live Chat", href: "#", onClick: () => document.querySelector('[data-chat-trigger]')?.click() },
-    { name: "Contact Us", href: "mailto:algotradingwithighodalo@gmail.com" },
-    { name: "Knowledge Base", href: "/support#knowledge-base" },
+    { name: "Contact Us", href: "mailto:ALGOTRADINGWITHIGHODALO@GMAIL.COM" },
     { name: "Community Forum", href: "https://t.me/AlgotradingwithIghodalo", external: true },
   ],
   resources: [
@@ -51,7 +44,7 @@ export function Footer() {
       
       <div className="container relative py-20">
         {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           
           {/* Brand section */}
           <div className="col-span-1 md:col-span-2 lg:col-span-2">
@@ -91,23 +84,6 @@ export function Footer() {
                 Past performance is not indicative of future results.
               </p>
             </div>
-          </div>
-
-          {/* Company Links */}
-          <div className="col-span-1">
-            <h3 className="font-semibold text-sm mb-6 text-foreground">Company</h3>
-            <ul className="space-y-4">
-              {footerLinks.company.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 hover:underline"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Products Links */}

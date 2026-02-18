@@ -18,6 +18,7 @@ type Product = {
   id: string
   name: string
   product_code: string
+  price_cents?: number | null
 }
 
 type PlanId = "basic" | "pro" | "premium"
@@ -48,7 +49,7 @@ const planLabels: Record<PlanId, { name: string; maxAccounts: number; popular?: 
     features: ["1 MT5 account", "Core EA updates", "Email support", "Setup guide"],
   },
   pro: {
-    name: "Pro",
+    name: "Pro", 
     maxAccounts: 2,
     popular: true,
     features: ["2 MT5 accounts", "Priority support", "Strategy updates", "Performance insights"],
@@ -76,6 +77,7 @@ export default function SubscriptionPlansPage() {
     pro: {},
     premium: {},
   })
+  const [baseMonthlyCents, setBaseMonthlyCents] = useState<number>(FALLBACK_BASE_MONTHLY_CENTS)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -84,7 +86,7 @@ export default function SubscriptionPlansPage() {
 
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, product_code")
+        .select("id, name, product_code, price_cents")
         .or(`product_code.eq.${eaId},id.eq.${eaId}`)
         .single()
 
@@ -92,6 +94,9 @@ export default function SubscriptionPlansPage() {
 
       const productData = data as Product
       setProduct(productData)
+      if (Number(productData.price_cents || 0) > 0) {
+        setBaseMonthlyCents(Number(productData.price_cents))
+      }
 
       const { data: dbPlans } = await (supabase as any)
         .from("ea_plans")
@@ -102,6 +107,10 @@ export default function SubscriptionPlansPage() {
       if (Array.isArray(dbPlans) && dbPlans.length > 0) {
         const prices: Record<PlanId, PlanPriceMap> = { basic: {}, pro: {}, premium: {} }
         const ids: Record<PlanId, PlanIdMap> = { basic: {}, pro: {}, premium: {} }
+        const basicMonthly = dbPlans.find((row: EaPlanRow) => row.tier === "basic" && row.term === "monthly")
+        if (basicMonthly && Number(basicMonthly.price_cents || 0) > 0) {
+          setBaseMonthlyCents(Number(basicMonthly.price_cents))
+        }
         dbPlans.forEach((row: EaPlanRow) => {
           prices[row.tier][row.term] = Number((row.price_cents || 0) / 100)
           ids[row.tier][row.term] = row.id
@@ -117,7 +126,7 @@ export default function SubscriptionPlansPage() {
   if (!product) return null
 
   const getPrice = (planId: PlanId, period: BillingInterval) =>
-    planPrices[planId]?.[period] ?? getFallbackPrice(planId, period)
+    planPrices[planId]?.[period] ?? getPriceDollars(baseMonthlyCents, planId as PlanTier, period as BillingTerm)
 
   const pricingPlans: PricingPlan[] = (["basic", "pro", "premium"] as PlanId[]).map((id) => ({
     name: planLabels[id].name,
@@ -140,16 +149,15 @@ export default function SubscriptionPlansPage() {
     { name: "All premium strategy updates", included: "premium" },
   ]
 
-  const canContinue = !!planIds[selectedPlan]?.[billingPeriod]
+  // Allow checkout even if explicit ea_plan row is missing (amount-based fallback path).
+  const canContinue = true
 
   const handlePlanSelection = (plan = selectedPlan, period = billingPeriod) => {
     const selectedEaPlanId = planIds[plan]?.[period]
-    if (!selectedEaPlanId) return
-
     navigate("/payment", {
       state: {
         eaId: product.id,
-        eaPlanId: selectedEaPlanId,
+        eaPlanId: selectedEaPlanId || "",
         eaName: product.name,
         productCode: product.product_code,
         planId: plan,
@@ -166,7 +174,7 @@ export default function SubscriptionPlansPage() {
   return (
     <div className="min-h-screen relative">
       <CandlestickBackground variant="products" intensity="low" />
-
+      
       <section className="py-6 border-b bg-muted/30">
         <div className="container">
           <div className="flex items-center gap-2 text-sm text-muted-foreground animate-fade-in">
@@ -185,9 +193,9 @@ export default function SubscriptionPlansPage() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto">
             <Badge variant="secondary" className="mb-4">
-              <Star className="h-3 w-3 mr-1" />
+                  <Star className="h-3 w-3 mr-1" />
               Choose Your Subscription Plan
-            </Badge>
+                </Badge>
             <h1 className="text-4xl font-bold tracking-tight mb-4">{product.name}</h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Pick a plan before checkout. Your account limit is tied to the plan you choose.
@@ -208,11 +216,6 @@ export default function SubscriptionPlansPage() {
             onGetStarted={(plan, interval) => handlePlanSelection(plan as PlanId, interval)}
             getStartedDisabled={!canContinue}
           />
-          {!canContinue && (
-            <p className="text-center text-xs text-muted-foreground mt-2">
-              This plan/term has not been configured by admin yet.
-            </p>
-          )}
         </div>
       </section>
     </div>

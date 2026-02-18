@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { TableScroll } from "@/components/admin/TableScroll"
 import {
   Dialog,
   DialogContent,
@@ -244,7 +245,7 @@ export default function AdminDiscountsPage() {
             Campaigns are shown to customers at checkout when they enter a promo code (coming soon). Admins can see and manage all campaigns here.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0 overflow-x-auto p-4 sm:p-6">
           {campaigns.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Tag className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -256,22 +257,24 @@ export default function AdminDiscountsPage() {
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Promo code</TableHead>
-                  <TableHead>Period</TableHead>
-                  <TableHead>Redemptions</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {campaigns.map((c) => (
-                  <TableRow key={c.id}>
+            <div className="w-full min-w-0 -mx-2 sm:mx-0 px-2 sm:px-0">
+              <TableScroll className="rounded-md border">
+                <Table noWrapper compact>
+                  <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Promo code</TableHead>
+                    <TableHead>Period</TableHead>
+                    <TableHead>Redemptions</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {campaigns.map((c) => (
+                    <TableRow key={c.id}>
                     <TableCell className="font-medium">{c.name}</TableCell>
                     <TableCell>
                       {c.discount_type === "percentage" ? (
@@ -325,10 +328,12 @@ export default function AdminDiscountsPage() {
                         {c.is_active ? "Deactivate" : "Activate"}
                       </Button>
                     </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                </Table>
+              </TableScroll>
+            </div>
           )}
         </CardContent>
       </Card>

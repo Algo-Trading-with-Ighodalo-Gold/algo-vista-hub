@@ -112,7 +112,7 @@ serve(async (req) => {
     const checkoutPayload: Record<string, unknown> = {
       products: [selectedProductId],
       customer_email: userData.user.email,
-      success_url: `${appUrl.replace(/\/$/, "")}/payment/success?checkout_id={CHECKOUT_ID}`,
+      success_url: `${appUrl.replace(/\/$/, "")}/payment/success?checkout_id={CHECKOUT_ID}&psp=polar`,
       return_url: `${appUrl.replace(/\/$/, "")}/payment/failure`,
       allow_discount_codes: allowDiscountCodes,
       metadata: checkoutMetadata,

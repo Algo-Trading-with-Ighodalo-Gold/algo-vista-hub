@@ -190,7 +190,56 @@ export function LiveChatBot() {
     if (message.includes('guarantee') || message.includes('refund') || message.includes('money back') || message.includes('trial')) {
       return "We offer a 30-day money-back guarantee on all our Expert Advisors. If you're not satisfied with the performance within 30 days, you can request a full refund. This gives you plenty of time to test the EA and see if it meets your trading goals."
     }
-    
+
+    // Affiliate/commission detection
+    if (message.includes('affiliate') || message.includes('commission') || message.includes('referral') || message.includes('refer')) {
+      return "Our affiliate program lets you earn commission by referring traders. Apply from your dashboard under Affiliate Program. Approved affiliates get a unique referral link and earn commission when referred users make purchases. Join our Telegram for details."
+    }
+
+    // Contact/sign up detection
+    if (message.includes('contact') || message.includes('sign up') || message.includes('register') || message.includes('create account')) {
+      return "You can sign up at our website to create an account. Visit the Register page to get started. For direct contact, use our support form or join our Telegram community for quick responses."
+    }
+
+    // Dashboard/account detection
+    if (message.includes('dashboard') || message.includes('account') || message.includes('login') || message.includes('my purchase')) {
+      return "Log in to your dashboard to view licenses, download EAs, manage accounts, and track transactions. You can also apply to become an affiliate from your dashboard."
+    }
+
+    // Custom EA detection
+    if (message.includes('custom') || message.includes('develop') || message.includes('build') || message.includes('strategy')) {
+      return "We offer custom EA development! Share your trading strategy and our team will build a tailored Expert Advisor for you. Visit our EA Development page to submit your requirements and get a quote."
+    }
+
+    // Velocity Pro, Titan X, Quantum Edge
+    if (message.includes('velocity') || message.includes('velocity pro')) {
+      return "Velocity Pro EA is our high-performance scalping EA optimized for fast markets. It targets major pairs with low latency execution. Check our products page for full details and subscription options."
+    }
+    if (message.includes('titan') || message.includes('titanx')) {
+      return "Titan X EA combines trend following with breakout strategies. It's designed for traders who want robust performance across different market conditions. Visit our products page for more."
+    }
+    if (message.includes('quantum') || message.includes('quantum edge')) {
+      return "Quantum Edge EA uses advanced AI-driven signals for entry and exit. It adapts to market volatility and works across multiple timeframes. See our products page for subscription plans."
+    }
+
+    // Payment in Nigeria / Naira
+    if (message.includes('nigeria') || message.includes('naira') || message.includes('ngn') || message.includes('pay in')) {
+      return "We accept payments in Nigeria via Paystack! You can pay in Naira (NGN) — we'll convert from USD at checkout. Cards and mobile money are supported. Just proceed to checkout and select your preferred method."
+    }
+
+    // Thanks / goodbye
+    if (message.includes('thank') || message.includes('thanks') || message.includes('bye') || message.includes('goodbye')) {
+      return "You're welcome! Feel free to reach out anytime. Happy trading! 📈"
+    }
+
+    // Yes/No follow-ups
+    if (message === 'yes' || message === 'yeah' || message === 'yep') {
+      return "Great! Is there anything else I can help you with?"
+    }
+    if (message === 'no' || message === 'nope') {
+      return "No problem! Reach out if you need anything. Our Telegram community is always here to help."
+    }
+
     return botResponses.default[Math.floor(Math.random() * botResponses.default.length)]
   }
 
@@ -267,16 +316,16 @@ export function LiveChatBot() {
         <Button
           data-chat-trigger
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 animate-crazy-bounce hover-crazy-pulse"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 rounded-full w-12 h-12 sm:w-14 sm:h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 animate-crazy-bounce hover-crazy-pulse"
           size="lg"
         >
-          <MessageCircle className="h-6 w-6 animate-crazy-wiggle" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 animate-crazy-wiggle" />
         </Button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - nearly full screen on mobile, card on desktop */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-80 h-[500px] animate-fade-in-scale">
+        <div className="fixed inset-2 sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:left-auto z-50 w-[calc(100vw-1rem)] h-[calc(100dvh-1rem)] sm:w-96 sm:h-[520px] max-h-[calc(100dvh-1rem)] animate-fade-in-scale rounded-lg sm:rounded-xl overflow-hidden">
           <Card className="h-full flex flex-col shadow-2xl border-0">
             <CardHeader className="pb-3 bg-primary text-primary-foreground rounded-t-lg">
               <div className="flex items-center justify-between">
@@ -297,9 +346,9 @@ export function LiveChatBot() {
             
             <CardContent className="flex-1 flex flex-col p-0 min-h-0">
               {/* Messages */}
-              <div 
+                <div 
                 className="flex-1 overflow-y-auto p-4 space-y-3 chatbot-scroll min-h-0" 
-                style={{ maxHeight: '320px' }}
+                style={{ maxHeight: 'min(320px, 50vh)' }}
                 onScroll={handleScroll}
               >
                 {messages.map((message) => (
@@ -361,7 +410,7 @@ export function LiveChatBot() {
 
               {/* Quick Actions */}
               <div className="p-3 border-t bg-background sticky bottom-0">
-                <div className="grid grid-cols-2 gap-1 mb-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mb-2">
                   {quickActions.map((action, index) => (
                     <Button
                       key={index}

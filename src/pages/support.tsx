@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import JSZip from "jszip"
 
 const faqCategories = [
   {
@@ -102,13 +103,14 @@ const documentGuides = [
 1. Login to your dashboard
 2. Navigate to "Products & Licenses"
 3. Click "Download" next to your purchased EA
-4. Save the .ex5 file to your computer
+4. Save the downloaded ZIP package to your computer
+5. Extract the ZIP and locate the EA file (.ex5/.ex4)
 
 ### 2. Install on MetaTrader 5
 1. Open MetaTrader 5
 2. Go to File → Open Data Folder
 3. Navigate to MQL5 → Experts folder
-4. Copy your .ex5 file into this folder
+4. Copy your extracted .ex5 file into this folder
 5. Restart MetaTrader 5
 
 ### 3. Activate Your License
@@ -305,6 +307,51 @@ const supportChannels = [
     badge: "Self-Service"
   }
 ]
+
+const downloadGuideAsZip = async (
+  guide: { title: string; content: string },
+  toast: ReturnType<typeof useToast>["toast"]
+) => {
+  try {
+    const zip = new JSZip()
+    const safeName = guide.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+
+    zip.file(`${safeName}.md`, guide.content.trim())
+    zip.file(
+      "README.txt",
+      `Downloaded guide: ${guide.title}
+
+What to do after downloading this ZIP:
+1. Extract the ZIP file.
+2. Open the .md file in any text editor.
+3. Follow the setup steps in order.
+4. If this is an EA setup guide, copy the EA file to MetaTrader Experts folder.
+5. Contact support if any step fails.`
+    )
+
+    const blob = await zip.generateAsync({ type: "blob" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `${safeName}.zip`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: "Guide Downloaded",
+      description: `${guide.title} was downloaded as a ZIP package.`,
+    })
+  } catch (error) {
+    console.error("Guide ZIP download failed:", error)
+    toast({
+      title: "Download Failed",
+      description: "Could not create ZIP guide package. Please try again.",
+      variant: "destructive",
+    })
+  }
+}
 
 export default function SupportPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -533,6 +580,15 @@ export default function SupportPage() {
                       {guide.description}
                     </DialogDescription>
                   </DialogHeader>
+                  <div className="flex justify-end">
+                    <Button
+                      size="sm"
+                      onClick={() => downloadGuideAsZip(guide, toast)}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Download ZIP
+                    </Button>
+                  </div>
                   <div className="prose prose-sm max-w-none dark:prose-invert">
                     <pre className="whitespace-pre-wrap text-sm leading-relaxed font-normal bg-muted p-4 rounded-lg">
                       {guide.content}
@@ -580,14 +636,15 @@ export default function SupportPage() {
 ## Step 1: Purchase & Download (2 minutes)
 1. Choose an EA from our Products page
 2. Complete purchase via secure checkout
-3. Download EA file from your Dashboard
-4. Save the .ex5 file to your computer
+3. Download EA ZIP package from your Dashboard
+4. Extract the ZIP file
+5. Locate the .ex5/.ex4 file and optional .set file
 
 ## Step 2: Install on MT5 (3 minutes)
 1. Open MetaTrader 5
 2. Go to File → Open Data Folder
 3. Navigate to MQL5 → Experts
-4. Copy your EA file here
+4. Copy your EA file here (from extracted ZIP)
 5. Restart MT5
 
 ## Step 3: Activate License (2 minutes)

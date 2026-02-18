@@ -4,11 +4,13 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { TableScroll } from "@/components/admin/TableScroll"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/integrations/supabase/client"
+import { sendProjectApprovedEmail } from "@/lib/email/send-project-approval"
 import { useToast } from "@/hooks/use-toast"
 import { FileText, Search, CheckCircle, XCircle, Clock, Eye, Mail, RefreshCw } from "lucide-react"
 import type { Database } from "@/integrations/supabase/types"
@@ -29,7 +31,9 @@ export default function EADevelopmentProjectsManagement() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false)
   const [approvingInquiry, setApprovingInquiry] = useState<ProjectInquiryWithDetails | null>(null)
+  const [isApproving, setIsApproving] = useState(false)
   const [adminNotes, setAdminNotes] = useState("")
+  const [calendlyLink, setCalendlyLink] = useState("https://calendly.com/algotradingwithighodalo/30min")
   const { toast } = useToast()
 
   useEffect(() => {
@@ -46,8 +50,7 @@ export default function EADevelopmentProjectsManagement() {
           table: 'project_inquiries'
         },
         (payload) => {
-          console.log('Project inquiry updated:', payload)
-          fetchInquiries()
+          fetchInquiries(false)
         }
       )
       .subscribe()
@@ -72,9 +75,9 @@ export default function EADevelopmentProjectsManagement() {
     }
   }, [searchTerm, inquiries])
 
-  const fetchInquiries = async () => {
+  const fetchInquiries = async (showLoading = true) => {
     try {
-      setLoading(true)
+      if (showLoading) setLoading(true)
       const { data, error } = await supabase
         .from("project_inquiries")
         .select("*")
@@ -125,82 +128,70 @@ export default function EADevelopmentProjectsManagement() {
   }
 
   const handleProcessApproval = async () => {
-    if (!approvingInquiry) return
+    if (!approvingInquiry || isApproving) return
+
+    setIsApproving(true)
+    const inquiry = approvingInquiry
+    const notesForEmail = adminNotes
+    const linkForEmail = calendlyLink
 
     try {
-      // Update inquiry status
+      // 1. Update inquiry status in database first
       const { error: updateError } = await supabase
         .from("project_inquiries")
         .update({
           status: "approved",
           updated_at: new Date().toISOString()
         })
-        .eq("id", approvingInquiry.id)
+        .eq("id", inquiry.id)
 
       if (updateError) throw updateError
 
-      // Send email notification via Edge Function
-      try {
-        // Call Edge Function to send email
-        const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-email', {
-          body: {
-            to: approvingInquiry.email,
-            subject: 'Your EA Development Project Has Been Approved!',
-            template: 'project_approval',
-            data: {
-              recipient_name: approvingInquiry.name,
-              project_name: approvingInquiry.strategy.substring(0, 50),
-              admin_notes: adminNotes || undefined
-            }
-          }
-        })
+      // 2. Optimistic UI update - show approved immediately
+      setInquiries((prev) =>
+        prev.map((i) => (i.id === inquiry.id ? { ...i, status: "approved" } : i))
+      )
+      setFilteredInquiries((prev) =>
+        prev.map((i) => (i.id === inquiry.id ? { ...i, status: "approved" } : i))
+      )
 
-        if (emailError) {
-          console.error('Email sending error:', emailError)
-          // Also try RPC function as fallback
-          await supabase.rpc('send_project_approval_email', {
-            inquiry_id: approvingInquiry.id,
-            recipient_email: approvingInquiry.email,
-            recipient_name: approvingInquiry.name,
-            project_name: approvingInquiry.strategy.substring(0, 50),
-            admin_notes: adminNotes || null
-          })
-        } else {
-          console.log('Email sent successfully:', emailResult)
-        }
-      } catch (emailErr) {
-        console.error('Email sending error:', emailErr)
-        // Try RPC function as fallback
-        try {
-          await supabase.rpc('send_project_approval_email', {
-            inquiry_id: approvingInquiry.id,
-            recipient_email: approvingInquiry.email,
-            recipient_name: approvingInquiry.name,
-            project_name: approvingInquiry.strategy.substring(0, 50),
-            admin_notes: adminNotes || null
-          })
-        } catch (rpcErr) {
-          console.error('RPC fallback also failed:', rpcErr)
-        }
-      }
-      
-      toast({
-        title: "Success",
-        description: `Project inquiry approved and email sent to ${approvingInquiry.email}`,
+      // 3. Close dialog so user sees the table update
+      setIsApproveDialogOpen(false)
+      setApprovingInquiry(null)
+      setAdminNotes("")
+      setCalendlyLink("https://calendly.com/algotradingwithighodalo/30min")
+
+      // 4. Send email via helper (uses POST explicitly)
+      const emailResult = await sendProjectApprovedEmail({
+        inquiry: { email: inquiry.email, name: inquiry.name, strategy: inquiry.strategy },
+        adminNotes: notesForEmail || undefined,
+        calendlyLink: linkForEmail || "https://calendly.com/algotradingwithighodalo/30min",
       })
 
-      setIsApproveDialogOpen(false)
-      setAdminNotes("")
-      await fetchInquiries()
-      
-      // Trigger a custom event to notify dashboard to refresh
-      window.dispatchEvent(new CustomEvent('projectInquiryApproved'))
+      toast({
+        title: "Approved",
+        description: emailResult.success
+          ? `Project approved. Email sent to ${inquiry.email}`
+          : "Project approved.",
+      })
+      if (!emailResult.success) {
+        toast({
+          title: "Email failed",
+          description: emailResult.error || "Check Supabase Function logs.",
+          variant: "destructive",
+        })
+      }
+
+      await fetchInquiries(false)
+      window.dispatchEvent(new CustomEvent("projectInquiryApproved"))
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to approve inquiry",
         variant: "destructive",
       })
+    } finally {
+      setIsApproving(false)
     }
   }
 
@@ -218,12 +209,24 @@ export default function EADevelopmentProjectsManagement() {
 
       if (error) throw error
 
+      // Optimistic UI update - show rejected immediately
+      setInquiries((prev) =>
+        prev.map((i) =>
+          i.id === inquiry.id ? { ...i, status: "rejected" } : i
+        )
+      )
+      setFilteredInquiries((prev) =>
+        prev.map((i) =>
+          i.id === inquiry.id ? { ...i, status: "rejected" } : i
+        )
+      )
+
       toast({
         title: "Success",
         description: "Project inquiry rejected",
       })
 
-      fetchInquiries()
+      await fetchInquiries(false)
     } catch (error: any) {
       toast({
         title: "Error",
@@ -344,10 +347,11 @@ export default function EADevelopmentProjectsManagement() {
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0 p-2 sm:p-6 -mx-2 sm:mx-0">
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+            <TableScroll>
+              <Table noWrapper compact>
+                <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
@@ -382,28 +386,19 @@ export default function EADevelopmentProjectsManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(inquiry)}
-                        >
-                          <Eye className="h-4 w-4" />
+                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(inquiry)}>
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
                         </Button>
                         {inquiry.status === "pending" && (
                           <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleApprove(inquiry)}
-                            >
-                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            <Button variant="default" size="sm" onClick={() => handleApprove(inquiry)}>
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleReject(inquiry)}
-                            >
-                              <XCircle className="h-4 w-4 text-red-500" />
+                            <Button variant="destructive" size="sm" onClick={() => handleReject(inquiry)}>
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Reject
                             </Button>
                           </>
                         )}
@@ -419,7 +414,8 @@ export default function EADevelopmentProjectsManagement() {
                   </TableRow>
                 )}
               </TableBody>
-            </Table>
+              </Table>
+            </TableScroll>
           </div>
         </CardContent>
       </Card>
@@ -497,7 +493,13 @@ export default function EADevelopmentProjectsManagement() {
       </Dialog>
 
       {/* Approve Dialog */}
-      <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
+      <Dialog
+        open={isApproveDialogOpen}
+        onOpenChange={(open) => {
+          setIsApproveDialogOpen(open)
+          if (!open) setApprovingInquiry(null)
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Approve Project Inquiry</DialogTitle>
@@ -520,21 +522,42 @@ export default function EADevelopmentProjectsManagement() {
                   rows={4}
                 />
               </div>
+              <div className="space-y-2">
+                <Label>Calendly Booking Link</Label>
+                <Input
+                  value={calendlyLink}
+                  onChange={(e) => setCalendlyLink(e.target.value)}
+                  placeholder="https://calendly.com/your-team/30min"
+                />
+              </div>
               <div className="bg-muted p-3 rounded-lg">
                 <p className="text-sm text-muted-foreground">
                   <Mail className="h-4 w-4 inline mr-2" />
-                  An approval email will be sent to {approvingInquiry.email}
+                  An approval email with booking link will be sent to {approvingInquiry.email}
                 </p>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsApproveDialogOpen(false)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setIsApproveDialogOpen(false)}
+              disabled={isApproving}
+            >
               Cancel
             </Button>
-            <Button onClick={handleProcessApproval}>
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Approve & Send Email
+            <Button
+              type="button"
+              onClick={handleProcessApproval}
+              disabled={isApproving}
+            >
+              {isApproving ? (
+                <Clock className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <CheckCircle className="h-4 w-4 mr-2" />
+              )}
+              {isApproving ? "Approving..." : "Approve & Send Email"}
             </Button>
           </DialogFooter>
         </DialogContent>

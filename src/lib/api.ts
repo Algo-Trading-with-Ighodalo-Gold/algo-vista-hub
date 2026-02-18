@@ -242,7 +242,7 @@ export class ProjectInquiryAPI {
       const { data, error } = await supabase
         .from('project_inquiries')
         .select('*')
-        .eq('email', sanitizeEmail(email))
+        .ilike('email', sanitizeEmail(email))
         .order('created_at', { ascending: false })
 
       if (error) throw error

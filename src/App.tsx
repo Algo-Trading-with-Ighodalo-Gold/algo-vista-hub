@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,7 +48,6 @@ import TermsOfServicePage from "./pages/legal/terms-of-service";
 import LicenseAgreementPage from "./pages/legal/license-agreement";
 import CookiePolicyPage from "./pages/legal/cookie-policy";
 import AboutUsPage from "./pages/about-us";
-import ContactUsPage from "./pages/contact-us";
 import PublicFAQPage from "./pages/faq";
 import RefundPolicyPage from "./pages/refund-policy";
 import TeamPage from "./pages/team";
@@ -65,13 +65,51 @@ import EAManagementPage from "./pages/admin/ea-management";
 import UsersManagementPage from "./pages/admin/users";
 import AdminAccountsPage from "./pages/admin/accounts";
 import AdminAffiliatesPage from "./pages/admin/affiliates";
+import AdminAffiliateApplicationsPage from "./pages/admin/affiliate-applications";
 import LicenseManagementPage from "./pages/admin/licenses";
 import TransactionManagementPage from "./pages/admin/transactions";
 import SubscriptionManagementPage from "./pages/admin/subscriptions";
 import EADevelopmentProjectsPage from "./pages/admin/ea-development-projects";
 import AdminDiscountsPage from "./pages/admin/discounts";
+import AdminSupportTicketsPage from "./pages/admin/support-tickets";
 
 const queryClient = new QueryClient();
+
+// Error boundary to catch render errors and prevent blank white screen
+class AppErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error("App error:", error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32, background: '#fff' }}>
+          <div style={{ textAlign: 'center', maxWidth: 400 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#dc2626', marginBottom: 16 }}>Something went wrong</h1>
+            <p style={{ color: '#666', marginBottom: 16 }}>{this.state.error?.message}</p>
+            <button
+              onClick={() => window.location.reload()}
+              style={{ padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+            >
+              Reload page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function App() {
   // Initialize referral tracking on app load
@@ -80,6 +118,7 @@ function App() {
   }, [])
 
   return (
+    <AppErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>
@@ -109,7 +148,6 @@ function App() {
                 <Route path="/license" element={<EnhancedLayout><LicenseAgreementPage /></EnhancedLayout>} />
                 <Route path="/cookies" element={<EnhancedLayout><CookiePolicyPage /></EnhancedLayout>} />
                 <Route path="/about" element={<EnhancedLayout><AboutUsPage /></EnhancedLayout>} />
-                <Route path="/contact" element={<EnhancedLayout><ContactUsPage /></EnhancedLayout>} />
                 <Route path="/faq" element={<EnhancedLayout><PublicFAQPage /></EnhancedLayout>} />
                 <Route path="/refund" element={<EnhancedLayout><RefundPolicyPage /></EnhancedLayout>} />
                 <Route path="/team" element={<EnhancedLayout><TeamPage /></EnhancedLayout>} />
@@ -160,7 +198,9 @@ function App() {
                   <Route path="transactions" element={<TransactionManagementPage />} />
                   <Route path="subscriptions" element={<SubscriptionManagementPage />} />
                   <Route path="affiliates" element={<AdminAffiliatesPage />} />
+                  <Route path="affiliate-applications" element={<AdminAffiliateApplicationsPage />} />
                   <Route path="ea-development-projects" element={<EADevelopmentProjectsPage />} />
+                  <Route path="support-tickets" element={<AdminSupportTicketsPage />} />
                   <Route path="discounts" element={<AdminDiscountsPage />} />
                 </Route>
                 <Route path="*" element={<EnhancedLayout><NotFound /></EnhancedLayout>} />
@@ -170,6 +210,7 @@ function App() {
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
+    </AppErrorBoundary>
   )
 }
 

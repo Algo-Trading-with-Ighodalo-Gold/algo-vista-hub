@@ -3,6 +3,7 @@
 
 import { stripeService } from '@/lib/payments/stripe';
 import { polarService } from '@/lib/payments/polar';
+import { paystackService } from '@/lib/payments/paystack';
 
 export interface PaymentIntent {
   id: string;
@@ -21,13 +22,71 @@ export interface ProcessedPayment {
   amount: number;
   currency: string;
   status: 'success' | 'failed' | 'pending';
-  paymentMethod: 'stripe' | 'polar';
+  paymentMethod: 'stripe' | 'polar' | 'paystack';
   transactionId: string;
   licenseKey?: string;
   timestamp: string;
 }
 
 export class PaymentAPI {
+  async createCheckout(
+    provider: 'polar' | 'paystack',
+    payload:
+      | {
+          eaPlanId: string;
+          metadata?: Record<string, any>;
+          allowDiscountCodes?: boolean;
+          discountId?: string;
+        }
+      | {
+          amount: number;
+          email: string;
+          currency?: string;
+          metadata?: Record<string, any>;
+          reference?: string;
+        },
+  ) {
+    if (provider === 'paystack') {
+      if ('eaPlanId' in payload) {
+        return paystackService.createCheckout({
+          eaPlanId: payload.eaPlanId,
+          metadata: payload.metadata || {},
+        });
+      }
+      return paystackService.createCheckout({
+        amount: payload.amount,
+        email: payload.email,
+        currency: payload.currency || 'USD',
+        metadata: payload.metadata || {},
+        reference: payload.reference,
+      });
+    }
+
+    if ('eaPlanId' in payload) {
+      return polarService.createCheckout({
+        eaPlanId: payload.eaPlanId,
+        metadata: payload.metadata || {},
+        allowDiscountCodes: payload.allowDiscountCodes,
+        discountId: payload.discountId,
+      });
+    }
+
+    return polarService.createAmountCheckout(
+      payload.amount,
+      payload.email,
+      payload.currency || 'USD',
+      payload.metadata || {},
+      payload.reference,
+    );
+  }
+
+  async verifyCheckout(provider: 'polar' | 'paystack', reference: string) {
+    if (provider === 'paystack') {
+      return paystackService.verifyCheckout(reference);
+    }
+    return polarService.verifyCheckout(reference);
+  }
+
   // Create Stripe payment intent
   async createStripePaymentIntent(
     amount: number,
@@ -86,7 +145,7 @@ export class PaymentAPI {
     productId: string,
     amount: number,
     currency: string,
-    paymentMethod: 'stripe' | 'polar'
+    paymentMethod: 'stripe' | 'polar' | 'paystack'
   ): Promise<ProcessedPayment> {
     try {
       // Validate payment
@@ -95,6 +154,8 @@ export class PaymentAPI {
         payment = await stripeService.getPaymentIntentStatus(paymentIntentId);
       } else if (paymentMethod === 'polar') {
         payment = await polarService.verifyCheckout(paymentIntentId);
+      } else if (paymentMethod === 'paystack') {
+        payment = await paystackService.verifyCheckout(paymentIntentId);
       }
 
       if (

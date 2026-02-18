@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { ArrowLeft, Shield, Lock, Check } from "lucide-react"
+import { ArrowLeft, Shield, Lock, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
+import { supabase } from "@/integrations/supabase/client"
 
 export default function PaymentPage() {
   const location = useLocation()
@@ -39,6 +40,16 @@ export default function PaymentPage() {
     agreeTerms: false
   })
   const [isProcessing, setIsProcessing] = useState(false)
+  const [promoCodeInput, setPromoCodeInput] = useState("")
+  const [promoLoading, setPromoLoading] = useState(false)
+  const [promoError, setPromoError] = useState("")
+  const [appliedCampaign, setAppliedCampaign] = useState<{
+    id: string
+    name: string
+    discount_type: "percentage" | "fixed_amount"
+    discount_value: number
+    promo_code: string | null
+  } | null>(null)
 
   const billingLabel =
     planData.billingPeriod === "yearly"
@@ -73,6 +84,84 @@ export default function PaymentPage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
+  const applyPromo = async () => {
+    const code = promoCodeInput.trim().toUpperCase()
+    if (!code) {
+      setPromoError("Enter a promo code")
+      return
+    }
+    setPromoError("")
+    setPromoLoading(true)
+    try {
+      const nowIso = new Date().toISOString()
+      const { data: campaigns, error } = await supabase
+        .from("discount_campaigns")
+        .select("id, name, discount_type, discount_value, promo_code, product_ids, is_active, starts_at, ends_at, max_redemptions, redemption_count")
+        .eq("promo_code", code)
+        .eq("is_active", true)
+        .lte("starts_at", nowIso)
+        .gte("ends_at", nowIso)
+        .limit(1)
+
+      if (error) throw error
+      const campaign = campaigns?.[0] as {
+        id: string
+        name: string
+        discount_type: "percentage" | "fixed_amount"
+        discount_value: number
+        promo_code: string | null
+        product_ids: string[] | null
+        max_redemptions: number | null
+        redemption_count: number
+      } | undefined
+      if (!campaign) {
+        setPromoError("Invalid, inactive, or expired promo code")
+        setAppliedCampaign(null)
+        return
+      }
+      if (campaign.max_redemptions != null && Number(campaign.redemption_count || 0) >= Number(campaign.max_redemptions)) {
+        setPromoError("Promo code redemption limit reached")
+        setAppliedCampaign(null)
+        return
+      }
+      const productId = planData.eaId
+      if (Array.isArray(campaign.product_ids) && campaign.product_ids.length > 0 && productId) {
+        const allowed = campaign.product_ids.some((id) => String(id) === String(productId))
+        if (!allowed) {
+          setPromoError("This code doesn't apply to this product")
+          setAppliedCampaign(null)
+          return
+        }
+      }
+      setAppliedCampaign({
+        id: campaign.id,
+        name: campaign.name,
+        discount_type: campaign.discount_type,
+        discount_value: Number(campaign.discount_value),
+        promo_code: campaign.promo_code,
+      })
+    } catch (e: any) {
+      setPromoError(e.message || "Could not validate promo code")
+      setAppliedCampaign(null)
+    } finally {
+      setPromoLoading(false)
+    }
+  }
+
+  const removePromo = () => {
+    setAppliedCampaign(null)
+    setPromoCodeInput("")
+    setPromoError("")
+  }
+
+  const basePrice = Number(planData.price || 0)
+  const discountAmount = appliedCampaign
+    ? appliedCampaign.discount_type === "percentage"
+      ? basePrice * (appliedCampaign.discount_value / 100)
+      : Math.min(basePrice, appliedCampaign.discount_value)
+    : 0
+  const finalPrice = Math.max(0, basePrice - discountAmount)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -88,7 +177,7 @@ export default function PaymentPage() {
     setIsProcessing(true)
 
     try {
-      // Initialize Polar checkout
+      // Initialize checkout (Paystack primary, Polar fallback-ready)
       const { paymentAPI } = await import('@/lib/api/payments')
       
       // Use user email if available, otherwise form email
@@ -97,28 +186,36 @@ export default function PaymentPage() {
       if (!email) {
         throw new Error('Email is required for payment')
       }
-      if (!planData.eaPlanId) {
-        throw new Error("Selected subscription plan is not configured")
+      const metadata = {
+        eaId: planData.eaId,
+        ea_plan_id: planData.eaPlanId,
+        eaName: planData.eaName,
+        planName: planData.planName,
+        billingPeriod: planData.billingPeriod,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        country: formData.country,
+        userId: user.id,
+        ...(appliedCampaign && {
+          discount_campaign_id: appliedCampaign.id,
+          promo_code: appliedCampaign.promo_code ?? undefined,
+        }),
       }
-      
-      const payment = await paymentAPI.createPolarCheckout(
-        {
-          eaPlanId: planData.eaPlanId,
-          allowDiscountCodes: true,
-          metadata: {
-            eaId: planData.eaId,
-            eaName: planData.eaName,
-            planName: planData.planName,
-            billingPeriod: planData.billingPeriod,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            country: formData.country,
-            userId: user.id
-          },
-        },
-      )
 
-      // Redirect to Polar checkout page
+      const payment = planData.eaPlanId && !appliedCampaign
+        ? await paymentAPI.createCheckout("paystack", {
+            eaPlanId: planData.eaPlanId,
+            allowDiscountCodes: true,
+            metadata,
+          })
+        : await paymentAPI.createCheckout("paystack", {
+            amount: finalPrice,
+            email,
+            currency: "USD",
+            metadata,
+          })
+
+      // Redirect to hosted checkout page
       if (payment?.checkoutUrl) {
         window.location.assign(payment.checkoutUrl)
         return
@@ -190,9 +287,45 @@ export default function PaymentPage() {
                 <Separator />
 
                 <div className="space-y-2">
+                    <Label className="text-sm">Promo code</Label>
+                    {appliedCampaign ? (
+                      <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-success/10 text-success text-sm">
+                        <span className="font-medium">{appliedCampaign.promo_code} applied</span>
+                        <Button type="button" variant="ghost" size="sm" onClick={removePromo} className="h-8 w-8 p-0">
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="e.g. LAUNCH20"
+                          value={promoCodeInput}
+                          onChange={(e) => { setPromoCodeInput(e.target.value); setPromoError("") }}
+                          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyPromo())}
+                          className="uppercase"
+                        />
+                        <Button type="button" variant="outline" onClick={applyPromo} disabled={promoLoading}>
+                          {promoLoading ? "..." : "Apply"}
+                        </Button>
+                      </div>
+                    )}
+                    {promoError && <p className="text-xs text-destructive">{promoError}</p>}
+                  </div>
+
+                  <div className="space-y-2">
                   <div className="flex justify-between font-medium text-lg">
                     <span>{billingLabel} Subscription</span>
-                    <span>${planData.price}</span>
+                    <span>${basePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  {appliedCampaign && (
+                    <div className="flex justify-between text-sm text-success">
+                      <span>Discount ({appliedCampaign.promo_code})</span>
+                      <span>-${discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-semibold text-base">
+                    <span>Total</span>
+                    <span>${finalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Recurring {planData.billingPeriod} • Cancel anytime
@@ -280,7 +413,8 @@ export default function PaymentPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select your country" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-60 overflow-y-auto">
+                          <SelectItem value="ng">Nigeria</SelectItem>
                           <SelectItem value="us">United States</SelectItem>
                           <SelectItem value="uk">United Kingdom</SelectItem>
                           <SelectItem value="ca">Canada</SelectItem>

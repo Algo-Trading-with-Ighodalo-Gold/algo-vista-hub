@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { TableScroll } from "@/components/admin/TableScroll"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -210,10 +211,11 @@ export default function UsersManagement() {
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+            <TableScroll>
+              <Table noWrapper compact>
+                <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
@@ -289,7 +291,8 @@ export default function UsersManagement() {
                   </TableRow>
             )}
               </TableBody>
-            </Table>
+              </Table>
+            </TableScroll>
           </div>
         </CardContent>
       </Card>
@@ -388,7 +391,7 @@ export default function UsersManagement() {
           {viewType === "transactions" ? (
             <div className="space-y-4">
               {viewingUser?.transactions && viewingUser.transactions.length > 0 ? (
-                <Table>
+                <Table compact>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
@@ -419,7 +422,7 @@ export default function UsersManagement() {
           ) : (
             <div className="space-y-4">
               {viewingUser?.licenses && viewingUser.licenses.length > 0 ? (
-                <Table>
+                <Table compact>
                   <TableHeader>
                     <TableRow>
                       <TableHead>License Key</TableHead>

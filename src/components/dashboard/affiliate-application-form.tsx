@@ -84,9 +84,19 @@ export function AffiliateApplicationForm({ onSuccess }: AffiliateApplicationForm
     }
   }
 
-  // Fetch applications on component mount
+  // Fetch applications on component mount and subscribe to realtime updates
   useEffect(() => {
+    if (!user) return
     fetchApplications()
+    const channel = supabase
+      .channel('affiliate_applications_changes')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'affiliate_applications', filter: `user_id=eq.${user.id}` },
+        () => fetchApplications()
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [user])
 
   return (
