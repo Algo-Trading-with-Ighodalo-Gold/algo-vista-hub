@@ -209,7 +209,7 @@ export default function AdminSupportTicketsPage() {
         <CardHeader>
           <CardTitle>All Support Requests</CardTitle>
           <CardDescription>
-            Click reply to open your email client and respond to users quickly.
+            Compose and send replies directly from this page.
           </CardDescription>
         </CardHeader>
         <CardContent className="min-w-0 p-2 sm:p-6 -mx-2 sm:mx-0">
@@ -284,7 +284,7 @@ export default function AdminSupportTicketsPage() {
       </Card>
 
       <Dialog open={!!activeTicket} onOpenChange={(open) => !open && closeReplyDialog()}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Reply to Support Ticket</DialogTitle>
             <DialogDescription>

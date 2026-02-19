@@ -500,7 +500,7 @@ export default function EADevelopmentProjectsManagement() {
           if (!open) setApprovingInquiry(null)
         }}
       >
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Approve Project Inquiry</DialogTitle>
             <DialogDescription>
