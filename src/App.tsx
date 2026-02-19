@@ -27,7 +27,6 @@ import EADevelopmentPage from "./pages/ea-development";
 import AccountsPage from "./pages/dashboard/accounts";
 import TransactionsPage from "./pages/dashboard/transactions";
 import RenewSubscriptionPage from "./pages/dashboard/renew-subscription";
-import ResourcesPage from "./pages/dashboard/resources";
 import FAQPage from "./pages/dashboard/faq";
 import AffiliatePage from "./pages/dashboard/affiliate";
 import AffiliateProgramPage from "./pages/affiliate-program";
@@ -178,7 +177,6 @@ function App() {
                   <Route path="transactions" element={<TransactionsPage />} />
                   <Route path="renew-subscription" element={<RenewSubscriptionPage />} />
                   <Route path="checkout" element={<DashboardCheckoutPage />} />
-                  <Route path="resources" element={<ResourcesPage />} />
                   <Route path="faq" element={<FAQPage />} />
                   <Route path="affiliate" element={<AffiliatePage />} />
                 </Route>

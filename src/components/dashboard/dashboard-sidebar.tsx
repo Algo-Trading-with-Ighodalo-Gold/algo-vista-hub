@@ -19,7 +19,6 @@ import {
   Users,
   Wallet,
   ScrollText,
-  BookOpen,
   HelpCircle,
   Activity,
   Shield,
@@ -54,11 +53,6 @@ const navigationItems = [
     title: "Transactions",
     href: "/dashboard/transactions",
     icon: Wallet
-  },
-  {
-    title: "Resources",
-    href: "/dashboard/resources",
-    icon: BookOpen
   },
   {
     title: "FAQ",

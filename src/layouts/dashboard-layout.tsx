@@ -26,7 +26,6 @@ const pageTitle: { [key: string]: string } = {
   '/dashboard/accounts': 'Connected Accounts',
   '/dashboard/transactions': 'Transactions',
   '/dashboard/trading-rules': 'Trading Rules',
-  '/dashboard/resources': 'Resources',
   '/dashboard/faq': 'FAQ',
   '/dashboard/affiliate': 'Affiliate Program',
   '/admin': 'Admin Dashboard',
